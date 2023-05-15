@@ -5,7 +5,8 @@ import Delivered from './OrderStatus/Delivered';
 import Canceled from './OrderStatus/Canceled';
 import Processing from './OrderStatus/Processing';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
-import back from '../../../backEvent/back';
+import back from '../../../back/back';
+
 
 const Tab = createMaterialTopTabNavigator();
 

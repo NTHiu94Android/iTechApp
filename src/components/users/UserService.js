@@ -25,12 +25,11 @@ export const updateFcmToken = async (_id, tokenFcm) => {
     return response;
 };
 
-export const register = async (email, password, name, birthday, address, numberPhone, avatar) => {
+export const register = async (email, password, name, birthday, numberPhone, avatar) => {
     const body = {
         email: email,
         password: password,
         name: name,
-        address: address,
         birthday: birthday,
         numberPhone: numberPhone,
         avatar: avatar
@@ -40,12 +39,11 @@ export const register = async (email, password, name, birthday, address, numberP
 };
 
 //Cap nhat thong tin ca nhan
-export const update_profile = async (id, email, name, birthday, address, numberPhone, avatar) => {
+export const update_profile = async (id, email, name, birthday, numberPhone, avatar) => {
     const body = {
         id: id,
         name: name,
         birthday: birthday,
-        address: address,
         numberPhone: numberPhone,
         avatar: avatar,
         email: email

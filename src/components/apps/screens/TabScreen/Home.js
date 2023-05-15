@@ -20,24 +20,24 @@ const Home = (props) => {
     const [isLoading, setIsLoading] = useState(false);
 
     //Lay danh sach category
-    useEffect(() => {
-        const getData = async () => {
-            try {
-                setIsLoading(true);
-                const resCategory = await onGetCategories();
-                setListCategory(resCategory.data);
-                setListSale(data);
-                setIsLoading(false);
-            } catch (error) {
-                console.log("Error: ", error);
-            }
-        };
-        getData();
-    }, []);
+    // useEffect(() => {
+    //     const getData = async () => {
+    //         try {
+    //             setIsLoading(true);
+    //             const resCategory = await onGetCategories();
+    //             setListCategory(resCategory.data);
+    //             setListSale(data);
+    //             setIsLoading(false);
+    //         } catch (error) {
+    //             console.log("Error: ", error);
+    //         }
+    //     };
+    //     getData();
+    // }, []);
 
-    const nextScreen = (category) => {
-        navigation.navigate('ListProduct', { category });
-    };
+    // const nextScreen = (category) => {
+    //     navigation.navigate('ListProduct', { category });
+    // };
 
     return (
         <View style={styles.container}>

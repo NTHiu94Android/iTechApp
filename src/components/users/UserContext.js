@@ -13,25 +13,25 @@ export const UserContextProvider = (props) => {
   const [user, setUser] = useState(null);
 
   GoogleSignin.configure({
-    webClientId: '99345035065-s2a49ej6301b711u1t79afq6nl4tij4b.apps.googleusercontent.com'
+    webClientId: '13705249458-n11h88g38semsu2teplnr0fo05tdnrks.apps.googleusercontent.com'
   });
 
-  useEffect(() => {
-    const loginUserCheckRemember = async () => {
-      const token = await AsyncStorage.getItem('token');
-      console.log("Login user remember: ",token);
-      if(token == null) return;
-      const decoded = jwt_decode(token);
-      if (decoded.accessToken == "") {
-        setUser(null);
-        return;
-      } else {
-        setUser(decoded.user);
-        return;
-      }
-    };
-    loginUserCheckRemember();
-  }, []);
+  // useEffect(() => {
+  //   const loginUserCheckRemember = async () => {
+  //     const token = await AsyncStorage.getItem('token');
+  //     console.log("Login user remember: ",token);
+  //     if(token == null) return;
+  //     const decoded = jwt_decode(token);
+  //     if (decoded.accessToken == "") {
+  //       setUser(null);
+  //       return;
+  //     } else {
+  //       setUser(decoded.user);
+  //       return;
+  //     }
+  //   };
+  //   loginUserCheckRemember();
+  // }, []);
 
   const onLogin = async (email, password, fcmToken) => {
     try {
@@ -76,9 +76,9 @@ export const UserContextProvider = (props) => {
     }
   };
 
-  const onRegister = async (email, password, name, birthday, address, numberPhone, avatar) => {
+  const onRegister = async (email, password, name, birthday, numberPhone, avatar) => {
     try {
-      const response = await register(email, password, name, birthday, address, numberPhone, avatar);
+      const response = await register(email, password, name, birthday, numberPhone, avatar);
       //console.log("OnRegister Response: ", response.data);
       return response.data;
     } catch (error) {

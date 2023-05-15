@@ -18,7 +18,7 @@ const Login = (props) => {
   const [isLoading, setIsLoading] = useState(false);
 
   GoogleSignin.configure({
-    webClientId: '513798517447-lvc9df5ee0f3r2jl6pmav5lmrvq7hec0.apps.googleusercontent.com',
+    webClientId: '13705249458-n11h88g38semsu2teplnr0fo05tdnrks.apps.googleusercontent.com',
   });
 
 
@@ -75,7 +75,7 @@ const Login = (props) => {
         console.log("Login success");
       } else if (usLogin == null || usLogin == undefined) {
         //email, password, name, birthday, address, numberPhone, avatar
-        const usRegister = await onRegister(userResult.email, userResult.uid, userResult.displayName, "15/10/1999", "TP HCM", "", userResult.photoURL);
+        const usRegister = await onRegister(userResult.email, userResult.uid, userResult.displayName, "15/10/1999", "", userResult.photoURL);
         if (usRegister) {
           console.log("Register success");
           const res = await onLogin(userResult.email, userResult.uid, fcmToken);

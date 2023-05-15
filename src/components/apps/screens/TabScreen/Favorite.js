@@ -180,7 +180,7 @@ const Favorite = (props) => {
       </View>
 
       {
-        listFavorite.length !== 0 ?
+        listFavorite && listFavorite.length !== 0 ?
           <TouchableOpacity onPress={() => addAllToCart()} style={styles.button}>
             <Text style={styles.buttonText}>Add all to my cart</Text>
           </TouchableOpacity> :

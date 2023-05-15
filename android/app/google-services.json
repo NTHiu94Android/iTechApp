@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "13705249458",
+    "project_id": "itech-f3d23",
+    "storage_bucket": "itech-f3d23.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:13705249458:android:cbe514e1299f6f83923fab",
+        "android_client_info": {
+          "package_name": "com.itechshop"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "13705249458-tkrggiqqctgijphr243nr4frj5lpra71.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.itechshop",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "13705249458-n11h88g38semsu2teplnr0fo05tdnrks.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAqqQA-XzD9pEzRfvmiFzYcJiNya2BsYkk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "13705249458-n11h88g38semsu2teplnr0fo05tdnrks.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

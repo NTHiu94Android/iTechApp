@@ -3,7 +3,8 @@ import React from 'react'
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import OrderDetail from './OrderDetail';
 import Order from './Order';
-import back from '../../../backEvent/back';
+import back from '../../../back/back';
+
 
 const Stack = createNativeStackNavigator();
 
