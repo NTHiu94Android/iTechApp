@@ -9,7 +9,7 @@ import ProgressDialog from 'react-native-progress-dialog';
 const Home = (props) => {
     const { navigation } = props;
     const { } = useContext(UserContext);
-    const { onGetCategories } = useContext(AppContext);
+    const { onGetCategories, onGetProducts, onGetSubProducts, onGetReviews } = useContext(AppContext);
 
     const [listCategory, setListCategory] = useState([]);
 
@@ -20,24 +20,92 @@ const Home = (props) => {
     const [isLoading, setIsLoading] = useState(false);
 
     //Lay danh sach category
-    // useEffect(() => {
-    //     const getData = async () => {
-    //         try {
-    //             setIsLoading(true);
-    //             const resCategory = await onGetCategories();
-    //             setListCategory(resCategory.data);
-    //             setListSale(data);
-    //             setIsLoading(false);
-    //         } catch (error) {
-    //             console.log("Error: ", error);
-    //         }
-    //     };
-    //     getData();
-    // }, []);
+    useEffect(() => {
+        const getData = async () => {
+            try {
+                setIsLoading(true);
+                const resCategory = await onGetCategories();
+                setListCategory(resCategory.data);
+                //Lay danh sach san pham
+                const resProduct = await onGetProducts();
+                if (resProduct == null || resProduct == undefined) {
+                    setIsLoading(false);
+                    return;
+                }
+                const listProduct = resProduct.data;
 
-    // const nextScreen = (category) => {
-    //     navigation.navigate('ListProduct', { category });
-    // };
+                //Them sao va subProduct vao tung item
+                for (let i = 0; i < listProduct.length; i++) {
+                    listProduct[i].rating = await getStar(listProduct[i]._id);
+                    const subProduct = await onGetSubProductsByIdProduct(listProduct[i]._id);
+                    listProduct[i].subProduct = subProduct;
+                }
+
+                //Lay danh sach san pham sale va add vao listSale
+                let listSale = [];
+                for (let i = 0; i < listProduct.length; i++) {
+                    if (listProduct[i].subProduct[0].sale > 5) {
+                        listSale.push(listProduct[i]);
+                    }
+                }
+                setListSale(listSale);
+
+                //Lay danh sach san pham phone va add vao listPhone
+
+                //Lay danh sach san pham laptop va add vao listLaptop
+
+                setIsLoading(false);
+            } catch (error) {
+                console.log("Error home screen: ", error);
+            }
+        };
+        getData();
+    }, []);
+
+    //Lay danh sach subProduct theo idProduct
+    const onGetSubProductsByIdProduct = async (idProduct) => {
+        try {
+            const res = await onGetSubProducts();
+            if(res == null || res == undefined){
+                return;
+            }else{
+                const subProduct = res.data.filter((item) => item.idProduct == idProduct);
+                return subProduct;
+            }
+        } catch (error) {
+            console.log('onGetSubProductsByIdProduct error: ', error);
+        }
+    };
+
+    //Lay sao tu danh gia set vao tung item
+    const getStar = async (idProduct) => {
+        let star = 0;
+        let count = 0;
+        const res = await onGetReviews();
+        if (res == null || res == undefined) {
+            return 0;
+        }
+        const review = res.data;
+        for (let i = 0; i < review.length; i++) {
+            if (review[i].idProduct == idProduct) {
+                count = count + 1;
+                star += review[i].rating;
+            }
+        }
+        if (count == 0) {
+            return 0;
+        } else {
+            return (star / count).toFixed(1);
+        }
+    };
+
+    const nextScreen = (category) => {
+        navigation.navigate('ListProduct', { category });
+    };
+
+    const goToProductDetail = (productItem) => {
+        navigation.navigate('ProductDetail', { productItem });
+    };
 
     return (
         <View style={styles.container}>
@@ -72,7 +140,7 @@ const Home = (props) => {
             </View>
 
             {/* Body */}
-            <ScrollView showsVerticalScrollIndicator={false}>
+            <ScrollView showsVerticalScrollIndicator={false}> 
 
                 {/* Slide banner */}
                 <View style={{ flex: 4, justifyContent: 'center', alignItems: 'center' }}>
@@ -148,7 +216,7 @@ const Home = (props) => {
                     {/* List item */}
                     <FlatList
                         data={ListSale}
-                        renderItem={({ item }) => <Item item={item} />}
+                        renderItem={({ item }) => <Item onPress={() => goToProductDetail(item)} item={item} />}
                         keyExtractor={item => item._id}
                         horizontal={true}
                         showsHorizontalScrollIndicator={false}
@@ -206,7 +274,7 @@ const Home = (props) => {
                     {/* List item */}
                     <FlatList
                         data={ListSale}
-                        renderItem={({ item }) => <Item item={item} />}
+                        renderItem={({ item }) => <Item onPress={()=> goToProductDetail(item)} item={item} />}
                         keyExtractor={item => item._id}
                         horizontal={true}
                         showsHorizontalScrollIndicator={false}
@@ -252,75 +320,14 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: 'red',
-        width: 160,
+        width: '100%',
         borderTopEndRadius: 8,
         borderTopStartRadius: 8
     }
 });
 
-const data = [
-    {
-        _id: '1',
-        image: 'https://www.mobiledokan.com/wp-content/uploads/2022/09/Apple-iPhone-14-Pro-Max.jpg',
-        name: 'Iphone 12 Pro Max',
-        price: 25,
-        sale: 5,
-        rate: 4.5,
-        description: 'Iphone 12 Pro Max 256GB',
-        color: 'blue',
-        quantity: 1000,
-        idCategory: '1',
-        idBrand: '1'
-    },
-    {
-        _id: '2',
-        image: 'https://www.tradeinn.com/f/13828/138281763/samsung-galaxy-s20fe-2021-6gb-128gb-6.5-dual-sim-smartphone.jpg',
-        name: 'Iphone 12 Pro Max',
-        price: 25,
-        sale: 0,
-        rate: 4.5,
-        description: 'Iphone 12 Pro Max 256GB',
-        color: 'black',
-        quantity: 1000,
-        idCategory: '1',
-        idBrand: '1'
-    },
-    {
-        _id: '3',
-        image: 'https://www.mobiledokan.com/wp-content/uploads/2022/09/Apple-iPhone-14-Pro-Max.jpg',
-        name: 'Iphone 12 Pro Max',
-        price: 25,
-        sale: 0,
-        rate: 4.5,
-        description: 'Iphone 12 Pro Max 256GB',
-        color: 'green',
-        quantity: 1000,
-        idCategory: '1',
-        idBrand: '1'
-    },
-    {
-        _id: '4',
-        image: 'https://www.mobiledokan.com/wp-content/uploads/2022/09/Apple-iPhone-14-Pro-Max.jpg',
-        name: 'Iphone 12 Pro Max',
-        price: 25,
-        sale: 5,
-        rate: 4.5,
-        description: 'Iphone 12 Pro Max 256GB',
-        color: 'red',
-        quantity: 1000,
-        idCategory: '1',
-        idBrand: '1'
-    },
-
-
-
-
-
-];
-
-
-const Item = ({ item }) => (
-    <TouchableOpacity style={{ marginHorizontal: 3 }}>
+const Item = ({ item, onPress }) => (
+    <TouchableOpacity onPress={onPress} style={{ marginHorizontal: 3 }}>
         <View style={styles.itemContainer}>
             <View style={{ width: '100%', height: '100%', alignItems: 'center' }}>
                 <View style={styles.viewSaleDam}>
@@ -328,7 +335,7 @@ const Item = ({ item }) => (
                     <Text style={{ fontSize: 14, color: 'yellow', fontWeight: '400', fontFamily: 'Caveat' }}>Sieu dam</Text>
                 </View>
                 <Image
-                    style={{ width: 160, height: 160, position: 'relative' }}
+                    style={{ width: '100%', height: 160, position: 'relative' }}
                     resizeMode='cover'
                     source={{ uri: item.image }} />
                 <Image
@@ -343,29 +350,274 @@ const Item = ({ item }) => (
                         resizeMode='cover'
                         source={require('../../../../assets/images/ic_star.png')}
                     />
-                    <Text style={{ fontWeight: '700' }}>{item.rate}</Text>
+                    <Text style={{ fontWeight: '700' }}>{item.rating}</Text>
                 </View>
 
                 {
-                    item.sale > 0 ?
+                    item.subProduct[0].sale > 0 ?
                         <View style={{ flexDirection: 'row' }}>
                             <Text style={{ height: 19, color: 'black', fontWeight: '700', fontSize: 14, lineHeight: 19.1, marginEnd: 5 }}>
                                 Price:
                             </Text>
                             <Text style={{ height: 19, color: 'black', textDecorationLine: 'line-through', fontWeight: '500', fontSize: 14, lineHeight: 19.1, }}>
-                                {item.price} $
+                                {item.subProduct[0].price} $
                             </Text>
                             <Text style={{ height: 19, color: 'red', fontWeight: '700', fontSize: 14, lineHeight: 19.1, marginStart: 10 }}>
-                                {item.price - item.price * item.sale / 100} $
+                                {item.subProduct[0].price - item.subProduct[0].price * item.subProduct[0].sale / 100} $
                             </Text>
                         </View> :
                         <Text style={{ height: 19, color: 'black', fontWeight: '700', fontSize: 14, lineHeight: 19.1 }}>
-                            Price: {item.price} $
+                            Price: {item.subProduct[0].price} $
                         </Text>
                 }
+                <View style={{ flexDirection: 'row', paddingHorizontal: 8 }}>
+                    <Image
+                        style={{ width: 15, height: 15, marginEnd: 5 }}
+                        resizeMode='cover'
+                        source={require('../../../../assets/images/ic_cpu.png')}
+                    />
+                    <Text style={{ fontWeight: '700' }}>CPU {item.subProduct[0].cpu}</Text>
+                </View>
+
+                <View style={{ flexDirection: 'row', paddingHorizontal: 8 }}>
+                    <Image
+                        style={{ width: 15, height: 15, marginEnd: 5 }}
+                        resizeMode='cover'
+                        source={require('../../../../assets/images/ic_ram.png')}
+                    />
+                    <Text style={{ fontWeight: '700' }}>Ram {item.subProduct[0].ram}</Text>
+                </View>
+
+                <View style={{ flexDirection: 'row', paddingHorizontal: 8 }}>
+                    <Image
+                        style={{ width: 15, height: 15, marginEnd: 5 }}
+                        resizeMode='cover'
+                        source={require('../../../../assets/images/ic_rom.png')}
+                    />
+                    <Text style={{ fontWeight: '700' }}>Rom {item.subProduct[0].rom}</Text>
+                </View>
+
+                <View style={{ flexDirection: 'row', paddingHorizontal: 8, width: '80%' }}>
+                    <Image
+                        style={{ width: 15, height: 15, marginEnd: 5 }}
+                        resizeMode='cover'
+                        source={require('../../../../assets/images/ic_screen.png')}
+                    />
+                    <Text numberOfLines={1} style={{ fontWeight: '700', }}>Screen {item.subProduct[0].screen}</Text>
+                </View>
 
 
             </View>
         </View>
     </TouchableOpacity>
 );
+
+const data = [
+    {
+        _id: '1',
+        image: 'https://www.mobiledokan.com/wp-content/uploads/2022/09/Apple-iPhone-14-Pro-Max.jpg',
+        name: 'Iphone 12 Pro Max',
+        idCategory: '1',
+        idBrand: '1'
+    },
+    {
+        _id: '2',
+        image: 'https://www.tradeinn.com/f/13828/138281763/samsung-galaxy-s20fe-2021-6gb-128gb-6.5-dual-sim-smartphone.jpg',
+        name: 'Iphone 12 Pro Max',
+        idCategory: '1',
+        idBrand: '1'
+    },
+    {
+        _id: '3',
+        image: 'https://www.mobiledokan.com/wp-content/uploads/2022/09/Apple-iPhone-14-Pro-Max.jpg',
+        name: 'Iphone 12 Pro Max',
+        idCategory: '1',
+        idBrand: '1'
+    },
+    {
+        _id: '4',
+        image: 'https://www.mobiledokan.com/wp-content/uploads/2022/09/Apple-iPhone-14-Pro-Max.jpg',
+        name: 'Iphone 12 Pro Max',
+        idCategory: '1',
+        idBrand: '1'
+    },
+];
+
+const subProduct = [
+    {
+        _id: '1.1',
+        price: 25,
+        sale: 5,
+        description: 'Iphone 12 Pro Max 256GB',
+        color: 'blue',
+        quantity: 1000,
+        ram: 8,
+        rom: 256,
+        screen: "6.5",
+        pin: 5000,
+        cpu: 'Snapdragon 888',
+        back_camera: '12MP',
+        front_camera: '12MP',
+        idProduct: '1'
+    },
+    {
+        _id: '1.2',
+        price: 25,
+        sale: 5,
+        description: 'Iphone 12 Pro Max 256GB',
+        color: 'red',
+        quantity: 1000,
+        ram: 8,
+        rom: 256,
+        screen: "6.5",
+        pin: 5000,
+        cpu: 'Snapdragon 888',
+        back_camera: '12MP',
+        front_camera: '12MP',
+        idProduct: '1'
+    },
+    {
+        _id: '2.1',
+        price: 25,
+        sale: 5,
+        description: 'Iphone 12 Pro Max 256GB',
+        color: 'blue',
+        quantity: 1000,
+        ram: 8,
+        rom: 256,
+        screen: "6.5",
+        pin: 5000,
+        cpu: 'Snapdragon 888',
+        back_camera: '12MP',
+        front_camera: '12MP',
+        idProduct: '2'
+    },
+    {
+        _id: '2.2',
+        price: 25,
+        sale: 5,
+        description: 'Iphone 12 Pro Max 256GB',
+        color: 'red',
+        quantity: 1000,
+        ram: 8,
+        rom: 256,
+        screen: "6.5",
+        pin: 5000,
+        cpu: 'Snapdragon 888',
+        back_camera: '12MP',
+        front_camera: '12MP',
+        idProduct: '2'
+    },
+    {
+        _id: '3.1',
+        price: 25,
+        sale: 5,
+        description: 'Iphone 12 Pro Max 256GB',
+        color: 'blue',
+        quantity: 1000,
+        ram: 8,
+        rom: 256,
+        screen: "6.5",
+        pin: 5000,
+        cpu: 'Snapdragon 888',
+        back_camera: '12MP',
+        front_camera: '12MP',
+        idProduct: '3'
+    },
+    {
+        _id: '3.2',
+        price: 25,
+        sale: 5,
+        description: 'Iphone 12 Pro Max 256GB',
+        color: 'red',
+        quantity: 1000,
+        ram: 8,
+        rom: 256,
+        screen: "6.5",
+        pin: 5000,
+        cpu: 'Snapdragon 888',
+        back_camera: '12MP',
+        front_camera: '12MP',
+        idProduct: '3'
+    },
+    {
+        _id: '4.1',
+        price: 25,
+        sale: 5,
+        description: 'Iphone 12 Pro Max 256GB',
+        color: 'blue',
+        quantity: 1000,
+        ram: 8,
+        rom: 256,
+        screen: "6.5",
+        pin: 5000,
+        cpu: 'Snapdragon 888',
+        back_camera: '12MP',
+        front_camera: '12MP',
+        idProduct: '4'
+    },
+    {
+        _id: '4.2',
+        price: 25,
+        sale: 5,
+        description: 'Iphone 12 Pro Max 256GB',
+        color: 'red',
+        quantity: 1000,
+        ram: 8,
+        rom: 256,
+        screen: "6.5",
+        pin: 5000,
+        cpu: 'Snapdragon 888',
+        back_camera: '12MP',
+        front_camera: '12MP',
+        idProduct: '4'
+    }
+
+];
+
+const review = [
+    {
+        _id: '1',
+        content: 'Sản phẩm rất tốt',
+        rating: 5,
+        idUser: '64624ff0f1376a12315830b4',
+        idProduct: '1',
+    },
+    {
+        _id: '2',
+        content: 'Sản phẩm rất tốt',
+        rating: 4,
+        idUser: '64624ff0f1376a12315830b4',
+        idProduct: '1',
+    },
+    {
+        _id: '3',
+        content: 'Sản phẩm rất tốt',
+        rating: 5,
+        idUser: '64624ff0f1376a12315830b4',
+        idProduct: '2',
+    },
+    {
+        _id: '4',
+        content: 'Sản phẩm rất tốt',
+        rating: 4,
+        idUser: '64624ff0f1376a12315830b4',
+        idProduct: '3',
+    },
+    {
+        _id: '5',
+        content: 'Sản phẩm rất tốt',
+        rating: 5,
+        idUser: '64624ff0f1376a12315830b4',
+        idProduct: '4',
+    },
+    {
+        _id: '2',
+        content: 'Sản phẩm rất tốt',
+        rating: 4,
+        idUser: '64624ff0f1376a12315830b4',
+        idProduct: '1',
+    },
+];
+
+

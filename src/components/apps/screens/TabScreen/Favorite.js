@@ -10,9 +10,11 @@ const Favorite = (props) => {
   const { navigation } = props;
   const { user } = useContext(UserContext);
   const {
-    onGetOrderdetailByIdOrder, listFavorite, setListFavorite, onGetProductById,
+    onGetOrderDetailByIdOrder, listFavorite, setListFavorite, onGetProductById,
     //Count
-    countFavorite, countCart, setCountCart
+    countFavorite, countCart, setCountCart,
+    //Sub product
+    onGetSubProductsByIdProduct,
   } = useContext(AppContext);
 
   const [isLoading, setIsLoading] = useState(false);
@@ -22,22 +24,28 @@ const Favorite = (props) => {
     const getListfavorite = async () => {
       try {
         setIsLoading(true);
-        const response = await onGetOrderdetailByIdOrder(user.favorite);
-        if (!response || response.data == undefined) return;
+        const response = await onGetOrderDetailByIdOrder(user.idFavorite);
+        if (!response || response.data == undefined) {
+          setIsLoading(false);
+          return;
+        }
         console.log("List favorite: ", response.data);
         for (let i = 0; i < response.data.length; i++) {
           const productId = response.data[i].idProduct;
-          const resProduct = await onGetProductById(productId);
-          if (!resProduct || resProduct.data == undefined) {
-            setIsLoading(false);
-            return;
-          }
-          const product = resProduct.data;
-          console.log("Product favorite: ", product);
+          const product = await onGetProductById(productId);
           response.data[i].image = product.image;
           response.data[i].name = product.name;
-          product.sale == 0 ? response.data[i].price = product.price : response.data[i].price = product.price - (product.price * product.sale / 100);
+          const subProductRes = await onGetSubProductsByIdProduct(product._id);
+          // if (subProductRes == undefined || subProductRes.data == undefined) {
+          //   setIsLoading(false);
+          //   return;
+          // }
+          const subProduct = subProductRes.data;
+          subProduct[0].sale == 0 ?
+            response.data[i].price = subProduct[0].price :
+            response.data[i].price = subProduct[0].price - (subProduct[0].price * subProduct[0].sale / 100);
         }
+        console.log(response.data);
         setListFavorite(response.data);
         setIsLoading(false);
       } catch (error) {
@@ -129,7 +137,7 @@ const Favorite = (props) => {
     }
   };
 
-  const addOneToCart = async (it) => {
+  const addOneToCart = async (it) => { 
     try {
       // let check = false;
       // for (let i = 0; i < listCart.length; i++) {
