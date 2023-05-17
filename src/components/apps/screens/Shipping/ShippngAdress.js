@@ -1,20 +1,27 @@
 import { StyleSheet, Text, View, TouchableOpacity, Image } from 'react-native'
 import React from 'react'
+import back from '../../../back/back';
 
-const ShippngAdress = () => {
+const ShippngAdress = (props) => {
+    const { navigation } = props;
+    back(navigation);
     return (
         <View style={styleShippingAddress.container}>
-            <View style={styleShippingAddress.header}>
-                <View>
-                    <TouchableOpacity>
-                        <Image
-                            style={styleShippingAddress.icBack}
-                            source={require('../../../../assets/images/back.png')}
-                            resizeMode='cover'
-                        ></Image>
-                    </TouchableOpacity>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 6, paddingHorizontal: 12 }}>
+                <TouchableOpacity onPress={() => navigation.goBack()}>
+                    <Image
+                        style={{ width: 22, height: 22 }}
+                        resizeMode='cover'
+                        source={require('../../../../assets/images/back.png')} />
+                </TouchableOpacity>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', height: 50 }}>
+                    <Text style={{ color: 'black', fontWeight: '800', fontSize: 18 }}>Shipping address</Text>
+
                 </View>
-                <Text style={styleShippingAddress.DetailTxt}>Shipping Address</Text>
+
+                <TouchableOpacity onPress={() => navigation.navigate('SearchScreen')}>
+                    <View style={{width: 22, height: 22}}/>
+                </TouchableOpacity>
             </View>
 
             <View style={styleShippingAddress.body}>
@@ -76,8 +83,8 @@ const ShippngAdress = () => {
                 </View>
 
                 <View style={styleShippingAddress.floatBox} >
-                    <TouchableOpacity>
-                    <Image
+                    <TouchableOpacity onPress={() => navigation.navigate("Shipping")}>
+                        <Image
                             style={styleShippingAddress.icAdd}
                             source={require('../../../../assets/images/add.png')}
                             resizeMode='cover'
@@ -105,8 +112,7 @@ const styleShippingAddress = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        paddingTop: 50,
-        paddingHorizontal: 20
+        paddingHorizontal: 20,
     },
 
     icBack: {
@@ -123,7 +129,6 @@ const styleShippingAddress = StyleSheet.create({
 
     //body
     body: {
-        marginTop: 30,
         backgroundColor: '#F5F5F5',
         height: '100%',
         width: '100%'
@@ -147,7 +152,7 @@ const styleShippingAddress = StyleSheet.create({
         alignItems: 'center'
     },
 
-    txt02:{
+    txt02: {
         marginTop: 10,
     },
 
@@ -182,7 +187,7 @@ const styleShippingAddress = StyleSheet.create({
     },
 
     //FloatBox
-    floatBox:{
+    floatBox: {
         marginTop: 50,
         alignItems: 'center',
         marginLeft: 320,

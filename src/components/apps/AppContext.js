@@ -122,6 +122,9 @@ export const AppContextProvider = (props) => {
           for (let i = 0; i < resOrderDetail.data.length; i++) {
             if(resOrderDetail.data[i].idSubProduct == idSubProduct){
               check = true;
+              onDeleteOrderDetail(resOrderDetail.data[i]._id);
+              setCountFavorite(countFavorite+1);
+              break;
             }
           }
         }
@@ -138,6 +141,7 @@ export const AppContextProvider = (props) => {
           for (let i = 0; i < res.data.length; i++) {
             if(res.data[i].idSubProduct == idSubProduct){
               check = true;
+              break;
             }
           }
         }

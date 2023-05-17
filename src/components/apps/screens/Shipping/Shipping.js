@@ -1,23 +1,30 @@
 import { StyleSheet, Text, View, TouchableOpacity, Image, ScrollView, TextInput } from 'react-native'
 import React from 'react'
+import back from '../../../back/back';
 
-const Shipping = () => {
-  return (
-<View style={styleShippingAddress.container}>
-            <View style={styleShippingAddress.header}>
-                <View>
-                    <TouchableOpacity>
-                        <Image
-                            style={styleShippingAddress.icBack}
-                            source={require('../../../../assets/images/back.png')}
-                            resizeMode='cover'
-                        ></Image>
-                    </TouchableOpacity>
+const Shipping = (props) => {
+    const { navigation } = props;
+    back(navigation);
+    return (
+        <View style={styleShippingAddress.container}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 6, paddingHorizontal: 12 }}>
+                <TouchableOpacity onPress={() => navigation.goBack()}>
+                    <Image
+                        style={{ width: 22, height: 22 }}
+                        resizeMode='cover'
+                        source={require('../../../../assets/images/back.png')} />
+                </TouchableOpacity>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', height: 50 }}>
+                    <Text style={{ color: 'black', fontWeight: '800', fontSize: 18 }}>Add shipping address</Text>
+
                 </View>
-                <Text style={styleShippingAddress.DetailTxt}>Add shipping address</Text>
+
+                <TouchableOpacity onPress={() => navigation.navigate('SearchScreen')}>
+                    <View style={{ width: 22, height: 22 }} />
+                </TouchableOpacity>
             </View>
 
-            <ScrollView showsVertic alScrollIndicator={false}>
+            <ScrollView showsVerticalScrollIndicator={false}>
                 <View style={styleShippingAddress.body}>
                     {/* Full Name */}
                     <View style={styleShippingAddress.input}>
@@ -79,14 +86,15 @@ const Shipping = () => {
                         </View>
                     </View>
 
-                    {/* SAVE ADDRESS */}
-                    <View style={styleShippingAddress.btn}>
-                        <TouchableOpacity>
-                            <Text style={styleShippingAddress.btnText}>SAVE ADDRESS</Text>
-                        </TouchableOpacity>
-                    </View>
+
                 </View>
             </ScrollView>
+            {/* SAVE ADDRESS */}
+            <View style={styleShippingAddress.btn}>
+                <TouchableOpacity>
+                    <Text style={styleShippingAddress.btnText}>SAVE ADDRESS</Text>
+                </TouchableOpacity>
+            </View>
         </View>
     )
 }
@@ -98,8 +106,7 @@ const styleShippingAddress = StyleSheet.create({
     container: {
         display: 'flex',
         backgroundColor: 'white',
-        width: '100%',
-        height: '100%'
+        height: '100%',
     },
 
     header: {
@@ -124,7 +131,8 @@ const styleShippingAddress = StyleSheet.create({
 
     //body
     body: {
-        marginTop: 30
+        backgroundColor: 'white',
+        height: '100%',
     },
 
     input: {
@@ -139,14 +147,15 @@ const styleShippingAddress = StyleSheet.create({
     },
 
     btn: {
+        position: 'relative',
         backgroundColor: 'black',
-        marginTop: 150,
+        bottom: 20,
         width: '90%',
-        height: 55,
+        height: 50,
         justifyContent: 'center',
         alignItems: 'center',
         marginHorizontal: 20,
-        borderRadius: 8,
+        borderRadius: 30,
     },
 
     btnText: {

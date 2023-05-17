@@ -35,7 +35,6 @@ const Favorite = (props) => {
           setIsLoading(false);
           return;
         }
-        console.log("List favorite: ", response.data);
         for (let i = 0; i < response.data.length; i++) {
           const subProduct = await onGetSubProductById(response.data[i].idSubProduct);
           const product = listProduct.find(item => item._id === subProduct.idProduct);
@@ -46,7 +45,6 @@ const Favorite = (props) => {
             response.data[i].price = subProduct.price :
             response.data[i].price = subProduct.price - (subProduct.price * subProduct.sale / 100);
         }
-        console.log(response.data);
         setListFavorite(response.data);
         setIsLoading(false);
       } catch (error) {
@@ -224,7 +222,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     bottom: 10,
     backgroundColor: 'black',
-    borderRadius: 10,
+    borderRadius: 30,
     height: 50,
     justifyContent: 'center',
     alignItems: 'center',
@@ -245,7 +243,7 @@ const Item = ({ name, price, image, color, deleteFavoriteItem, addOneToCart }) =
         <Image source={{ uri: image }} style={styles.imgLst} />
       </View>
       <View style={styles.listItemName}>
-        <Text style={styles.TextlstName}>{name}</Text>
+        <Text numberOfLines={1} style={styles.TextlstName}>{name}</Text>
         <Text style={{ fontSize: 16, color: 'black', fontWeight: '600' }}>{color}</Text>
         <Text style={styles.TextlstPrice}>$ {price}</Text>
       </View>

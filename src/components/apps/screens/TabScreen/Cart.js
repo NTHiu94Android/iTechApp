@@ -15,7 +15,7 @@ const Cart = (props) => {
     //Count
     countCart, setCountCart,
     //Sub product
-    onGetSubProductById,
+    onGetSubProductById, onGetSubProducts,
     //Product
     onGetProducts,
     //Order detail
@@ -32,6 +32,8 @@ const Cart = (props) => {
       try {
         setIsLoading(true);
         const resProduct = await onGetProducts();
+        const resSubProduct = await onGetSubProducts();
+
         const listProduct = resProduct.data;
         const response = await onGetOrderDetailByIdOrder(user.idCart);
         if (response.data == undefined) {
@@ -43,7 +45,7 @@ const Cart = (props) => {
         let sum = 0;
         //console.log("List cart: ", response);
         for (let i = 0; i < data.length; i++) {
-          const subProduct = await onGetSubProductById(data[i].idSubProduct);
+          const subProduct = resSubProduct.data.find((item) => item._id === data[i].idSubProduct);
           const product = listProduct.find(item => item._id === subProduct.idProduct);
           data[i].imageurl = product.image;
           data[i].prodName = product.name;
@@ -53,8 +55,10 @@ const Cart = (props) => {
           } else {
             data[i].price = subProduct.price - (subProduct.price * subProduct.sale / 100);
           }
-          data[i].totalPrice = subProduct.price * data[i].quantity;
+          data[i].totalPrice = data[i].price * data[i].quantity;
           data[i].amount = data[i].quantity;
+          data[i].subProduct = subProduct;
+          data[i].product = product;
 
           sum += data[i].totalPrice;
         }
@@ -74,30 +78,36 @@ const Cart = (props) => {
     try {
       setIsLoading(true);
       //Cap nhat tren giao dien 
+      let sum = 0;
+      let listCartNew = [...listCart];
       for (let i = 0; i < listCart.length; i++) {
         if (listCart[i]._id === id) {
           listCart[i].amount = newValue;
           listCart[i].totalPrice = listCart[i].price * newValue;
-          updateItemCart(listCart[i]._id, newValue, listCart[i].idOrder, listCart[i].idSubProduct);
-          break;
+          listCartNew[i] = listCart[i];
+          sum += listCartNew[i].totalPrice;
+          updateItemCart(listCart[i]._id, newValue, listCart[i].idOrder, listCart[i].idSubProduct, listCart[i].subProduct);
+        }else{
+          sum += listCart[i].totalPrice;
         }
       };
+      setTotal(sum);
+      setListCart(listCartNew);
       setIsLoading(false);
     } catch (error) {
       setIsLoading(false);
       console.log("Update item error: ", error);
     }
-  };
+  }; 
 
-  const updateItemCart = async (_idOrderDetail, _amount, _idOrder, _idSubProduct) => {
+  const updateItemCart = async (_idOrderDetail, _amount, _idOrder, _idSubProduct, subProduct) => {
     try {
-      const subProduct = await onGetSubProductById(_idSubProduct);
       if (subProduct.quantity < _amount) {
         alert("Số lượng sản phẩm trong kho không đủ!");
         return;
       }
       await onUpdateOrderDetail(_idOrderDetail, _amount, _idOrder, _idSubProduct);
-      setCountCart(countCart + 1);
+      //setCountCart(countCart + 1);
     } catch (error) {
       console.log("Update item cart error: ", error);
     }
@@ -143,7 +153,7 @@ const Cart = (props) => {
           renderItem={({ item }) =>
             <Item
               deleteItem={() => deleteItem(item._id)}
-              plus={() => updateItem(item._id, item.amount > item.quantity || item.amount > 9 ? item.amount : item.amount + 1)}
+              plus={() => updateItem(item._id, item.amount > 9 ? item.amount : item.amount + 1)}
               minus={() => updateItem(item._id, item.amount > 1 ? item.amount - 1 : 1)}
               item={item} />
           }
@@ -158,15 +168,15 @@ const Cart = (props) => {
               </View>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 20 }}>
                 <Text style={{ fontSize: 20 }}>Total:</Text>
-                <Text style={{ fontSize: 20 }}>$ {total}</Text>
+                <Text style={{ fontSize: 20 }}>$ {total.toFixed(2)}</Text>
               </View>
 
-              <TouchableOpacity onPress={() => navigation.navigate("CheckOut")} style={{ backgroundColor: '#000', height: 50, borderRadius: 8, flexDirection: 'column', justifyContent: 'center' }}>
+              <TouchableOpacity onPress={() => navigation.navigate("CheckOut")} style={{ backgroundColor: '#000', height: 50, borderRadius: 30, flexDirection: 'column', justifyContent: 'center' }}>
                 <Text style={{ color: '#fff', textAlign: 'center', fontSize: 20, fontWeight: 'bold' }}>Check out</Text>
                 {/* Bấm đây nhảy qua check out */}
               </TouchableOpacity>
             </View> :
-            <View style={{ backgroundColor: '#BBB', height: 50, borderRadius: 8, flexDirection: 'column', justifyContent: 'center', paddingHorizontal: 12 }}>
+            <View style={{ backgroundColor: '#BBB', height: 50, borderRadius: 30, flexDirection: 'column', justifyContent: 'center', paddingHorizontal: 12 }}>
               <Text style={{ color: '#fff', textAlign: 'center', fontSize: 20, fontWeight: 'bold' }}>Check out</Text>
             </View>
         }

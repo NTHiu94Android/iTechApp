@@ -19,10 +19,14 @@ const Profile = (props) => {
 
   return (
 
-    <View style={{ flex: 1, backgroundColor: 'white', paddingTop: 30 }}>
-      <Text style={styles.textProfile}>Profile</Text>
+    <View style={{ flex: 1, backgroundColor: 'white' }}>
+      {/* <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', paddingVertical: 6, paddingHorizontal: 12, backgroundColor: '#F5F5F5' }}>
+        <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', height: 50}}>
+          <Text style={{ color: 'black', fontWeight: '800', fontSize: 18, textAlign: 'center' }}>Profile</Text>
+        </View>
+      </View> */}
 
-      <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1, backgroundColor: 'white' }}>
+      <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1, backgroundColor: 'white', paddingTop: 30 }}>
         {/* Body */}
         <View>
 
@@ -63,7 +67,7 @@ const Profile = (props) => {
                 <Text style={styles.textName}>Shipping Addresses</Text>
                 <Text style={styles.textStatus}>03 Addresses</Text>
               </View>
-              <TouchableOpacity onPress={() => navigation.navigate('Shipping')}>
+              <TouchableOpacity onPress={() => navigation.navigate('ShippngAdress')}>
                 <Image
                   style={styles.iconTopBar}
                   resizeMode='cover'

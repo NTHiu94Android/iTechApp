@@ -13,13 +13,14 @@ import back from '../../../back/back';
 const ProductDetail = ({ route, navigation }) => {
   const { productItem } = route.params;
   back(navigation);
-  const { onGetPicturesByIdProduct, onAddOrderDetail } = useContext(AppContext);
+  const { onGetPicturesByIdProduct, onAddOrderDetail, onGetOrderDetailByIdOrder } = useContext(AppContext);
   const { user } = useContext(UserContext);
   const [count, setCount] = useState(1);
   const [listImage, setListImage] = useState([]);
   const [listColor, setListCorlor] = useState([]);
   const [itemSelected, setItemSelected] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isFavorite, setIsFavorite] = useState(false);
 
   const tableHead = ['Parameter', 'Value'];
   const [tableData, setTableData] = useState(
@@ -53,7 +54,18 @@ const ProductDetail = ({ route, navigation }) => {
     }
   };
 
-
+  //Kiem tra san pham da co trong danh sach yeu thich chua
+  const checkFavorite = async (idSubProduct) => {
+    let check = false;
+    const resFavorite = await onGetOrderDetailByIdOrder(user.idFavorite);
+    const listFavorite = resFavorite.data;
+    listFavorite.find((item) => {
+      if (item.idSubProduct === idSubProduct) {
+        check = true;
+      }
+    });
+    setIsFavorite(check);
+  };
 
   //Lay danh sach mau
   const getListColor = async () => {
@@ -63,8 +75,8 @@ const ProductDetail = ({ route, navigation }) => {
       for (let i = 0; i < subProduct.length; i++) {
         colors.push(subProduct[i].color);
       }
-      console.log("SubProduct: ", subProduct[0]);
       setItemSelected(subProduct[0]);
+      checkFavorite(subProduct[0]._id);
       setListCorlor(colors);
       getImagesProduct(subProduct[0]._id);
 
@@ -82,6 +94,7 @@ const ProductDetail = ({ route, navigation }) => {
         if (subProduct[i].color == color) {
           getImagesProduct(subProduct[i]._id);
           setItemSelected(subProduct[i]);
+          checkFavorite(subProduct[i]._id);
         }
       }
       setIsLoading(true);
@@ -111,7 +124,7 @@ const ProductDetail = ({ route, navigation }) => {
     }
   }
 
-  //Them san pham vao gio hang / yeu thich
+  //Them/xoa san pham vao gio hang / yeu thich
   const addOrderDatail = async (number, name) => {
     try {
       let idOrder = '';
@@ -120,16 +133,16 @@ const ProductDetail = ({ route, navigation }) => {
       if (res == true) {
         if (name == 'Cart') {
           navigation.navigate(name);
-        }else{
+        } else {
           console.log("San pham da duoc them vao danh sach yeu thich");
+          setIsFavorite(true);
           navigation.navigate(name);
           //ToastAndroid.show("Sản phẩm đã được thêm vào danh sách yêu thích", ToastAndroid.SHORT);
         }
       } else {
-        console.log("San pham da co trong danh sach yeu thich");
         if (name == 'Favorite') {
           //Delete khoi ds yeu thich
-          console.log("San pham da co trong danh sach yeu thich");
+          setIsFavorite(false);
         } else { //Cart
           navigation.navigate(name);
           //ToastAndroid.show("Sản phẩm đã có trong giỏ hàng", ToastAndroid.SHORT);
@@ -308,10 +321,18 @@ const ProductDetail = ({ route, navigation }) => {
       {/* Box favorite + add to cart (absolute) */}
       <View style={styles.viewButton}>
         <View style={{ marginRight: 15 }}>
-          <TouchableOpacity onPress={() => addOrderDatail(1, 'Favorite')} style={styles.button1}>
-            <Image style={{ width: 24, height: 24 }}
-              source={require('../../../../assets/images/ic_fvr.png')} />
-          </TouchableOpacity>
+          {
+            isFavorite ?
+              <TouchableOpacity onPress={() => addOrderDatail(1, 'Favorite')} style={styles.button1}>
+                <Image style={{ width: 24, height: 24 }}
+                  source={require('../../../../assets/images/ic_heart512_2.png')} />
+              </TouchableOpacity> :
+              <TouchableOpacity onPress={() => addOrderDatail(1, 'Favorite')} style={styles.button1}>
+                <Image style={{ width: 24, height: 24 }}
+                  source={require('../../../../assets/images/ic_heart512.png')} />
+              </TouchableOpacity>
+          }
+
         </View>
         <View style={{}}>
           <TouchableOpacity onPress={() => addOrderDatail(count, 'Cart')} style={styles.button2}>
@@ -344,11 +365,11 @@ const styles = StyleSheet.create({
   },
   button2: {
     backgroundColor: '#000', height: 50, width: 280,
-    borderRadius: 8, flexDirection: 'column', justifyContent: 'center'
+    borderRadius: 30, flexDirection: 'column', justifyContent: 'center'
   },
   button1: {
     backgroundColor: '#F0F0F0', height: 50, width: 50,
-    borderRadius: 8, justifyContent: 'center', alignItems: 'center'
+    borderRadius: 30, justifyContent: 'center', alignItems: 'center'
   },
   boxColorSelected: {
     width: 50,
