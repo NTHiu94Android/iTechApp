@@ -47,11 +47,11 @@ const Home = (props) => {
                 //console.log('listProduct: ', listProduct);
                 let list1 = [];
                 for (let i = 0; i < listProduct.length; i++) {
-                    if(listProduct[i].subProduct[0] == null || listProduct[i].subProduct[0] == undefined){
+                    if (listProduct[i].subProduct[0] == null || listProduct[i].subProduct[0] == undefined) {
                         continue;
                     }
                     if (listProduct[i].subProduct[0].sale > 5) {
-                        list1.push(listProduct[i]); 
+                        list1.push(listProduct[i]);
                     }
                 }
                 setListSale(list1);
@@ -59,7 +59,7 @@ const Home = (props) => {
                 //Lay danh sach san pham phone va add vao listPhone
                 let list2 = [];
                 for (let i = 0; i < listProduct.length; i++) {
-                    if(listProduct[i].subProduct[0] == null || listProduct[i].subProduct[0] == undefined){
+                    if (listProduct[i].subProduct[0] == null || listProduct[i].subProduct[0] == undefined) {
                         continue;
                     }
                     if (listProduct[i].idCategory == '645cfd060405a873dbcdda9c') {
@@ -71,7 +71,7 @@ const Home = (props) => {
                 //Lay danh sach san pham laptop va add vao listLaptop
                 let list3 = [];
                 for (let i = 0; i < listProduct.length; i++) {
-                    if(listProduct[i].subProduct[0] == null || listProduct[i].subProduct[0] == undefined){
+                    if (listProduct[i].subProduct[0] == null || listProduct[i].subProduct[0] == undefined) {
                         continue;
                     }
                     if (listProduct[i].idCategory == '645cfcd60405a873dbcdda9a') {
@@ -91,10 +91,10 @@ const Home = (props) => {
     //Lay danh sach subProduct theo idProduct
     const onGetSubProductsByIdProduct = async (idProduct, res) => {
         try {
-            
-            if(res == null || res == undefined){
+
+            if (res == null || res == undefined) {
                 return;
-            }else{
+            } else {
                 const subProduct = res.data.filter((item) => item.idProduct == idProduct);
                 return subProduct;
             }
@@ -107,7 +107,7 @@ const Home = (props) => {
     const getStar = async (idProduct, res) => {
         let star = 0;
         let count = 0;
-        
+
         if (res == null || res == undefined) {
             return 0;
         }
@@ -166,7 +166,7 @@ const Home = (props) => {
             </View>
 
             {/* Body */}
-            <ScrollView showsVerticalScrollIndicator={false}> 
+            <ScrollView showsVerticalScrollIndicator={false}>
 
                 {/* Slide banner */}
                 <View style={{ flex: 4, justifyContent: 'center', alignItems: 'center' }}>
@@ -300,7 +300,7 @@ const Home = (props) => {
                     {/* List item */}
                     <FlatList
                         data={ListLaptop}
-                        renderItem={({ item }) => <Item onPress={()=> goToProductDetail(item)} item={item} />}
+                        renderItem={({ item }) => <Item onPress={() => goToProductDetail(item)} item={item} />}
                         keyExtractor={item => item._id}
                         horizontal={true}
                         showsHorizontalScrollIndicator={false}
@@ -328,17 +328,17 @@ const styles = StyleSheet.create({
     itemContainer: {
         flex: 1,
         width: '100%',
-        elevation: 5,
-        shadowColor: 'grey',
+        // elevation: 5,
+        // shadowColor: 'grey',
         borderRadius: 8,
         paddingBottom: 12,
-        shadowOffset: {
-            width: 1,
-            height: 3
-        },
+        // shadowOffset: {
+        //     width: 1,
+        //     height: 3
+        // },
         backgroundColor: '#F5F5F5',
-        shadowRadius: 5,
-        shadowOpacity: 0.3
+        // shadowRadius: 5,
+        // shadowOpacity: 0.3
     },
     viewSaleDam: {
         flexDirection: 'row',
@@ -354,87 +354,91 @@ const styles = StyleSheet.create({
 
 const Item = ({ item, onPress }) => (
     <TouchableOpacity onPress={onPress} style={{ marginHorizontal: 3 }}>
-        <View style={styles.itemContainer}>
-            <View style={{ width: 160, height: '100%', alignItems: 'center' }}>
-                <View style={styles.viewSaleDam}>
-                    <Text style={{ fontSize: 16, color: 'white', fontWeight: '600', marginRight: 8 }}>Sale</Text>
-                    <Text style={{ fontSize: 14, color: 'yellow', fontWeight: '400', fontFamily: 'Caveat' }}>Sieu dam</Text>
-                </View>
-                <Image
-                    style={{ width: '100%', height: 160, position: 'relative' }}
-                    resizeMode='cover'
-                    source={{ uri: item.image }} />
-                <Image
-                    style={{ width: 35, height: 35, position: 'absolute', right: 13, bottom: 60 }}
-                    resizeMode='cover'
-                    source={require('../../../../assets/images/ic_shop.png')} />
-                <Text style={{ height: 19, color: 'black', fontWeight: '800', fontSize: 14, marginTop: 5, marginHorizontal: 5, maxWidth: 130 }}>
-                    {item.name}</Text>
-                <View style={{ flexDirection: 'row' }}>
-                    <Image
-                        style={{ width: 15, height: 15, marginEnd: 5 }}
-                        resizeMode='cover'
-                        source={require('../../../../assets/images/ic_star.png')}
-                    />
-                    <Text style={{ fontWeight: '700' }}>{item.rating}</Text>
-                </View>
+        {
+            item == null || item == undefined ? <View style={{ width: 160, height: 200, alignItems: 'center' }}></View> :
+                <View style={styles.itemContainer}>
+                    <View style={{ width: 160, height: '100%' }}>
+                        <View style={styles.viewSaleDam}>
+                            <Text style={{ fontSize: 16, color: 'white', fontWeight: '600', marginRight: 8 }}>Sale</Text>
+                            <Text style={{ fontSize: 14, color: 'yellow', fontWeight: '400', fontFamily: 'Caveat' }}>Sieu dam</Text>
+                        </View>
+                        <Image
+                            style={{ width: '100%', height: 160, position: 'relative' }}
+                            resizeMode='cover'
+                            source={{ uri: item.image }} />
+                        <Image
+                            style={{ width: 35, height: 35, position: 'absolute', right: 13, top: 150 }}
+                            resizeMode='cover'
+                            source={require('../../../../assets/images/ic_shop.png')} />
+                        <Text style={{ height: 19, color: 'black', fontWeight: '800', fontSize: 14, marginTop: 5, paddingHorizontal: 8, maxWidth: 130 }}>
+                            {item.name}</Text>
+                        <View style={{ flexDirection: 'row', paddingHorizontal: 8 }}>
+                            <Image
+                                style={{ width: 15, height: 15, marginEnd: 5 }}
+                                resizeMode='cover'
+                                source={require('../../../../assets/images/ic_star.png')}
+                            />
+                            <Text style={{ fontWeight: '700' }}>{item.rating}</Text>
+                        </View>
 
-                {
-                    item.subProduct[0].sale > 0 ?
-                        <View style={{ flexDirection: 'row' }}>
-                            <Text style={{ height: 19, color: 'black', fontWeight: '700', fontSize: 14, lineHeight: 19.1, marginEnd: 5 }}>
-                                Price:
-                            </Text>
-                            <Text style={{ height: 19, color: 'black', textDecorationLine: 'line-through', fontWeight: '500', fontSize: 14, lineHeight: 19.1, }}>
-                                {item.subProduct[0].price} $
-                            </Text>
-                            <Text style={{ height: 19, color: 'red', fontWeight: '700', fontSize: 14, lineHeight: 19.1, marginStart: 10 }}>
-                                {item.subProduct[0].price - item.subProduct[0].price * item.subProduct[0].sale / 100} $
-                            </Text>
-                        </View> :
-                        <Text style={{ height: 19, color: 'black', fontWeight: '700', fontSize: 14, lineHeight: 19.1 }}>
-                            Price: {item.subProduct[0].price} $
-                        </Text>
-                }
-                <View style={{ flexDirection: 'row', paddingHorizontal: 8 }}>
-                    <Image
-                        style={{ width: 15, height: 15, marginEnd: 5 }}
-                        resizeMode='cover'
-                        source={require('../../../../assets/images/ic_cpu.png')}
-                    />
-                    <Text style={{ fontWeight: '700' }}>CPU {item.subProduct[0].cpu}</Text>
+                        {
+                            item.subProduct[0].sale > 0 ?
+                                <View style={{ flexDirection: 'row', paddingHorizontal: 8 }}>
+                                    <Text style={{ height: 19, color: 'black', fontWeight: '700', fontSize: 14, lineHeight: 19.1, marginEnd: 5 }}>
+                                        Price:
+                                    </Text>
+                                    <Text style={{ height: 19, color: 'black', textDecorationLine: 'line-through', fontWeight: '500', fontSize: 14, lineHeight: 19.1, }}>
+                                        {item.subProduct[0].price} $
+                                    </Text>
+                                    <Text style={{ height: 19, color: 'red', fontWeight: '700', fontSize: 14, lineHeight: 19.1, marginStart: 10 }}>
+                                        {item.subProduct[0].price - item.subProduct[0].price * item.subProduct[0].sale / 100} $
+                                    </Text>
+                                </View> :
+                                <Text style={{ height: 19, color: 'black', fontWeight: '700', fontSize: 14, lineHeight: 19.1, paddingHorizontal: 8 }}>
+                                    Price: {item.subProduct[0].price} $
+                                </Text>
+                        }
+                        <View style={{ flexDirection: 'row', paddingHorizontal: 8 }}>
+                            <Image
+                                style={{ width: 15, height: 15, marginEnd: 5 }}
+                                resizeMode='cover'
+                                source={require('../../../../assets/images/ic_cpu.png')}
+                            />
+                            <Text numberOfLines={1} style={{ fontWeight: '700' }}>CPU {item.subProduct[0].cpu}</Text>
+                        </View>
+
+                        <View style={{ flexDirection: 'row', paddingHorizontal: 8 }}>
+                            <Image
+                                style={{ width: 15, height: 15, marginEnd: 5 }}
+                                resizeMode='cover'
+                                source={require('../../../../assets/images/ic_ram.png')}
+                            />
+                            <Text style={{ fontWeight: '700' }}>Ram {item.subProduct[0].ram}</Text>
+                        </View>
+
+                        <View style={{ flexDirection: 'row', paddingHorizontal: 8 }}>
+                            <Image
+                                style={{ width: 15, height: 15, marginEnd: 5 }}
+                                resizeMode='cover'
+                                source={require('../../../../assets/images/ic_rom.png')}
+                            />
+                            <Text style={{ fontWeight: '700' }}>Rom {item.subProduct[0].rom}</Text>
+                        </View>
+
+                        <View style={{ flexDirection: 'row', paddingHorizontal: 8, width: '80%' }}>
+                            <Image
+                                style={{ width: 15, height: 15, marginEnd: 5 }}
+                                resizeMode='cover'
+                                source={require('../../../../assets/images/ic_screen.png')}
+                            />
+                            <Text numberOfLines={1} style={{ fontWeight: '700', }}>Screen {item.subProduct[0].screen}</Text>
+                        </View>
+
+
+                    </View>
                 </View>
+        }
 
-                <View style={{ flexDirection: 'row', paddingHorizontal: 8 }}>
-                    <Image
-                        style={{ width: 15, height: 15, marginEnd: 5 }}
-                        resizeMode='cover'
-                        source={require('../../../../assets/images/ic_ram.png')}
-                    />
-                    <Text style={{ fontWeight: '700' }}>Ram {item.subProduct[0].ram}</Text>
-                </View>
-
-                <View style={{ flexDirection: 'row', paddingHorizontal: 8 }}>
-                    <Image
-                        style={{ width: 15, height: 15, marginEnd: 5 }}
-                        resizeMode='cover'
-                        source={require('../../../../assets/images/ic_rom.png')}
-                    />
-                    <Text style={{ fontWeight: '700' }}>Rom {item.subProduct[0].rom}</Text>
-                </View>
-
-                <View style={{ flexDirection: 'row', paddingHorizontal: 8, width: '80%' }}>
-                    <Image
-                        style={{ width: 15, height: 15, marginEnd: 5 }}
-                        resizeMode='cover'
-                        source={require('../../../../assets/images/ic_screen.png')}
-                    />
-                    <Text numberOfLines={1} style={{ fontWeight: '700', }}>Screen {item.subProduct[0].screen}</Text>
-                </View>
-
-
-            </View>
-        </View>
     </TouchableOpacity>
 );
 

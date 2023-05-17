@@ -63,6 +63,7 @@ const ProductDetail = ({ route, navigation }) => {
       for (let i = 0; i < subProduct.length; i++) {
         colors.push(subProduct[i].color);
       }
+      console.log("SubProduct: ", subProduct[0]);
       setItemSelected(subProduct[0]);
       setListCorlor(colors);
       getImagesProduct(subProduct[0]._id);
@@ -115,12 +116,24 @@ const ProductDetail = ({ route, navigation }) => {
     try {
       let idOrder = '';
       name == 'Cart' ? idOrder = user.idCart : idOrder = user.idFavorite;
-      const res = await onAddOrderDetail(number, idOrder, productItem._id);
-      if(res == true){
-        navigation.navigate(name);
-      }else{
+      const res = await onAddOrderDetail(number, idOrder, itemSelected._id);
+      if (res == true) {
+        if (name == 'Cart') {
+          navigation.navigate(name);
+        }else{
+          console.log("San pham da duoc them vao danh sach yeu thich");
+          navigation.navigate(name);
+          //ToastAndroid.show("Sản phẩm đã được thêm vào danh sách yêu thích", ToastAndroid.SHORT);
+        }
+      } else {
         console.log("San pham da co trong danh sach yeu thich");
-        //Delete khoi ds yeu thich
+        if (name == 'Favorite') {
+          //Delete khoi ds yeu thich
+          console.log("San pham da co trong danh sach yeu thich");
+        } else { //Cart
+          navigation.navigate(name);
+          //ToastAndroid.show("Sản phẩm đã có trong giỏ hàng", ToastAndroid.SHORT);
+        }
       }
     } catch (error) {
       console.log("Add order detail error: ", error);
@@ -311,7 +324,7 @@ const ProductDetail = ({ route, navigation }) => {
       <ProgressDialog
         visible={!isLoading}
         loaderColor='black'
-        message="Please wait..." />
+        lable="Please wait..." />
     </View>
   )
 

@@ -46,8 +46,8 @@ export const getPicturesByIdProduct = async (idSubProduct) => {
 
 //---------------------------------OrderDetail---------------------------------
 //Them san pham yeu thich / gio hang
-export const addOrderDetail = async (quantity, idOrder, idProduct) => {
-    const response = await CustomAxios().post(`/order-details/api/add-order-detail`, { quantity, idOrder, idProduct });
+export const addOrderDetail = async (quantity, idOrder, idSubProduct) => {
+    const response = await CustomAxios().post(`/order-details/api/add-order-detail`, { quantity, idOrder, idSubProduct });
     return response;
 };
 
@@ -57,16 +57,45 @@ export const getOrderDetailsByIdOrder = async(idOrder) => {
     return res;
 }
 
-//---------------------------------Cart---------------------------------
+//Xoa san pham yeu thich/gio hang
+export const deleteOrderDetail = async(id) => {
+    const res = await CustomAxios().get(`/order-details/api/delete-order-detail/${id}`);
+    return res;
+};
 
-
-
-//---------------------------------Favorite---------------------------------
-
-
-
+//Cap nhat san pham yeu thich/gio hang
+export const updateOrderDetail = async(_id, quantity, idOrder, idSubProduct) => {
+    const data = {
+        _id, quantity, idOrder, idSubProduct
+    }
+    const res = await CustomAxios().post(`/order-details/api/update-order-detail`, data);
+    return res;
+};
 
 //---------------------------------Order---------------------------------
+//Them don hang
+export const addOrder = async (dateCreate, totalPrice, status, paymentMethod, address, idUser) => {
+    const data = {
+        dateCreate, totalPrice, status, paymentMethod, address, idUser
+    };
+    const response = await CustomAxios().post(`/orders/api/add-order`, data);
+    return response;
+}
+
+//Lay danh sach don hang theo idUser
+export const getOrdersByIdUser = async(idUser) => {
+    const res = await CustomAxios().get(`/orders/api/get-orders-by-idUser/${idUser}`);
+    return res;
+}
+
+//Cap nhat don hang
+export const updateOrder = async(_id, dateCreate, totalPrice, status, paymentMethod, address, idUser) => {
+    const data = {
+        _id, dateCreate, totalPrice, status, paymentMethod, address, idUser
+    }
+    const res = await CustomAxios().post(`/orders/api/update-order`, data);
+    return res;
+};
 
 //---------------------------------Review---------------------------------
 //Lay danh tat ca review
