@@ -5,6 +5,7 @@ import { UserContext } from '../../../users/UserContext';
 
 import ProgressDialog from 'react-native-progress-dialog';
 
+
 const Cart = (props) => {
   const { navigation } = props;
   const { user } = useContext(UserContext);
@@ -12,7 +13,7 @@ const Cart = (props) => {
   const {
     onGetOrderDetailByIdOrder, listCart, setListCart,
     //Count
-    countCart,
+    countCart, setCountCart,
     //Sub product
     onGetSubProductById,
     //Product
@@ -69,13 +70,36 @@ const Cart = (props) => {
   }, [countCart]);
 
   //Cap nhat so luong san pham trong gio hang
-  const updateItem = (idOrderDetail, quantity, idOrder, idSubProduct) => {
+  const updateItem = (id, newValue) => {
     try {
-      // const response = onUpdateOrderDetail(idOrderDetail, quantity, idOrder, idSubProduct);
-      // const data = response.data;
-      // console.log("Update item: ", data);
+      setIsLoading(true);
+      //Cap nhat tren giao dien 
+      for (let i = 0; i < listCart.length; i++) {
+        if (listCart[i]._id === id) {
+          listCart[i].amount = newValue;
+          listCart[i].totalPrice = listCart[i].price * newValue;
+          updateItemCart(listCart[i]._id, newValue, listCart[i].idOrder, listCart[i].idSubProduct);
+          break;
+        }
+      };
+      setIsLoading(false);
     } catch (error) {
+      setIsLoading(false);
       console.log("Update item error: ", error);
+    }
+  };
+
+  const updateItemCart = async (_idOrderDetail, _amount, _idOrder, _idSubProduct) => {
+    try {
+      const subProduct = await onGetSubProductById(_idSubProduct);
+      if (subProduct.quantity < _amount) {
+        alert("Số lượng sản phẩm trong kho không đủ!");
+        return;
+      }
+      await onUpdateOrderDetail(_idOrderDetail, _amount, _idOrder, _idSubProduct);
+      setCountCart(countCart + 1);
+    } catch (error) {
+      console.log("Update item cart error: ", error);
     }
   };
 
@@ -83,6 +107,7 @@ const Cart = (props) => {
   const deleteItem = async (idOrderDetail) => {
     try {
       const response = await onDeleteOrderDetail(idOrderDetail);
+      setCountCart(countCart + 1);
       console.log("Delete favorite item: ", response);
     } catch (error) {
       console.log("Delete favorite item error: ", error);
@@ -118,7 +143,7 @@ const Cart = (props) => {
           renderItem={({ item }) =>
             <Item
               deleteItem={() => deleteItem(item._id)}
-              plus={() => updateItem(item._id, item.amount + 1)}
+              plus={() => updateItem(item._id, item.amount > item.quantity || item.amount > 9 ? item.amount : item.amount + 1)}
               minus={() => updateItem(item._id, item.amount > 1 ? item.amount - 1 : 1)}
               item={item} />
           }
@@ -126,7 +151,7 @@ const Cart = (props) => {
         />
         {
           listCart.length !== 0 ?
-            <View style={{ height: 150, justifyContent: 'space-between' }}>
+            <View style={{ height: 150, justifyContent: 'space-between', paddingHorizontal: 12 }}>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', backgroundColor: '#ffff', borderRadius: 10, paddingStart: 11 }}>
                 <TextInput>Enter your promo code</TextInput>
                 {/* <AntDesign name="rightsquare" size={44} color="black" /> */}
@@ -141,7 +166,7 @@ const Cart = (props) => {
                 {/* Bấm đây nhảy qua check out */}
               </TouchableOpacity>
             </View> :
-            <View style={{ backgroundColor: '#BBB', height: 50, borderRadius: 8, flexDirection: 'column', justifyContent: 'center' }}>
+            <View style={{ backgroundColor: '#BBB', height: 50, borderRadius: 8, flexDirection: 'column', justifyContent: 'center', paddingHorizontal: 12 }}>
               <Text style={{ color: '#fff', textAlign: 'center', fontSize: 20, fontWeight: 'bold' }}>Check out</Text>
             </View>
         }
@@ -204,12 +229,13 @@ const Item = ({ item, plus, minus, deleteItem }) => (
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingVertical: 6, paddingHorizontal: 12
+    paddingVertical: 6,
     //marginTop: StatusBar.currentHeight || 0,
   },
   item: {
     paddingBottom: 5,
     marginBottom: 10,
+    paddingHorizontal: 12,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',

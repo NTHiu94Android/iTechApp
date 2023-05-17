@@ -60,12 +60,15 @@ const Favorite = (props) => {
   //Them tat ca san pham yeu thich vao gio hang
   const addAllToCart = async () => {
     try {
+      setIsLoading(true);
       for (let i = 0; i < listFavorite.length; i++) {
         await onAddOrderDetail(1, user.idCart, listFavorite[i].idSubProduct);
         await deleteFavoriteItem(listFavorite[i]._id);
       }
       setCountFavorite(countFavorite + 1);
+      setIsLoading(false);
     } catch (error) {
+      setIsLoading(false);
       console.log("Add to cart error: ", error);
     }
   };
@@ -73,9 +76,13 @@ const Favorite = (props) => {
   //Xoa san pham khoi danh sach yeu thich
   const deleteFavoriteItem = async (idOrderDetail) => {
     try {
+      setIsLoading(true);
       const response = await onDeleteOrderDetail(idOrderDetail);
+      setCountFavorite(countFavorite + 1);
       console.log("Delete favorite item: ", response);
+      setIsLoading(false);
     } catch (error) {
+      setIsLoading(false);
       console.log("Delete favorite item error: ", error);
     }
   };
@@ -83,10 +90,13 @@ const Favorite = (props) => {
   //Them 1 san pham yeu thich vao gio hang
   const addOneToCart = async (it) => {
     try {
+      setIsLoading(true);
       await onAddOrderDetail(1, user.idCart, it.idSubProduct);
       await deleteFavoriteItem(it._id);
       setCountFavorite(countFavorite + 1);
+      setIsLoading(false);
     } catch (error) {
+      setIsLoading(false);
       console.log("Add 1 to cart fail: ", error);
     }
   };
