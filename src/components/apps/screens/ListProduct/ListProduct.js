@@ -38,19 +38,20 @@ const ListProduct = ({ navigation, route }) => {
     setIsLoading(true);
     setIdSelected('all');
     const res = await onGetProducts();
+    const resReview = await onGetReviews();
+    const resSubProduct = await onGetSubProducts();
     if (res.data !== null || res.data !== undefined) {
       //Loc danh sach san pham theo idCategory
       const list = res.data;
       let listFilter = [];
       for (let i = 0; i < list.length; i++) {
         if (list[i].idCategory === category._id) {
-          list[i].rating = await getStar(list[i]._id);
-          const subProduct = await onGetSubProductsByIdProduct(list[i]._id);
+          list[i].rating = await getStar(list[i]._id, resReview);
+          const subProduct = await onGetSubProductsByIdProduct(list[i]._id, resSubProduct);
           list[i].subProduct = subProduct;
           listFilter.push(list[i]);
         }
       }
-
       setListProduct(listFilter);
     }
     setIsLoading(false);
@@ -62,12 +63,14 @@ const ListProduct = ({ navigation, route }) => {
     setIdSelected(idBrand);
     //Loc san pham theo idBrand va idCategory
     const res = await onGetProducts();
+    const resReview = await onGetReviews();
+    const resSubProduct = await onGetSubProducts();
     const list = res.data;
     let listFilter = [];
     for (let i = 0; i < list.length; i++) {
       if (list[i].idBrand === idBrand && list[i].idCategory === category._id) {
-        list[i].rating = await getStar(list[i]._id);
-        const subProduct = await onGetSubProductsByIdProduct(list[i]._id);
+        list[i].rating = await getStar(list[i]._id, resReview);
+        const subProduct = await onGetSubProductsByIdProduct(list[i]._id, resSubProduct);
         list[i].subProduct = subProduct;
         listFilter.push(list[i]);
       }
@@ -78,9 +81,8 @@ const ListProduct = ({ navigation, route }) => {
   };
 
    //Lay danh sach subProduct theo idProduct
-   const onGetSubProductsByIdProduct = async (idProduct) => {
+   const onGetSubProductsByIdProduct = async (idProduct, res) => {
     try {
-        const res = await onGetSubProducts();
         if(res == null || res == undefined){
             return;
         }else{
@@ -93,10 +95,9 @@ const ListProduct = ({ navigation, route }) => {
 };
 
   //Lay sao tu danh gia set vao tung item
-  const getStar = async (idProduct) => {
+  const getStar = async (idProduct, res) => {
     let star = 0;
     let count = 0;
-    const res = await onGetReviews();
     if (res == null || res == undefined) {
       return 0;
     }
@@ -325,7 +326,7 @@ const Item = ({ item, onPress }) => (
         </View>
 
         {
-          item.subProduct[0].sale > 0 ?
+          item.subProduct[0] != undefined && item.subProduct[0].sale > 0 ?
             <View style={{ flexDirection: 'row', paddingHorizontal: 8 }}>
               <Text style={{ height: 19, color: 'black', fontWeight: '700', fontSize: 14, lineHeight: 19.1, marginEnd: 5 }}>
                 Price:

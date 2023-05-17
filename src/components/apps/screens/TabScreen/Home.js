@@ -14,8 +14,8 @@ const Home = (props) => {
     const [listCategory, setListCategory] = useState([]);
 
     const [ListSale, setListSale] = useState([]);
-    const [listPhone, setListPhone] = useState([]);
-    const [listLaptop, setListLaptop] = useState([]);
+    const [ListPhone, setListPhone] = useState([]);
+    const [ListLaptop, setListLaptop] = useState([]);
 
     const [isLoading, setIsLoading] = useState(false);
 
@@ -25,6 +25,8 @@ const Home = (props) => {
             try {
                 setIsLoading(true);
                 const resCategory = await onGetCategories();
+                const resReview = await onGetReviews();
+                const resSubProduct = await onGetSubProducts();
                 setListCategory(resCategory.data);
                 //Lay danh sach san pham
                 const resProduct = await onGetProducts();
@@ -36,23 +38,47 @@ const Home = (props) => {
 
                 //Them sao va subProduct vao tung item
                 for (let i = 0; i < listProduct.length; i++) {
-                    listProduct[i].rating = await getStar(listProduct[i]._id);
-                    const subProduct = await onGetSubProductsByIdProduct(listProduct[i]._id);
+                    listProduct[i].rating = await getStar(listProduct[i]._id, resReview);
+                    const subProduct = await onGetSubProductsByIdProduct(listProduct[i]._id, resSubProduct);
                     listProduct[i].subProduct = subProduct;
                 }
 
                 //Lay danh sach san pham sale va add vao listSale
-                let listSale = [];
+                //console.log('listProduct: ', listProduct);
+                let list1 = [];
                 for (let i = 0; i < listProduct.length; i++) {
+                    if(listProduct[i].subProduct[0] == null || listProduct[i].subProduct[0] == undefined){
+                        continue;
+                    }
                     if (listProduct[i].subProduct[0].sale > 5) {
-                        listSale.push(listProduct[i]);
+                        list1.push(listProduct[i]); 
                     }
                 }
-                setListSale(listSale);
+                setListSale(list1);
 
                 //Lay danh sach san pham phone va add vao listPhone
+                let list2 = [];
+                for (let i = 0; i < listProduct.length; i++) {
+                    if(listProduct[i].subProduct[0] == null || listProduct[i].subProduct[0] == undefined){
+                        continue;
+                    }
+                    if (listProduct[i].idCategory == '645cfd060405a873dbcdda9c') {
+                        list2.push(listProduct[i]);
+                    }
+                }
+                setListPhone(list2);
 
                 //Lay danh sach san pham laptop va add vao listLaptop
+                let list3 = [];
+                for (let i = 0; i < listProduct.length; i++) {
+                    if(listProduct[i].subProduct[0] == null || listProduct[i].subProduct[0] == undefined){
+                        continue;
+                    }
+                    if (listProduct[i].idCategory == '645cfcd60405a873dbcdda9a') {
+                        list3.push(listProduct[i]);
+                    }
+                }
+                setListLaptop(list3);
 
                 setIsLoading(false);
             } catch (error) {
@@ -63,9 +89,9 @@ const Home = (props) => {
     }, []);
 
     //Lay danh sach subProduct theo idProduct
-    const onGetSubProductsByIdProduct = async (idProduct) => {
+    const onGetSubProductsByIdProduct = async (idProduct, res) => {
         try {
-            const res = await onGetSubProducts();
+            
             if(res == null || res == undefined){
                 return;
             }else{
@@ -78,10 +104,10 @@ const Home = (props) => {
     };
 
     //Lay sao tu danh gia set vao tung item
-    const getStar = async (idProduct) => {
+    const getStar = async (idProduct, res) => {
         let star = 0;
         let count = 0;
-        const res = await onGetReviews();
+        
         if (res == null || res == undefined) {
             return 0;
         }
@@ -244,7 +270,7 @@ const Home = (props) => {
 
                     {/* List item */}
                     <FlatList
-                        data={ListSale}
+                        data={ListPhone}
                         renderItem={({ item }) => <Item item={item} />}
                         keyExtractor={item => item._id}
                         horizontal={true}
@@ -273,7 +299,7 @@ const Home = (props) => {
 
                     {/* List item */}
                     <FlatList
-                        data={ListSale}
+                        data={ListLaptop}
                         renderItem={({ item }) => <Item onPress={()=> goToProductDetail(item)} item={item} />}
                         keyExtractor={item => item._id}
                         horizontal={true}
@@ -329,7 +355,7 @@ const styles = StyleSheet.create({
 const Item = ({ item, onPress }) => (
     <TouchableOpacity onPress={onPress} style={{ marginHorizontal: 3 }}>
         <View style={styles.itemContainer}>
-            <View style={{ width: '100%', height: '100%', alignItems: 'center' }}>
+            <View style={{ width: 160, height: '100%', alignItems: 'center' }}>
                 <View style={styles.viewSaleDam}>
                     <Text style={{ fontSize: 16, color: 'white', fontWeight: '600', marginRight: 8 }}>Sale</Text>
                     <Text style={{ fontSize: 14, color: 'yellow', fontWeight: '400', fontFamily: 'Caveat' }}>Sieu dam</Text>

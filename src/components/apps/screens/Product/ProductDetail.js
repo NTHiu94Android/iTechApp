@@ -40,7 +40,6 @@ const ProductDetail = ({ route, navigation }) => {
       ['Pin', productItem.subProduct[0].pin],
       ['Camera', productItem.subProduct[0].fontCamera],
     ]);
-    console.log("User", user);
   }, []);
 
   //Xu ly thay doi so luong san pham them vao cart
@@ -139,7 +138,7 @@ const ProductDetail = ({ route, navigation }) => {
             isLoading ?
               <Swiper
                 style={{ height: 280 }}
-                autoplayTimeout={3}
+                autoplayTimeout={5}
                 autoplay={true}
                 loop={true}
                 showsPagination={true}>
