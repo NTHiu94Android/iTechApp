@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View, TouchableOpacity, Image, ScrollView } from 'react-native'
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useEffect, useRef, useState } from 'react'
 
 import ProgressDialog from 'react-native-progress-dialog';
 import Swiper from 'react-native-swiper';
@@ -19,31 +19,59 @@ const ListProduct = ({ navigation, route }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [idSelected, setIdSelected] = useState('all');
 
+  const listProductRef = useRef([]);
+  const listReviewRef = useRef([]);
+  const listSubProductRef = useRef([]);
+
   useEffect(() => {
     const getData = async () => {
-      //Lay danh sach san pham theo idCategory
-      getProductsByIdCategory();
-
+      setIsLoading(true);
       //Lay danh sanh thuong hieu theo idCategory
-      const res = await onGetBrandsByIdCategory(category._id);
-      if (res.data !== null || res.data !== undefined) {
-        setListBrand(res.data);
+      const resBrand = await onGetBrandsByIdCategory(category._id);
+      if (resBrand.data !== null || resBrand.data !== undefined) {
+        setListBrand(resBrand.data);
       }
+
+      //Lay danh sach san pham, danh sach review, danh sach subProduct
+      const res = await onGetProducts();
+      const resReview = await onGetReviews();
+      const resSubProduct = await onGetSubProducts();
+      //Luu danh sach san pham, danh sach review, danh sach subProduct
+      listProductRef.current = res;
+      listReviewRef.current = resReview;
+      listSubProductRef.current = resSubProduct;
+
+      //Loc danh sach san pham theo idCategory
+      if (res.data !== null || res.data !== undefined) {
+        //Loc danh sach san pham theo idCategory
+        const list = res.data;
+        let listFilter = [];
+        for (let i = 0; i < list.length; i++) {
+          if (list[i].idCategory === category._id) {
+            list[i].rating = await getStar(list[i]._id, resReview);
+            const subProduct = await onGetSubProductsByIdProduct(list[i]._id, resSubProduct);
+            list[i].subProduct = subProduct;
+            listFilter.push(list[i]);
+          }
+        }
+        setListProduct(listFilter);
+      }
+      setIsLoading(false);
     };
     getData();
   }, []);
 
-  //Lay tat ca san pham theo idCategory
-  const getProductsByIdCategory = async () => {
+  //Lay danh sach san pham theo idBrand va idCategory
+  const getProductsByIdBrandAndIdCategory = async (idBrand) => {
     setIsLoading(true);
-    setIdSelected('all');
-    const res = await onGetProducts();
-    const resReview = await onGetReviews();
-    const resSubProduct = await onGetSubProducts();
-    if (res.data !== null || res.data !== undefined) {
-      //Loc danh sach san pham theo idCategory
-      const list = res.data;
-      let listFilter = [];
+    setIdSelected(idBrand);
+    //Loc san pham theo idBrand va idCategory
+    const res = listProductRef.current;
+    const resReview = listReviewRef.current;
+    const resSubProduct = listSubProductRef.current;
+    const list = res.data;
+    let listFilter = [];
+    if (idBrand === 'all') {
       for (let i = 0; i < list.length; i++) {
         if (list[i].idCategory === category._id) {
           list[i].rating = await getStar(list[i]._id, resReview);
@@ -52,47 +80,33 @@ const ListProduct = ({ navigation, route }) => {
           listFilter.push(list[i]);
         }
       }
-      setListProduct(listFilter);
-    }
-    setIsLoading(false);
-  };
-
-  //Lay danh sach san pham theo idBrand va idCategory
-  const getProductsByIdBrandAndIdCategory = async (idBrand) => {
-    setIsLoading(true);
-    setIdSelected(idBrand);
-    //Loc san pham theo idBrand va idCategory
-    const res = await onGetProducts();
-    const resReview = await onGetReviews();
-    const resSubProduct = await onGetSubProducts();
-    const list = res.data;
-    let listFilter = [];
-    for (let i = 0; i < list.length; i++) {
-      if (list[i].idBrand === idBrand && list[i].idCategory === category._id) {
-        list[i].rating = await getStar(list[i]._id, resReview);
-        const subProduct = await onGetSubProductsByIdProduct(list[i]._id, resSubProduct);
-        list[i].subProduct = subProduct;
-        listFilter.push(list[i]);
+    } else {
+      for (let i = 0; i < list.length; i++) {
+        if (list[i].idBrand === idBrand && list[i].idCategory === category._id) {
+          list[i].rating = await getStar(list[i]._id, resReview);
+          const subProduct = await onGetSubProductsByIdProduct(list[i]._id, resSubProduct);
+          list[i].subProduct = subProduct;
+          listFilter.push(list[i]);
+        }
       }
     }
-    
     setListProduct(listFilter);
     setIsLoading(false);
   };
 
-   //Lay danh sach subProduct theo idProduct
-   const onGetSubProductsByIdProduct = async (idProduct, res) => {
+  //Lay danh sach subProduct theo idProduct
+  const onGetSubProductsByIdProduct = async (idProduct, res) => {
     try {
-        if(res == null || res == undefined){
-            return;
-        }else{
-            const subProduct = res.data.filter((item) => item.idProduct == idProduct);
-            return subProduct;
-        }
+      if (res == null || res == undefined) {
+        return;
+      } else {
+        const subProduct = res.data.filter((item) => item.idProduct == idProduct);
+        return subProduct;
+      }
     } catch (error) {
-        console.log('onGetSubProductsByIdProduct error: ', error);
+      console.log('onGetSubProductsByIdProduct error: ', error);
     }
-};
+  };
 
   //Lay sao tu danh gia set vao tung item
   const getStar = async (idProduct, res) => {
@@ -200,7 +214,7 @@ const ListProduct = ({ navigation, route }) => {
             {/* All */}
             <TouchableOpacity
               style={idSelected === 'all' ? styles.itemBrandSelected : styles.itemBrand}
-              onPress={() => getProductsByIdCategory()}>
+              onPress={() => getProductsByIdBrandAndIdCategory('all')}>
               <View style={{ flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center' }}>
                 <Image
                   style={{ width: 44, height: 40 }}
@@ -263,17 +277,17 @@ const styles = StyleSheet.create({
   itemContainer: {
     flex: 1,
     width: '100%',
-    elevation: 5,
-    shadowColor: 'grey',
+    // elevation: 5,
+    // shadowColor: 'grey',
     borderRadius: 8,
     paddingBottom: 12,
-    shadowOffset: {
-      width: 1,
-      height: 3
-    },
+    // shadowOffset: {
+    //   width: 1,
+    //   height: 3
+    // },
     backgroundColor: '#F5F5F5',
-    shadowRadius: 5,
-    shadowOpacity: 0.3
+    // shadowRadius: 5,
+    // shadowOpacity: 0.3
   },
   viewSaleDam: {
     flexDirection: 'row',

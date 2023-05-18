@@ -24,68 +24,54 @@ const Home = (props) => {
         const getData = async () => {
             try {
                 setIsLoading(true);
+                const resProduct = await onGetProducts();
                 const resCategory = await onGetCategories();
                 const resReview = await onGetReviews();
                 const resSubProduct = await onGetSubProducts();
-                setListCategory(resCategory.data);
+
                 //Lay danh sach san pham
-                const resProduct = await onGetProducts();
-                if (resProduct == null || resProduct == undefined) {
+                if (resProduct == null || resProduct == undefined || resCategory == null ||
+                    resCategory == undefined || resReview == null || resReview == undefined ||
+                    resSubProduct == null || resSubProduct == undefined
+                ) {
                     setIsLoading(false);
                     return;
                 }
-                const listProduct = resProduct.data;
-
+                setListCategory(resCategory.data);
                 //Them sao va subProduct vao tung item
-                for (let i = 0; i < listProduct.length; i++) {
-                    listProduct[i].rating = await getStar(listProduct[i]._id, resReview);
-                    const subProduct = await onGetSubProductsByIdProduct(listProduct[i]._id, resSubProduct);
-                    listProduct[i].subProduct = subProduct;
-                }
-
-                //Lay danh sach san pham sale va add vao listSale
-                //console.log('listProduct: ', listProduct);
                 let list1 = [];
-                for (let i = 0; i < listProduct.length; i++) {
-                    if (listProduct[i].subProduct[0] == null || listProduct[i].subProduct[0] == undefined) {
-                        continue;
-                    }
-                    if (listProduct[i].subProduct[0].sale > 5) {
-                        list1.push(listProduct[i]);
-                    }
-                }
-                setListSale(list1);
-
-                //Lay danh sach san pham phone va add vao listPhone
                 let list2 = [];
-                for (let i = 0; i < listProduct.length; i++) {
-                    if (listProduct[i].subProduct[0] == null || listProduct[i].subProduct[0] == undefined) {
-                        continue;
-                    }
-                    if (listProduct[i].idCategory == '645cfd060405a873dbcdda9c') {
-                        list2.push(listProduct[i]);
-                    }
-                }
-                setListPhone(list2);
-
-                //Lay danh sach san pham laptop va add vao listLaptop
                 let list3 = [];
-                for (let i = 0; i < listProduct.length; i++) {
-                    if (listProduct[i].subProduct[0] == null || listProduct[i].subProduct[0] == undefined) {
-                        continue;
+                const listProduct = resProduct.data;
+                listProduct.map(async (item) => {
+                    item.rating = await getStar(item._id, resReview);
+                    const subProduct = await onGetSubProductsByIdProduct(item._id, resSubProduct);
+                    item.subProduct = subProduct;
+                    //Lay danh sach san pham theo tung danh muc va add vao list danh muc do
+                    if (item.subProduct[0] == null || item.subProduct[0] == undefined) {
+                        return;
                     }
-                    if (listProduct[i].idCategory == '645cfcd60405a873dbcdda9a') {
-                        list3.push(listProduct[i]);
+                    if (item.subProduct[0].sale > 5) {
+                        list1.push(item);
                     }
-                }
+                    if (item.idCategory == '645cfd060405a873dbcdda9c') {
+                        list2.push(item);
+                    }
+                    if (item.idCategory == '645cfcd60405a873dbcdda9a') {
+                        list3.push(item);
+                    }
+                });
+                setListSale(list1);
+                setListPhone(list2);
                 setListLaptop(list3);
 
                 setIsLoading(false);
             } catch (error) {
+                setIsLoading(false);
                 console.log("Error home screen: ", error);
             }
         };
-        getData();
+        getData(); 
     }, []);
 
     //Lay danh sach subProduct theo idProduct

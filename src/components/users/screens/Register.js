@@ -14,6 +14,10 @@ const Register = (props) => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
+  const [isShowPassword, setIsShowPassword] = useState(false);
+  const [isShowConfirmPassword, setIsShowConfirmPassword] = useState(false);
+  const avatar = 'https://api-private.atlassian.com/users/f3ba6e3feb7b6867012f05b2f873affb/avatar';
+
   back(navigation);
 
   const handleRegister = async () => {
@@ -23,7 +27,7 @@ const Register = (props) => {
       ToastAndroid.show('Email is not valid', ToastAndroid.SHORT);
       return;
     }
-    if (!email || !password || !name) {
+    if (!email || !password || !name || !birthday || !numberPhone || !confirmPassword) {
       alert('Please fill all the fields');
       return;
     };
@@ -32,11 +36,12 @@ const Register = (props) => {
       return;
     };
     setIsLoading(true);
-    const user = await onRegister(email, password, name, "", "", avatar);
-    if(user == null || user == undefined){
+    //email, password, name, birthday, numberPhone, avatar
+    const user = await onRegister(email, password, name, birthday, numberPhone, avatar);
+    if (user == null || user == undefined) {
       ToastAndroid.show('Register successfully!', ToastAndroid.SHORT);
       navigation.navigate('Login');
-    }else{
+    } else {
       ToastAndroid.show('Register fail!', ToastAndroid.SHORT);
     }
     setIsLoading(false);
@@ -48,61 +53,100 @@ const Register = (props) => {
 
       <ProgressDialog
         visible={isLoading}
-        label="Registering..."
-        loadColor="black"
-      />
+        loaderColor="black"
+        label="Please wait..." />
 
-      <View style={{ alignItems: 'center' }}>
-        <View style={{flexDirection: 'row', alignItems: 'center', marginTop: 50, marginHorizontal: 30}}>
+      <View style={{ alignItems: 'center', paddingHorizontal: 30 }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 30 }}>
           <View style={{ height: 1, backgroundColor: 'black', flex: 1 }}></View>
           <Image style={{ width: 50, height: 57 }} source={require('../../../assets/images/logo.png')}></Image>
           <View style={{ height: 1, backgroundColor: 'black', flex: 1 }}></View>
         </View>
-        <View style={{width: "100%"}}>
-          <Text style={{ fontSize: 20, color: 'black', fontWeight: '800', marginVertical: 30, marginStart: 40 }} >WELCOME</Text>
+        <View style={{ width: "100%" }}>
+          <Text style={{ fontWeight: 'bold', color: 'grey', fontSize: 20, marginTop: 20 }} >Wellcome !</Text>
+          <Text style={{ fontSize: 25, color: 'black', fontWeight: '800', marginBottom: 20, }} >REGISTER ACCOUNT</Text>
         </View>
 
-        <View>
-          <Text style={{ color: 'grey', marginBottom: 10 }}>Name</Text>
-          <TextInput
-            value={name}
-            onChangeText={setName}
-            placeholder="Enter your name"
-            style={{  }} />
-          <View style={{ width: 300, height: 1, backgroundColor: 'black', marginBottom: 40 }} ></View>
-
-          <Text style={{ color: 'grey', marginBottom: 10 }}>Email</Text>
+        <View style={{ width: '100%', justifyContent: 'center', }}>
+          {/* Email */}
+          <Text style={{ color: 'black', fontWeight: '800', fontSize: 16, marginTop: 20 }}>Email</Text>
           <TextInput
             value={email}
             onChangeText={setEmail}
-            placeholder="Enter your email"
+            placeholder="Ex: johndoe194@gmail.com"
             style={{}} />
-          <View style={{ width: 300, height: 1, backgroundColor: 'black', marginBottom: 40}} ></View>
+          <View style={{ height: 1, backgroundColor: 'black', marginBottom: 20 }} ></View>
 
-          <Text style={{ color: 'grey', marginBottom: 10 }}>Password</Text>
+          {/* Name */}
+          <Text style={{ color: 'black', fontWeight: '800', fontSize: 16, }}>Name</Text>
           <TextInput
-            value={password}
-            onChangeText={setPassword}
-            placeholder="Enter your password"
-            style={{  }}
-            secureTextEntry={true} />
-          <View style={{ width: 300, height: 1, backgroundColor: 'black', marginBottom: 40 }} ></View>
-
-          <Text style={{ color: 'grey', marginBottom: 10 }}>Comfirm Password</Text>
-          <TextInput
-            value={confirmPassword}
-            onChangeText={setConfirmPassword}
-            placeholder="Enter your confirm password"
+            value={name}
+            onChangeText={setName}
+            placeholder="Ex: John Doe"
             style={{}}
             secureTextEntry={true} />
-          <View style={{ width: 300, height: 1, backgroundColor: 'black', marginBottom: 20 }} ></View>
+          <View style={{ height: 1, backgroundColor: 'black', marginBottom: 20 }} ></View>
+
+          {/* Password */}
+          <View style={{ position: 'relative' }}>
+            <Text style={{ color: 'black', fontWeight: '800', fontSize: 16, }}>Password</Text>
+            <TextInput
+              value={password}
+              onChangeText={setPassword}
+              placeholder="*********"
+              style={{}}
+              secureTextEntry={isShowPassword} />
+            {
+              isShowPassword ?
+                <TouchableOpacity onPress={() => setIsShowPassword(false)} style={{ position: 'absolute', right: 0, top: 30 }}>
+                  <Image
+                    style={{ width: 24, height: 24 }}
+                    source={require('../../../assets/images/eye.png')}
+                  />
+                </TouchableOpacity> :
+                <TouchableOpacity onPress={() => setIsShowPassword(true)} style={{ position: 'absolute', right: 0, top: 30 }}>
+                  <Image
+                    style={{ width: 24, height: 24 }}
+                    source={require('../../../assets/images/eye-off.png')}
+                  />
+                </TouchableOpacity>
+            }
+            <View style={{ height: 1, backgroundColor: 'black', marginBottom: 20 }} ></View>
+          </View>
+
+          {/* Confirm password */}
+          <View style={{ position: 'relative' }}>
+            <Text style={{ color: 'black', fontWeight: '800', fontSize: 16, }}>Confirm password</Text>
+            <TextInput
+              value={confirmPassword}
+              onChangeText={setConfirmPassword}
+              placeholder="*********"
+              style={{}}
+              secureTextEntry={isShowConfirmPassword} />
+            <View style={{ height: 1, backgroundColor: 'black', marginBottom: 20 }} ></View>
+            {
+              isShowConfirmPassword ?
+                <TouchableOpacity onPress={() => setIsShowConfirmPassword(false)} style={{ position: 'absolute', right: 0, top: 30 }}>
+                  <Image
+                    style={{ width: 24, height: 24 }}
+                    source={require('../../../assets/images/eye.png')}
+                  />
+                </TouchableOpacity> :
+                <TouchableOpacity onPress={() => setIsShowConfirmPassword(true)} style={{ position: 'absolute', right: 0, top: 30 }}>
+                  <Image
+                    style={{ width: 24, height: 24 }}
+                    source={require('../../../assets/images/eye-off.png')}
+                  />
+                </TouchableOpacity>
+            }
+          </View>
 
           <TouchableOpacity onPress={() => handleRegister()} style={styles.btn}>
-            <Text style={{ color: '#ffffff', textAlign: 'center',fontWeight: 'bold' }} >SIGN UP</Text>
+            <Text style={{ color: '#ffffff', textAlign: 'center', fontWeight: 'bold' }} >SIGN UP</Text>
           </TouchableOpacity>
 
           <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-            <Text style={{color: 'black', fontWeight: '600', textAlign: 'center', marginTop: 10 }} >Already have account? SIGN IN</Text>
+            <Text style={{ color: 'black', fontWeight: '600', textAlign: 'center', marginTop: 10 }} >Already have account? SIGN IN</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -114,11 +158,12 @@ export default Register
 
 const styles = StyleSheet.create({
   btn: {
-    width: 300,
+    width: '80%',
     height: 50,
     backgroundColor: 'black',
-    borderRadius: 5, 
+    borderRadius: 30,
     justifyContent: 'center',
     alignItems: 'center',
+    alignSelf: 'center',
   }
 })
