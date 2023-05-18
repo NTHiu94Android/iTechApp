@@ -14,7 +14,7 @@ const Login = (props) => {
   const { onLogin, onRegister } = useContext(UserContext);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [isShowPassword, setIsShowPassword] = useState(false);
+  const [isShowPassword, setIsShowPassword] = useState(true);
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -135,14 +135,14 @@ const Login = (props) => {
               style={{}}
               secureTextEntry={isShowPassword} />
             {
-              isShowPassword ?
-                <TouchableOpacity onPress={() => setIsShowPassword(false)} style={{ position: 'absolute', right: 0, top: 55}}>
+              !isShowPassword ?
+                <TouchableOpacity onPress={() => setIsShowPassword(true)} style={{ position: 'absolute', right: 0, top: 55}}>
                   <Image
                     style={{ width: 24, height: 24 }}
                     source={require('../../../assets/images/eye.png')}
                   />
                 </TouchableOpacity> :
-                <TouchableOpacity onPress={() => setIsShowPassword(true)} style={{ position: 'absolute', right: 0, top: 55 }}>
+                <TouchableOpacity onPress={() => setIsShowPassword(false)} style={{ position: 'absolute', right: 0, top: 55 }}>
                   <Image
                     style={{ width: 24, height: 24 }}
                     source={require('../../../assets/images/eye-off.png')}

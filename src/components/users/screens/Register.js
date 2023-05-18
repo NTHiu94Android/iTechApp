@@ -14,8 +14,8 @@ const Register = (props) => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const [isShowPassword, setIsShowPassword] = useState(false);
-  const [isShowConfirmPassword, setIsShowConfirmPassword] = useState(false);
+  const [isShowPassword, setIsShowPassword] = useState(true);
+  const [isShowConfirmPassword, setIsShowConfirmPassword] = useState(true);
   const avatar = 'https://api-private.atlassian.com/users/f3ba6e3feb7b6867012f05b2f873affb/avatar';
 
   back(navigation);
@@ -97,14 +97,14 @@ const Register = (props) => {
               style={{}}
               secureTextEntry={isShowPassword} />
             {
-              isShowPassword ?
-                <TouchableOpacity onPress={() => setIsShowPassword(false)} style={{ position: 'absolute', right: 0, top: 30 }}>
+              !isShowPassword ?
+                <TouchableOpacity onPress={() => setIsShowPassword(true)} style={{ position: 'absolute', right: 0, top: 30 }}>
                   <Image
                     style={{ width: 24, height: 24 }}
                     source={require('../../../assets/images/eye.png')}
                   />
                 </TouchableOpacity> :
-                <TouchableOpacity onPress={() => setIsShowPassword(true)} style={{ position: 'absolute', right: 0, top: 30 }}>
+                <TouchableOpacity onPress={() => setIsShowPassword(false)} style={{ position: 'absolute', right: 0, top: 30 }}>
                   <Image
                     style={{ width: 24, height: 24 }}
                     source={require('../../../assets/images/eye-off.png')}
@@ -125,14 +125,14 @@ const Register = (props) => {
               secureTextEntry={isShowConfirmPassword} />
             <View style={{ height: 1, backgroundColor: 'black', marginBottom: 20 }} ></View>
             {
-              isShowConfirmPassword ?
-                <TouchableOpacity onPress={() => setIsShowConfirmPassword(false)} style={{ position: 'absolute', right: 0, top: 30 }}>
+              !isShowConfirmPassword ?
+                <TouchableOpacity onPress={() => setIsShowConfirmPassword(true)} style={{ position: 'absolute', right: 0, top: 30 }}>
                   <Image
                     style={{ width: 24, height: 24 }}
                     source={require('../../../assets/images/eye.png')}
                   />
                 </TouchableOpacity> :
-                <TouchableOpacity onPress={() => setIsShowConfirmPassword(true)} style={{ position: 'absolute', right: 0, top: 30 }}>
+                <TouchableOpacity onPress={() => setIsShowConfirmPassword(false)} style={{ position: 'absolute', right: 0, top: 30 }}>
                   <Image
                     style={{ width: 24, height: 24 }}
                     source={require('../../../assets/images/eye-off.png')}
