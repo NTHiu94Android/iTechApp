@@ -10,11 +10,15 @@ const Favorite = (props) => {
   const { navigation } = props;
   const { user } = useContext(UserContext);
   const {
-    onGetOrderDetailByIdOrder, listFavorite, setListFavorite, onGetProductById,
+    onGetOrderDetailByIdOrder, listFavorite, setListFavorite,
     //Count
-    countFavorite, countCart, setCountCart,
+    countFavorite, setCountFavorite, 
+    //Product
+    onGetProducts,
     //Sub product
-    onGetSubProductsByIdProduct,
+    onGetSubProductById,
+    //Order detail
+    onAddOrderDetail, onDeleteOrderDetail,
   } = useContext(AppContext);
 
   const [isLoading, setIsLoading] = useState(false);
@@ -24,28 +28,23 @@ const Favorite = (props) => {
     const getListfavorite = async () => {
       try {
         setIsLoading(true);
+        const resProduct = await onGetProducts();
+        const listProduct = resProduct.data;
         const response = await onGetOrderDetailByIdOrder(user.idFavorite);
         if (!response || response.data == undefined) {
           setIsLoading(false);
           return;
         }
-        console.log("List favorite: ", response.data);
         for (let i = 0; i < response.data.length; i++) {
-          const productId = response.data[i].idProduct;
-          const product = await onGetProductById(productId);
+          const subProduct = await onGetSubProductById(response.data[i].idSubProduct);
+          const product = listProduct.find(item => item._id === subProduct.idProduct);
           response.data[i].image = product.image;
+          response.data[i].color = subProduct.color;
           response.data[i].name = product.name;
-          const subProductRes = await onGetSubProductsByIdProduct(product._id);
-          // if (subProductRes == undefined || subProductRes.data == undefined) {
-          //   setIsLoading(false);
-          //   return;
-          // }
-          const subProduct = subProductRes.data;
-          subProduct[0].sale == 0 ?
-            response.data[i].price = subProduct[0].price :
-            response.data[i].price = subProduct[0].price - (subProduct[0].price * subProduct[0].sale / 100);
+          subProduct.sale == 0 ?
+            response.data[i].price = subProduct.price :
+            response.data[i].price = subProduct.price - (subProduct.price * subProduct.sale / 100);
         }
-        console.log(response.data);
         setListFavorite(response.data);
         setIsLoading(false);
       } catch (error) {
@@ -59,107 +58,43 @@ const Favorite = (props) => {
   //Them tat ca san pham yeu thich vao gio hang
   const addAllToCart = async () => {
     try {
-      // if (listFavorite.length === 0) return;
-      // //Cap nhat idOder tu idFavorite sang idCart
-      // const listCartNew = listFavorite.map(item => {
-      //   item.idOrder = user.cart;
-      //   return item;
-      // });
-
-      // //Cap nhat lai danh sach gio hang
-      // if (listCart.length === 0) {
-      //   setListCart(listCartNew);
-      //   setTotal(listCartNew.reduce((a, b) => a + b.totalPrice, 0));
-      //   //Cap nhat tren database
-      //   for (let i = 0; i < listFavorite.length; i++) {
-      //     await onAddToCart(listFavorite[i].totalPrice, listFavorite[i].amount, user.cart, listFavorite[i].idProduct);
-      //   }
-      // } else {
-      //   for (let i = 0; i < listFavorite.length; i++) {
-      //     const itemToCart = listCart.find(item => item.idProduct === listFavorite[i].idProduct);
-      //     if (itemToCart) {
-      //       const newListCart = listCart.map(async item => {
-      //         if (item.idProduct === itemToCart.idProduct) {
-      //           item.amount = item.amount + 1;
-      //           item.totalPrice = item.totalPrice + listFavorite[i].price;
-      //           setTotal(total + listFavorite[i].price);
-      //           await onUpdateOrderDetail(item._id, item.totalPrice, item.amount, user.cart, item.idProduct);
-      //         }
-      //         return item;
-      //       });
-      //       setListCart(newListCart);
-      //       //Cap nhat tren database
-      //       //await onUpdateOrderDetail(listFavorite[i]._id, listFavorite[i].totalPrice, listFavorite[i].amount, user.cart, listFavorite[i].idProduct);
-      //     } else {
-      //       setListCart([...listCart, listFavorite[i]]);
-      //       setTotal(total + listFavorite[i].totalPrice);
-      //       //Them moi san pham vao gio hang
-      //       await onAddToCart(listFavorite[i].totalPrice, listFavorite[i].amount, user.cart, listFavorite[i].idProduct);
-      //     }
-      //   }
-      // }
-      // setCountCart(countCart + 1);
-      // navigation.navigate('Cart');
-      // //Xoa san pham khoi danh sach yeu thich va cap nhat lai database
-      // for (let i = 0; i < listFavorite.length; i++) {
-      //   await deleteFavoriteItem(listFavorite[i]._id);
-      // }
-      // setCountFavorite(countFavorite + 1);
-      // setListFavorite([]);
-
-      // // let sum = 0;
-      // // for (let i = 0; i < listFavorite.length; i++) {
-      // //   //Cap nhat idOder tu idFavorite sang idCart
-      // //   const cartItem = await onUpdateOrderDetail(
-      // //     listFavorite[i]._id, listFavorite[i].totalPrice,
-      // //     listFavorite[i].amount, user.cart,
-      // //     listFavorite[i].idProduct
-      // //   );
-      // //   sum = sum + listFavorite[i].totalPrice;
-      // //   //console.log("Add to cart: ", response);
-      // // }
-      // // setCountCart(countCart + 1);
-      // // // setCountFavorite(countFavorite - 1);
-      // // setTotal(total + sum);
-      // // setListFavorite([]);
-      // // navigation.navigate('Cart');
+      setIsLoading(true);
+      for (let i = 0; i < listFavorite.length; i++) {
+        await onAddOrderDetail(1, user.idCart, listFavorite[i].idSubProduct);
+        await deleteFavoriteItem(listFavorite[i]._id);
+      }
+      setCountFavorite(countFavorite + 1);
+      setIsLoading(false);
     } catch (error) {
+      setIsLoading(false);
       console.log("Add to cart error: ", error);
     }
   };
 
+  //Xoa san pham khoi danh sach yeu thich
   const deleteFavoriteItem = async (idOrderDetail) => {
     try {
-      // const response = await onDeleteOrderDetail(idOrderDetail);
-      // console.log("Delete favorite item: ", response);
+      setIsLoading(true);
+      const response = await onDeleteOrderDetail(idOrderDetail);
+      setCountFavorite(countFavorite + 1);
+      console.log("Delete favorite item: ", response);
+      setIsLoading(false);
     } catch (error) {
+      setIsLoading(false);
       console.log("Delete favorite item error: ", error);
     }
   };
 
-  const addOneToCart = async (it) => { 
+  //Them 1 san pham yeu thich vao gio hang
+  const addOneToCart = async (it) => {
     try {
-      // let check = false;
-      // for (let i = 0; i < listCart.length; i++) {
-      //   if (listCart[i].idProduct === it.idProduct) {
-      //     listCart[i].amount = listCart[i].amount + 1;
-      //     listCart[i].totalPrice = listCart[i].totalPrice + it.price;
-      //     setTotal(total + it.price);
-      //     check = true;
-      //     await onUpdateOrderDetail(listCart[i]._id, listCart[i].totalPrice, listCart[i].amount, user.cart, listCart[i].idProduct);
-      //   }
-      // }
-      // //console.log("Check: ", check);
-
-      // if (check == false) {
-      //   await onAddToCart(it.totalPrice, 1, user.cart, it.idProduct);
-      // }
-      // //Xoa san pham khoi danh sach yeu thich va cap nhat lai database
-      // await deleteFavoriteItem(it._id);
-      // setCountFavorite(countFavorite + 1);
-      // setCountCart(countCart + 1);
-      // //await onUpdateOrderDetail(itemToCart._id, itemToCart.totalPrice, itemToCart.amount, user.cart, itemToCart.idProduct);
+      setIsLoading(true);
+      await onAddOrderDetail(1, user.idCart, it.idSubProduct);
+      await deleteFavoriteItem(it._id);
+      setCountFavorite(countFavorite + 1);
+      setIsLoading(false);
     } catch (error) {
+      setIsLoading(false);
       console.log("Add 1 to cart fail: ", error);
     }
   };
@@ -204,6 +139,7 @@ const Favorite = (props) => {
             addOneToCart={() => addOneToCart(item)}
             deleteFavoriteItem={() => deleteFavoriteItem(item._id)}
             name={item.name}
+            color={item.color}
             image={item.image}
             price={item.price} />
         }
@@ -247,10 +183,9 @@ const styles = StyleSheet.create({
     display: 'flex',
     flexDirection: 'row',
     marginVertical: 0,
-    paddingHorizontal: 10,
+    marginHorizontal: 12,
     paddingVertical: 10,
     borderBottomWidth: 0.5,
-    borderRadius: 20,
     borderColor: 'rgba(0, 0, 0, 0.2)',
 
   },
@@ -265,13 +200,15 @@ const styles = StyleSheet.create({
   },
   TextlstName: {
     fontWeight: 'normal',
-    fontSize: 16,
+    fontSize: 18,
+    color: 'black',
     fontWeight: '800',
     marginBottom: 5,
   },
   TextlstPrice: {
     fontWeight: 'bold',
-    fontSize: 14,
+    fontSize: 16,
+    color: 'black',
     fontWeight: '600',
     marginTop: 5,
   },
@@ -283,13 +220,13 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: '80%',
     alignItems: 'center',
-    bottom: 20,
-    backgroundColor: '#242424',
-    borderRadius: 10,
-    paddingVertical: 15,
-    zIndex: 1,
+    bottom: 10,
+    backgroundColor: 'black',
+    borderRadius: 30,
+    height: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
     alignSelf: 'center',
-
   },
   buttonText: {
     color: '#FFFFFF',
@@ -299,12 +236,15 @@ const styles = StyleSheet.create({
 
 })
 
-const Item = ({ name, price, image, deleteFavoriteItem, addOneToCart }) => {
+const Item = ({ name, price, image, color, deleteFavoriteItem, addOneToCart }) => {
   return (
     <View style={styles.listItem}>
-      <Image source={{ uri: image }} style={styles.imgLst} />
+      <View style={{ borderWidth: 1, borderColor: '#ddd', borderRadius: 8 }}>
+        <Image source={{ uri: image }} style={styles.imgLst} />
+      </View>
       <View style={styles.listItemName}>
-        <Text style={styles.TextlstName}>{name}</Text>
+        <Text numberOfLines={1} style={styles.TextlstName}>{name}</Text>
+        <Text style={{ fontSize: 16, color: 'black', fontWeight: '600' }}>{color}</Text>
         <Text style={styles.TextlstPrice}>$ {price}</Text>
       </View>
       <View style={styles.listItemIcon}>

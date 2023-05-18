@@ -6,13 +6,8 @@ import {
   getProducts, getSubProductsByIdProduct, getSubProducts,
   //Picture
   getPicturesByIdProduct,
-  //Cart
-
-  //Favorite
-
   //OrderDetail
-  addOrderDetail, getOrderDetailsByIdOrder,
-
+  addOrderDetail, getOrderDetailsByIdOrder, deleteOrderDetail, updateOrderDetail,
   //Review
   getReviews,
 
@@ -74,6 +69,16 @@ export const AppContextProvider = (props) => {
   };
 
   //-------------------------------------------------Sub Product-------------------------------------------------
+  //Lay tat ca subProducts
+  const onGetSubProducts = async () => {
+    try {
+      const res = await getSubProducts();
+      return res;
+    } catch (error) {
+      console.log('onGetSubProducts error: ', error);
+    }
+  };
+
   //Lay tat ca sub san pham theo idProduct
   const onGetSubProductsByIdProduct = async (idProduct) => {
     try {
@@ -84,13 +89,14 @@ export const AppContextProvider = (props) => {
     }
   };
 
-  //Lay tat ca subProducts
-  const onGetSubProducts = async () => {
+  //Lay subProduct theo id
+  const onGetSubProductById = async (idSubProduct) => {
     try {
       const res = await getSubProducts();
-      return res;
+      const subProduct = res.data.find((item) => item._id === idSubProduct);
+      return subProduct;
     } catch (error) {
-      console.log('onGetSubProducts error: ', error);
+      console.log('onGetSubProductById error: ', error);
     }
   };
 
@@ -107,29 +113,42 @@ export const AppContextProvider = (props) => {
 
   //-------------------------------------------------OrderDetail-------------------------------------------------
   //Them san pham yeu thich / gio hang
-  const onAddOrderDetail = async (quantity, idOrder, idProduct) => {
+  const onAddOrderDetail = async (quantity, idOrder, idSubProduct) => {
     try {
       if (idOrder === user.idFavorite) {
         const resOrderDetail = await onGetOrderDetailByIdOrder(idOrder);
         let check = false;
         if(resOrderDetail.data != undefined){
           for (let i = 0; i < resOrderDetail.data.length; i++) {
-            if(resOrderDetail.data[i].idProduct == idProduct){
+            if(resOrderDetail.data[i].idSubProduct == idSubProduct){
               check = true;
+              onDeleteOrderDetail(resOrderDetail.data[i]._id);
+              setCountFavorite(countFavorite+1);
+              break;
             }
           }
         }
-        console.log("Check: ", check);
         if(check == true) return false;
-        await addOrderDetail(quantity, idOrder, idProduct);
+        await addOrderDetail(quantity, idOrder, idSubProduct);
         setCountFavorite(countFavorite+1);
         return true;
 
       }
       if (idOrder === user.idCart) {
-        const res = await addOrderDetail(quantity, idOrder, idProduct);
+        const res = await onGetOrderDetailByIdOrder(idOrder);
+        let check = false;
+        if(res.data != undefined){
+          for (let i = 0; i < res.data.length; i++) {
+            if(res.data[i].idSubProduct == idSubProduct){
+              check = true;
+              break;
+            }
+          }
+        }
+        if(check == true) return false;
+        await addOrderDetail(quantity, idOrder, idSubProduct);
         setCountCart(countCart+1);
-        return res;
+        return true;
       }
     } catch (error) {
       console.log('onAddOrderDetail error: ', error);
@@ -146,11 +165,32 @@ export const AppContextProvider = (props) => {
     }
   }
 
-  //-------------------------------------------------Cart-------------------------------------------------
+  //Xoa san pham yeu thich / gio hang
+  const onDeleteOrderDetail = async (idOrderDetail) => {
+    try {
+      const res = await deleteOrderDetail(idOrderDetail);
+      return res;
+    } catch (error) {
+      console.log('onDeleteOrderDetail error: ', error);
+    }
+  };
 
+  //Cap nhat san pham yeu thich / gio hang
+  const onUpdateOrderDetail = async (idOrderDetail, quantity, idOrder, idSubProduct) => {
+    try {
+      const res = await updateOrderDetail(idOrderDetail, quantity, idOrder, idSubProduct);
+      return res;
+    } catch (error) {
+      console.log('onUpdateOrderDetail error: ', error);
+    }
+  };
 
-  //-------------------------------------------------Favorite-------------------------------------------------
-  //Lay san pham yeu thich theo idOrder
+  //-------------------------------------------------Order-------------------------------------------------
+  //Them order
+
+  //Lay danh sach order by idUser
+
+  //Cap nhat order
 
 
   //-------------------------------------------------Review-------------------------------------------------
@@ -169,15 +209,19 @@ export const AppContextProvider = (props) => {
       //Category & Brand
       onGetCategories, onGetBrandsByIdCategory,
       //Product
-      onGetProducts, onGetProductById, onGetSubProductsByIdProduct, onGetSubProducts,
+      onGetProducts, onGetProductById, 
+      //Sub Product
+      onGetSubProductsByIdProduct, onGetSubProducts, onGetSubProductById,
       //Reviews
       onGetReviews,
       //Picture
       onGetPicturesByIdProduct,
       //OrderDetail
       onAddOrderDetail, onGetOrderDetailByIdOrder,
+      onDeleteOrderDetail, onUpdateOrderDetail,
       //State
       listFavorite, setListFavorite,
+      listCart, setListCart,
       countCart, setCountCart, 
       countFavorite, setCountFavorite,
     }}>
