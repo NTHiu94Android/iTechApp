@@ -158,12 +158,13 @@ const styles = StyleSheet.create({
   },
   area: {
     height: 64,
+    backgroundColor: 'white',
     marginHorizontal: 20,
     paddingHorizontal: 16,
     paddingVertical: 12,
     shadowColor: '#DBDBDB',
     shadowOpacity: 1,
-    shadowRadius: 50,
+    shadowRadius:  10,
     shadowOffset: {
       width: 0,
       height: 2,
@@ -172,13 +173,14 @@ const styles = StyleSheet.create({
   },
   area_1: {
     height: 54,
+    backgroundColor: 'white',
     flexDirection: 'column',
     justifyContent: 'center',
     marginHorizontal: 20,
     paddingHorizontal: 16,
     paddingVertical: 12,
     shadowOpacity: 1,
-    shadowRadius: 50,
+    shadowRadius: 10,
     shadowOffset: {
       width: 0,
       height: 2,
@@ -196,11 +198,11 @@ const styles = StyleSheet.create({
   title: {
     justifyContent: 'space-between',
     flexDirection: 'row',
+    paddingHorizontal:20,
   },
   actionBar: {
     height: 44,
     marginBottom: 20,
-    backgroundColor: 'red',
     position: 'relative',
     top: 0,
     flexDirection: 'row',
