@@ -288,7 +288,7 @@ const ProductDetail = ({ route, navigation }) => {
             <Text style={{ color: 'black', fontWeight: '700', fontSize: 18, marginStart: 4 }}>
               {productItem.rating}
             </Text>
-            <TouchableOpacity onPress={() => navigation.navigate('Review', { productItem })}>
+            <TouchableOpacity onPress={() => navigation.navigate('ListReview', { productItem })}>
               <Text style={{ color: '#808080', fontWeight: '600', fontSize: 14, marginLeft: 10, textDecorationLine: 'underline' }}>
                 See all reviews
               </Text>

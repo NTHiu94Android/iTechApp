@@ -14,6 +14,7 @@ const Login = (props) => {
   const { onLogin, onRegister } = useContext(UserContext);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isShowPassword, setIsShowPassword] = useState(false);
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -114,29 +115,50 @@ const Login = (props) => {
         <View>
           <Text style={{ fontWeight: 'bold', color: 'grey', fontSize: 25, }} >Hello !</Text>
           <Text style={{ fontWeight: 'bold', color: 'black', fontSize: 20, }} >WELCOME BACK</Text>
-          <Text style={{ color: 'grey', marginTop: 40, marginBottom: 8 }}>Email</Text>
-          <TextInput
-            value={email}
-            onChangeText={setEmail}
-            placeholder="Enter your email"
-            style={{}} />
-          <View style={{ height: 1, backgroundColor: 'black', }} ></View>
 
-          <Text style={{ color: 'grey', marginTop: 20, marginBottom: 8 }}>Password</Text>
-          <TextInput
-            value={password}
-            onChangeText={setPassword}
-            placeholder="Enter your password"
-            style={{}}
-            secureTextEntry={true} />
-          <View style={{ height: 1, backgroundColor: 'black' }} ></View>
+          <View style={{}}>
+            <Text style={{ color: 'black', fontWeight: '800', fontSize: 16, marginTop: 40 }}>Email</Text>
+            <TextInput
+              value={email}
+              onChangeText={setEmail}
+              placeholder="Enter your email"
+              style={{}} />
+            <View style={{ height: 1, backgroundColor: 'black', }} ></View>
+          </View>
+
+          <View style={{position: 'relative'}}>
+            <Text style={{ color: 'black', fontWeight: '800', fontSize: 16, marginTop: 20 }}>Password</Text>
+            <TextInput
+              value={password}
+              onChangeText={setPassword}
+              placeholder="Enter your password"
+              style={{}}
+              secureTextEntry={isShowPassword} />
+            {
+              isShowPassword ?
+                <TouchableOpacity onPress={() => setIsShowPassword(false)} style={{ position: 'absolute', right: 0, top: 55}}>
+                  <Image
+                    style={{ width: 24, height: 24 }}
+                    source={require('../../../assets/images/eye.png')}
+                  />
+                </TouchableOpacity> :
+                <TouchableOpacity onPress={() => setIsShowPassword(true)} style={{ position: 'absolute', right: 0, top: 55 }}>
+                  <Image
+                    style={{ width: 24, height: 24 }}
+                    source={require('../../../assets/images/eye-off.png')}
+                  />
+                </TouchableOpacity>
+            }
+            <View style={{ height: 1, backgroundColor: 'black', marginBottom: 20 }} ></View>
+          </View>
 
           <TouchableOpacity style={styles.btn} onPress={() => handleLogin()}>
-            <Text style={{ color: '#ffffff', textAlign: 'center', fontWeight: 'bold' }} >Log In</Text>
+            <Text style={{ color: '#ffffff', textAlign: 'center', fontWeight: 'bold' }} >Login</Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.btn} onPress={() => onGoogleButtonPress()}>
-            <Text style={{ color: '#ffffff', textAlign: 'center', fontWeight: 'bold' }} >Log In By Google</Text>
+            <Image style={{ width: 20, height: 20, marginRight: 10 }} source={require('../../../assets/images/google.png')}></Image>
+            <Text style={{ color: '#ffffff', textAlign: 'center', fontWeight: 'bold' }} >Login By Google</Text>
           </TouchableOpacity>
 
           <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
@@ -163,12 +185,12 @@ export default Login
 
 const styles = StyleSheet.create({
   btn: {
+    flexDirection: 'row',
     height: 50,
     backgroundColor: 'black',
-    borderRadius: 5,
+    borderRadius: 30,
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 20,
     marginBottom: 8
   }
 })

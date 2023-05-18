@@ -68,6 +68,18 @@ export const AppContextProvider = (props) => {
     }
   };
 
+  //Lay san pham theo name
+  const onGetProductByName = async (name) => {
+    try {
+      const res = await getProducts();
+      //Lay tat ca san pham co name chua name
+      const listProduct = res.data.filter((item) => item.name.toLowerCase().includes(name.toLowerCase()));
+      return listProduct;
+    } catch (error) {
+      console.log('onGetProductByName error: ', error);
+    }
+  };
+
   //-------------------------------------------------Sub Product-------------------------------------------------
   //Lay tat ca subProducts
   const onGetSubProducts = async () => {
@@ -209,7 +221,7 @@ export const AppContextProvider = (props) => {
       //Category & Brand
       onGetCategories, onGetBrandsByIdCategory,
       //Product
-      onGetProducts, onGetProductById, 
+      onGetProducts, onGetProductById, onGetProductByName,
       //Sub Product
       onGetSubProductsByIdProduct, onGetSubProducts, onGetSubProductById,
       //Reviews
