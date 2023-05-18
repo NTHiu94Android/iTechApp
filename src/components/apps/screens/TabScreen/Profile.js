@@ -126,7 +126,6 @@ const Profile = (props) => {
             <View style={styles.viewImgProfile}>
               <View style={styles.viewInfo}>
                 <Text style={styles.textName}>Logout</Text>
-                <Text style={styles.textStatus}>Notification, Password, FAQ, Contact</Text>
               </View>
               <TouchableOpacity onPress={() => handleLogout()}>
                 <Image
