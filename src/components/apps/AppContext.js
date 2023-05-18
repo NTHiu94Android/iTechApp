@@ -6,6 +6,8 @@ import {
   getProducts, getSubProductsByIdProduct, getSubProducts,
   //Picture
   getPicturesByIdProduct,
+  //Order
+  addOrder, getOrdersByIdUser, updateOrder,
   //OrderDetail
   addOrderDetail, getOrderDetailsByIdOrder, deleteOrderDetail, updateOrderDetail,
   //Review
@@ -130,36 +132,36 @@ export const AppContextProvider = (props) => {
       if (idOrder === user.idFavorite) {
         const resOrderDetail = await onGetOrderDetailByIdOrder(idOrder);
         let check = false;
-        if(resOrderDetail.data != undefined){
+        if (resOrderDetail.data != undefined) {
           for (let i = 0; i < resOrderDetail.data.length; i++) {
-            if(resOrderDetail.data[i].idSubProduct == idSubProduct){
+            if (resOrderDetail.data[i].idSubProduct == idSubProduct) {
               check = true;
               onDeleteOrderDetail(resOrderDetail.data[i]._id);
-              setCountFavorite(countFavorite+1);
+              setCountFavorite(countFavorite + 1);
               break;
             }
           }
         }
-        if(check == true) return false;
+        if (check == true) return false;
         await addOrderDetail(quantity, idOrder, idSubProduct);
-        setCountFavorite(countFavorite+1);
+        setCountFavorite(countFavorite + 1);
         return true;
 
       }
       if (idOrder === user.idCart) {
         const res = await onGetOrderDetailByIdOrder(idOrder);
         let check = false;
-        if(res.data != undefined){
+        if (res.data != undefined) {
           for (let i = 0; i < res.data.length; i++) {
-            if(res.data[i].idSubProduct == idSubProduct){
+            if (res.data[i].idSubProduct == idSubProduct) {
               check = true;
               break;
             }
           }
         }
-        if(check == true) return false;
+        if (check == true) return false;
         await addOrderDetail(quantity, idOrder, idSubProduct);
-        setCountCart(countCart+1);
+        setCountCart(countCart + 1);
         return true;
       }
     } catch (error) {
@@ -173,7 +175,7 @@ export const AppContextProvider = (props) => {
       const res = await getOrderDetailsByIdOrder(idOrder);
       return res;
     } catch (error) {
-      console.log("onGetOrderDetailByIdOrder", error); 
+      console.log("onGetOrderDetailByIdOrder", error);
     }
   }
 
@@ -234,7 +236,7 @@ export const AppContextProvider = (props) => {
       //State
       listFavorite, setListFavorite,
       listCart, setListCart,
-      countCart, setCountCart, 
+      countCart, setCountCart,
       countFavorite, setCountFavorite,
     }}>
       {children}
