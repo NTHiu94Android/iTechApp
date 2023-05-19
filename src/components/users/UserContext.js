@@ -16,22 +16,22 @@ export const UserContextProvider = (props) => {
     webClientId: '13705249458-n11h88g38semsu2teplnr0fo05tdnrks.apps.googleusercontent.com'
   });
 
-  useEffect(() => {
-    const loginUserCheckRemember = async () => {
-      const token = await AsyncStorage.getItem('token');
-      console.log("Login user remember: ",token);
-      if(token == null) return;
-      const decoded = jwt_decode(token);
-      if (decoded.accessToken == "") {
-        setUser(null);
-        return;
-      } else {
-        setUser(decoded.user);
-        return;
-      }
-    };
-    loginUserCheckRemember();
-  }, []);
+  // useEffect(() => {
+  //   const loginUserCheckRemember = async () => {
+  //     const token = await AsyncStorage.getItem('token');
+  //     console.log("Login user remember: ",token);
+  //     if(token == null) return;
+  //     const decoded = jwt_decode(token);
+  //     if (decoded.accessToken == "") {
+  //       setUser(null);
+  //       return;
+  //     } else {
+  //       setUser(decoded.user);
+  //       return;
+  //     }
+  //   };
+  //   loginUserCheckRemember();
+  // }, []);
 
   const onLogin = async (email, password, fcmToken) => {
     try {
