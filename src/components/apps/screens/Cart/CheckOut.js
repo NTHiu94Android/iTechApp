@@ -1,5 +1,5 @@
 import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import React, { useContext } from 'react'
+import React, { useContext, useState } from 'react'
 import back from '../../../back/back';
 import { UserContext } from '../../../users/UserContext';
 import { AppContext } from '../../AppContext';
@@ -8,6 +8,9 @@ const CheckOut = (props) => {
   const { navigation } = props;
   const { user } = useContext(UserContext);
   const { } = useContext(AppContext);
+
+  const [isSelect, setIsSelect] = useState('1');
+
   back(navigation);
 
   const gotoSuccess = async () => {
@@ -20,6 +23,17 @@ const CheckOut = (props) => {
 
     navigation.navigate("Success");
   };
+
+  const handleSelected = (id) => {
+    setIsSelect(id);
+    if(id == '1'){
+      // Bấm đây nhảy qua thanh toán khi nhận hàng
+      console.log('Thanh toán khi nhận hàng');
+    }else{
+      console.log('Thanh toán bằng Paypal');
+      // Bấm đây nhảy qua paypal
+    }
+  }
 
   return (
 
@@ -45,7 +59,7 @@ const CheckOut = (props) => {
         {/* Address */}
         <View style={{ justifyContent: 'space-between', marginTop: 30 }}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12 }}>
-            <Text style={{ fontSize: 18, fontWeight: '300' }}>Shipping Address</Text>
+            <Text style={{ fontSize: 18, fontWeight: '800', color: 'black' }}>Shipping Address</Text>
             <Image
               source={require('../../../../assets/images/edit.png')}
               style={{ width: 20, height: 20, resizeMode: 'contain' }}
@@ -53,29 +67,39 @@ const CheckOut = (props) => {
           </View>
           <View style={[styles.box, { backgroundColor: '#fff', borderRadius: 8, paddingVertical: 10, }]}>
             <Text style={{ fontSize: 18, fontWeight: 'bold', borderBottomWidth: 0.5, borderBottomColor: 'grey', padding: 10 }}>{user.name}</Text>
-            <Text style={{ fontSize: 14, lineHeight: 25, padding: 10 }}>{user.address}</Text>
+            <Text style={{ fontSize: 14, lineHeight: 25, padding: 10, fontWeight: '400' }}>Phone: 0778023038</Text>
+            <Text style={{ fontSize: 14, marginHorizontal: 10, marginBottom: 10, fontWeight: '400' }}>Address: 74/12 KP Noi Hoa 1 - Binh An - Di An - Binh Duong</Text>
           </View>
         </View>
 
         {/* Delivery method */}
         <View style={{ justifyContent: 'space-between', marginTop: 30 }}>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-            <Text style={{ fontSize: 18, fontWeight: '300' }}>Delivery method</Text>
-            <Image
-              source={require('../../../../assets/images/edit.png')}
-              style={{ width: 20, height: 20, resizeMode: 'contain' }}
-            />
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 }}>
+            <Text style={{ fontSize: 18, fontWeight: '800', color: 'black' }}>Payment method</Text>
+            <View style={{width: 20, height: 20}}/>
 
           </View>
-          <View style={[styles.box, { borderRadius: 8, paddingVertical: 10, flexDirection: 'row', }]}>
-            <Image source={{ uri: 'https://theme.hstatic.net/200000472237/1000829412/14/logo.png?v=584' }}
-              style={{ height: 20, width: 90, margin: 10 }} />
-            <Text style={{ margin: 10, fontSize: 14, fontWeight: 'bold' }}>Fast (2-3 days)</Text>
+          <View style={[styles.box, { borderRadius: 8, paddingVertical: 10, flexDirection: 'row', alignItems: 'center' }]}>
+
+            <TouchableOpacity
+              onPress={() => handleSelected('1')}
+              style={isSelect == '1' ? styles.box1 : styles.box2}>
+              <Image
+                source={require('../../../../assets/images/cast2.jpg')}
+                style={{ height: 50, width: 90, borderRadius: 8 }} />
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => handleSelected('2')}
+              style={isSelect == '2' ? styles.box1 : styles.box2}>
+              <Image
+                source={require('../../../../assets/images/paypal1.png')}
+                style={{ height: 50, width: 90, borderRadius: 8 }} />
+            </TouchableOpacity>
           </View>
         </View>
 
         {/* Total price */}
-        <View style={[styles.box, { padding: 10, borderRadius: 8, height: 125, justifyContent: 'space-between', marginTop: 30, marginBottom: 30, }]}>
+        <View style={[styles.box, { padding: 10, borderRadius: 8, height: 125, justifyContent: 'space-between', marginTop: 10, marginBottom: 20, }]}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
             <Text style={{ fontSize: 18 }}>Order:</Text>
             <Text style={{ fontSize: 18, fontWeight: '300' }}>$ 997</Text>
@@ -91,7 +115,7 @@ const CheckOut = (props) => {
         </View>
 
         {/* Submit */}
-        <TouchableOpacity onPress={() => gotoSuccess()} style={{ backgroundColor: '#000', height: 60, borderRadius: 8, flexDirection: 'column', justifyContent: 'center' }}>
+        <TouchableOpacity onPress={() => gotoSuccess()} style={{ backgroundColor: '#000', height: 50, borderRadius: 30, flexDirection: 'column', justifyContent: 'center' }}>
           <Text style={{ color: '#fff', textAlign: 'center', fontSize: 20, fontWeight: 'bold' }}>SUBMIT ORDER</Text>
           {/* Bấm đây nhảy qua success */}
         </TouchableOpacity>
@@ -113,7 +137,14 @@ const styles = StyleSheet.create({
       width: 1,
       height: 3
     },
+    marginHorizontal: 1,
     shadowRadius: 5,
     shadowOpacity: 0.3
-  }
+  },
+  box1: {
+    padding: 10, borderColor: '#333', borderRadius: 8, borderWidth: 1, marginLeft: 10
+  },
+  box2: {
+    padding: 10, borderColor: '#ddd', borderRadius: 8, borderWidth: 1, marginLeft: 10
+  },
 })

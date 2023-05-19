@@ -7,7 +7,7 @@ const Success = (props) => {
   back(navigation);
   return (
     <View style={{ padding: 30, flex: 1, flexDirection: 'column', justifyContent: 'space-evenly' }}>
-      <View style={{alignItems:'center'}}>
+      <View style={{ alignItems: 'center' }}>
         <Text style={{ fontSize: 36, fontWeight: 'bold' }}>SUCCESS!</Text>
         <Image source={{ uri: 'https://giaohangtietkiem.vn/wp-content/uploads/2021/07/services_image.png' }}
           style={{ width: 200, height: 200 }} />
@@ -17,7 +17,9 @@ const Success = (props) => {
         </View>
       </View>
       <View style={{ justifyContent: 'space-between', height: 150 }}>
-        <TouchableOpacity onPress={() => navigation.navigate("Order")} style={{ backgroundColor: '#000', height: 60, borderRadius: 8, flexDirection: 'column', justifyContent: 'center' }}>
+        <TouchableOpacity
+          onPress={() => navigation.navigate("Order")}
+          style={{ backgroundColor: '#000', height: 50, borderRadius: 30, justifyContent: 'center' }}>
           <Text style={{ color: '#fff', textAlign: 'center', fontSize: 20, fontWeight: 'bold' }}>Track your orders</Text>
         </TouchableOpacity>
       </View>

@@ -22,8 +22,9 @@ const Home = (props) => {
     //Lay danh sach category
     useEffect(() => {
         const getData = async () => {
+            setIsLoading(true);
             try {
-                setIsLoading(true);
+
                 const resProduct = await onGetProducts();
                 const resCategory = await onGetCategories();
                 const resReview = await onGetReviews();
@@ -61,17 +62,17 @@ const Home = (props) => {
                         list3.push(item);
                     }
                 });
+
                 setListSale(list1);
                 setListPhone(list2);
                 setListLaptop(list3);
-
-                setIsLoading(false);
             } catch (error) {
                 setIsLoading(false);
                 console.log("Error home screen: ", error);
             }
+            setIsLoading(false);
         };
-        getData(); 
+        getData();
     }, []);
 
     //Lay danh sach subProduct theo idProduct
@@ -257,7 +258,7 @@ const Home = (props) => {
                     {/* List item */}
                     <FlatList
                         data={ListPhone}
-                        renderItem={({ item }) => <Item item={item} />}
+                        renderItem={({ item }) => <Item onPress={() => goToProductDetail(item)} item={item} />}
                         keyExtractor={item => item._id}
                         horizontal={true}
                         showsHorizontalScrollIndicator={false}
@@ -384,13 +385,13 @@ const Item = ({ item, onPress }) => (
                                     Price: {item.subProduct[0].price} $
                                 </Text>
                         }
-                        <View style={{ flexDirection: 'row', paddingHorizontal: 8 }}>
+                        <View style={{ flexDirection: 'row', paddingHorizontal: 8}}>
                             <Image
                                 style={{ width: 15, height: 15, marginEnd: 5 }}
                                 resizeMode='cover'
                                 source={require('../../../../assets/images/ic_cpu.png')}
                             />
-                            <Text numberOfLines={1} style={{ fontWeight: '700' }}>CPU {item.subProduct[0].cpu}</Text>
+                            <Text numberOfLines={1} style={{ fontWeight: '700', paddingEnd: 6 }}>CPU {item.subProduct[0].cpu}</Text>
                         </View>
 
                         <View style={{ flexDirection: 'row', paddingHorizontal: 8 }}>

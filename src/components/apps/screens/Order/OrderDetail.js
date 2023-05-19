@@ -36,16 +36,22 @@ const OrderDetail = (props) => {
   return (
     <View style={{ flex: 1, backgroundColor: 'white' }}>
       <View style={styles.container}>
-        <View style={styles.header}>
-          <View style={styles.viewHeader}>
-            <TouchableOpacity onPress={() => navigation.goBack()}>
-              <Image
-                style={styles.icBack}
-                source={require('../../../../assets/images/back.png')}
-                resizeMode="cover"></Image>
-            </TouchableOpacity>
-            <Text style={styles.txtOrderDetail}>Order Detail</Text>
+        <View style={
+          {
+            flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
+            paddingTop: 6, paddingHorizontal: 12, borderColor: '#ddd', borderBottomWidth: 1
+          }
+        }>
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Image
+              style={{ width: 22, height: 22 }}
+              resizeMode='cover'
+              source={require('../../../../assets/images/back.png')} />
+          </TouchableOpacity>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', height: 50 }}>
+            <Text style={{ color: 'black', fontWeight: '800', fontSize: 18 }}>Order Detail</Text>
           </View>
+          <View style={{ width: 22, height: 22 }} />
         </View>
 
         <ScrollView style={{ flex: 1, backgroundColor: 'white' }} showsVerticalScrollIndicator={false}>
@@ -355,7 +361,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: 'white',
-    paddingTop: 30,
   },
 });
 

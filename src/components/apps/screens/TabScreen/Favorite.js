@@ -12,7 +12,7 @@ const Favorite = (props) => {
   const {
     onGetOrderDetailByIdOrder, listFavorite, setListFavorite,
     //Count
-    countFavorite, setCountFavorite, 
+    countFavorite, setCountFavorite,
     //Product
     onGetProducts,
     //Sub product
@@ -102,7 +102,12 @@ const Favorite = (props) => {
   return (
     <View style={{ position: 'relative', flex: 1, backgroundColor: 'white' }}>
       {/* Top bar */}
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 6, paddingHorizontal: 12 }}>
+      <View style={
+        {
+          flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
+          paddingVertical: 6, paddingHorizontal: 12, borderColor: '#ddd', borderBottomWidth: 1
+        }
+      }>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Image
             style={{ width: 22, height: 22 }}

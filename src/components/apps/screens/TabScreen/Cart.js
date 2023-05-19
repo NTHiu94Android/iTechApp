@@ -87,7 +87,7 @@ const Cart = (props) => {
           listCartNew[i] = listCart[i];
           sum += listCartNew[i].totalPrice;
           updateItemCart(listCart[i]._id, newValue, listCart[i].idOrder, listCart[i].idSubProduct, listCart[i].subProduct);
-        }else{
+        } else {
           sum += listCart[i].totalPrice;
         }
       };
@@ -98,7 +98,7 @@ const Cart = (props) => {
       setIsLoading(false);
       console.log("Update item error: ", error);
     }
-  }; 
+  };
 
   const updateItemCart = async (_idOrderDetail, _amount, _idOrder, _idSubProduct, subProduct) => {
     try {
@@ -127,7 +127,12 @@ const Cart = (props) => {
 
   return (
     <View style={{ flex: 1, backgroundColor: 'white', position: 'relative' }}>
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 6, paddingHorizontal: 12 }}>
+      <View style={
+        {
+          flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
+          paddingVertical: 6, paddingHorizontal: 12, borderColor: '#ddd', borderBottomWidth: 1
+        }
+      }>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Image
             style={{ width: 22, height: 22 }}
