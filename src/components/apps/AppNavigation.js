@@ -18,12 +18,15 @@ import CheckOut from './screens/Cart/CheckOut';
 import Success from './screens/Cart/Success';
 import AddReview from './screens/Review/AddReview';
 import ListReview from './screens/Review/ListReview';
-import OrderStack from './screens/Order/OrderStack';
 import Setting from './screens/Setting/Setting';
 import Shipping from './screens/Shipping/Shipping';
 import EditPassword from './screens/Setting/EditPassword';
 import UpdateProfile from './screens/Setting/UpdateProfile';
 import ShippngAdress from './screens/Shipping/ShippngAdress';
+import UpdateAvatar from './screens/Setting/UpdateAvatar';
+import Order from './screens/Order/Order';
+import OrderDetail from './screens/Order/OrderDetail';
+import MyProfile from './screens/TabScreen/MyProfile';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator()
@@ -57,6 +60,7 @@ const BottomNavigation = () => {
 
                 tabBarActiveTintColor: 'black',
                 tabBarInactiveTintColor: 'gray',
+                initialRouteName: 'Home',
             })}>
 
             <Tab.Screen options={{ headerShown: false }} name="Home" component={Home} />
@@ -95,19 +99,21 @@ const AppNavigation = () => {
     return (
         <NavigationContainer independent={true}>
             <Stack.Navigator initialRouteName="BottomNavigation">
-                {/* {GetComponent()} */}
                 <Stack.Screen options={{ headerShown: false }} name='BottomNavigation' component={BottomNavigation} />
                 <Stack.Screen options={{ headerShown: false }} name='ListProduct' component={ListProduct} />
                 <Stack.Screen options={{ headerShown: false }} name='ProductDetail' component={ProductDetail} />
                 <Stack.Screen options={{ headerShown: false }} name='SearchScreen' component={SearchScreen} />
                 <Stack.Screen options={{ headerShown: false }} name='CheckOut' component={CheckOut} />
                 <Stack.Screen options={{ headerShown: false }} name='Success' component={Success} />
-                <Stack.Screen options={{ headerShown: false }} name='OrderStack' component={OrderStack} />
+                <Stack.Screen options={{ headerShown: false }} name='Order' component={Order} />
+                <Stack.Screen options={{ headerShown: false }} name='OrderDetail' component={OrderDetail} />
                 <Stack.Screen options={{ headerShown: false }} name='Setting' component={Setting} />
                 <Stack.Screen options={{ headerShown: false }} name='Shipping' component={Shipping} />
                 <Stack.Screen options={{ headerShown: false }} name='ShippngAdress' component={ShippngAdress} />
                 <Stack.Screen options={{ headerShown: false }} name='EditPassword' component={EditPassword} />
                 <Stack.Screen options={{ headerShown: false }} name='UpdateProfile' component={UpdateProfile} />
+                <Stack.Screen options={{ headerShown: false }} name='UpdateAvatar' component={UpdateAvatar} />
+                <Stack.Screen options={{ headerShown: false }} name='MyProfile' component={MyProfile} />
                 <Stack.Screen options={{ headerShown: false }} name='AddReview' component={AddReview} />
                 <Stack.Screen options={{ headerShown: false }} name='ListReview' component={ListReview} />
 

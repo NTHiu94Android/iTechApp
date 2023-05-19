@@ -1,12 +1,15 @@
 import { StyleSheet, Text, View, TouchableOpacity, ScrollView } from 'react-native'
-import React, { useContext, useEffect } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { AppContext } from '../../../AppContext';
 import { UserContext } from '../../../../users/UserContext';
+
+import ProgressDialog from 'react-native-progress-dialog';
 
 const Processing = (props) => {
   const { navigation } = props;
   const { } = useContext(AppContext);
   const { user } = useContext(UserContext);
+  const [isLoading, setIsLoading] = useState(false);
   const [listProcessing, setListProcessing] = useState([]);
 
   useEffect(() => {
@@ -25,6 +28,11 @@ const Processing = (props) => {
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: 'white' }}>
+      <ProgressDialog
+        visible={isLoading}
+        loaderColor="black"
+        lable="Vui lòng đợi trong giây lát..."
+      />
       <View style={styles.container}>
         {
           listProcessing.length > 0 &&
@@ -69,7 +77,7 @@ const styles = StyleSheet.create({
     height: 36,
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: 5,
+    borderRadius: 30,
     marginTop: 10,
     marginBottom: 10,
   },
@@ -118,20 +126,20 @@ const data = [
     orderDate: "20/03/2020",
     quantity: 3,
     totalPrice: 140,
-    status: "Delivered"
+    status: "Processing"
   },
   {
     _id: "No238562313",
     orderDate: "20/03/2020",
     quantity: 8,
     totalPrice: 440,
-    status: "Delivered"
+    status: "Confirmed"
   },
   {
     _id: "No238562314",
     orderDate: "20/03/2020",
     quantity: 5,
     totalPrice: 250,
-    status: "Delivered"
+    status: "Processing"
   },
 ];

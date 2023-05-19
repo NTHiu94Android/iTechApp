@@ -1,7 +1,9 @@
 import { StyleSheet, Text, View, TouchableOpacity, ScrollView } from 'react-native'
-import React, { useContext, useEffect } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { AppContext } from '../../../AppContext';
 import { UserContext } from '../../../../users/UserContext';
+
+import ProgressDialog from 'react-native-progress-dialog';
 
 const Item = ({ item, onpress }) => (
   <View style={styles.containerItem}>
@@ -31,31 +33,32 @@ const Item = ({ item, onpress }) => (
 
 const Canceled = (props) => {
   const { navigation } = props;
-  const { onGetOrderByIdUserAndStatus, listCanceled, setListCanceled, setCountOrderDetail, countOrderDetail } = useContext(AppContext);
+  const { } = useContext(AppContext);
   const { user } = useContext(UserContext);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const [listCanceled, setListCanceled] = useState([]);
 
   useEffect(() => {
+    const getOrderByIdUserAndStatus = async () => {
+
+    };
     getOrderByIdUserAndStatus();
   }, []);
 
-  const getOrderByIdUserAndStatus = async () => {
-    const res = await onGetOrderByIdUserAndStatus(user._id, 'Canceled');
-    if (res != undefined) {
-      //console.log(res);
-      setListCanceled(res);
-    } else {
-      //console.log('error get delivered: ');
-      setListCanceled([]);
-    }
-  };
+
 
   const gotoOrderDetail = (item) => {
-    setCountOrderDetail(countOrderDetail + 1);
     navigation.navigate('OrderDetail', { item });
   };
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: 'white' }}>
+      <ProgressDialog
+        visible={isLoading}
+        loaderColor="black"
+        lable="Vui lòng đợi trong giây lát..."
+      />
       <View style={styles.container}>
         {
           listCanceled.length > 0 &&
@@ -100,7 +103,7 @@ const styles = StyleSheet.create({
     height: 36,
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: 5,
+    borderRadius: 30,
     marginTop: 10,
     marginBottom: 10,
   },

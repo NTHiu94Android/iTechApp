@@ -4,45 +4,29 @@ import { UserContext } from '../../../users/UserContext';
 
 const Profile = (props) => {
   const { navigation } = props;
-  const { user, onLogout } = useContext(UserContext);
-
-  const handleLogout = async () => {
-    try {
-      const res = await onLogout(user._id);
-      if (res != null || res != undefined) {
-        console.log("Logout success!", res.data.fcmToken);
-      }
-    } catch (error) {
-      console.log('Error when logout: ', error);
-    }
-  };
+  const { user } = useContext(UserContext);
 
   return (
-
     <View style={{ flex: 1, backgroundColor: 'white' }}>
-      {/* <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', paddingVertical: 6, paddingHorizontal: 12, backgroundColor: '#F5F5F5' }}>
-        <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', height: 50}}>
-          <Text style={{ color: 'black', fontWeight: '800', fontSize: 18, textAlign: 'center' }}>Profile</Text>
-        </View>
-      </View> */}
-
       <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1, backgroundColor: 'white', paddingTop: 30 }}>
         {/* Body */}
         <View>
 
           {/* Profile */}
-          <View style={styles.viewProfile}>
-            <View style={styles.viewImgProfile0}>
-              <Image
-                style={[styles.iconTopBar, { borderRadius: 80, width: 80, height: 80 }]}
-                resizeMode='cover'
-                source={{ uri: user.avatar }} />
-              <View style={styles.viewInfo}>
-                <Text style={[styles.textName, { color: 'black', }]}>{user.name}</Text>
-                <Text style={styles.textStatus}>View my profile</Text>
+          <TouchableOpacity onPress={() => navigation.navigate('UpdateAvatar')}>
+            <View style={styles.viewProfile}>
+              <View style={styles.viewImgProfile0}>
+                <Image
+                  style={[styles.iconTopBar, { borderRadius: 80, width: 80, height: 80 }]}
+                  resizeMode='cover'
+                  source={{ uri: user.avatar }} />
+                <View style={styles.viewInfo}>
+                  <Text style={[styles.textName, { color: 'black', }]}>{user.name}</Text>
+                  <Text style={styles.textStatus}>View my profile</Text>
+                </View>
               </View>
             </View>
-          </View>
+          </TouchableOpacity>
 
           {/* My orders */}
           <View style={styles.viewOption}>
@@ -51,7 +35,7 @@ const Profile = (props) => {
                 <Text style={styles.textName}>My orders</Text>
                 <Text style={styles.textStatus}>Already have 10 orders</Text>
               </View>
-              <TouchableOpacity onPress={() => navigation.navigate('OrderStack')}>
+              <TouchableOpacity onPress={() => navigation.navigate('Order')}>
                 <Image
                   style={styles.iconTopBar}
                   resizeMode='cover'
@@ -60,7 +44,7 @@ const Profile = (props) => {
             </View>
           </View>
 
-          {/* My cloud */}
+          {/* Shippng address */}
           <View style={styles.viewOption}>
             <View style={styles.viewImgProfile}>
               <View style={styles.viewInfo}>
@@ -76,14 +60,14 @@ const Profile = (props) => {
             </View>
           </View>
 
-          {/* Data and storage */}
+          {/* Payment method */}
           <View style={styles.viewOption}>
             <View style={styles.viewImgProfile}>
               <View style={styles.viewInfo}>
                 <Text style={styles.textName}>Payment Method</Text>
                 <Text style={styles.textStatus}>You have 2 cards</Text>
               </View>
-              <TouchableOpacity onPress={() => navigation.navigate('OrderStack')}>
+              <TouchableOpacity>
                 <Image
                   style={styles.iconTopBar}
                   resizeMode='cover'
@@ -92,14 +76,14 @@ const Profile = (props) => {
             </View>
           </View>
 
-          {/* Account and security */}
+          {/* Reviews */}
           <View style={styles.viewOption}>
             <View style={styles.viewImgProfile}>
               <View style={styles.viewInfo}>
                 <Text style={styles.textName}>My reviews</Text>
                 <Text style={styles.textStatus}>Reviews for 5 items</Text>
               </View>
-              <TouchableOpacity onPress={() => navigation.navigate('OrderStack')}>
+              <TouchableOpacity >
                 <Image
                   style={styles.iconTopBar}
                   resizeMode='cover'
@@ -125,21 +109,6 @@ const Profile = (props) => {
             </View>
           </View>
 
-          {/* Logout */}
-          <View style={styles.viewOption}>
-            <View style={styles.viewImgProfile}>
-              <View style={styles.viewInfo}>
-                <Text style={styles.textName}>Logout</Text>
-              </View>
-              <TouchableOpacity onPress={() => handleLogout()}>
-                <Image
-                  style={styles.iconTopBar}
-                  resizeMode='cover'
-                  source={require('../../../../assets/images/next2.png')} />
-              </TouchableOpacity>
-
-            </View>
-          </View>
         </View>
       </ScrollView>
     </View>

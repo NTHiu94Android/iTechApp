@@ -33,30 +33,24 @@ const Item = ({ item, onpress }) => (
 
 const Delivered = (props) => {
   const { navigation } = props;
-  const { onGetOrderByIdUserAndStatus, listDelivered, setListDelivered, setCountOrderDetail, countOrderDetail } = useContext(AppContext);
+  const {  } = useContext(AppContext);
   const { user } = useContext(UserContext);
+  const [listDelivered, setListDelivered] = useState([]);
 
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
+    const getOrderByIdUserAndStatus = async () => {
+      setIsLoading(true);
+      
+      setIsLoading(false);
+    };
     getOrderByIdUserAndStatus();
   }, []);
 
-  const getOrderByIdUserAndStatus = async () => {
-    setIsLoading(true);
-    const res = await onGetOrderByIdUserAndStatus(user._id, 'Delivered');
-    if (res != undefined) {
-      //console.log(res);
-      setListDelivered(res);
-    }else{
-      //console.log('error get delivered: ');
-      setListDelivered([]);
-    }
-    setIsLoading(false);
-  };
+  
 
   const gotoOrderDetail = (item) => {
-    setCountOrderDetail(countOrderDetail + 1);
     navigation.navigate('OrderDetail', { item });
   };
 
@@ -70,8 +64,8 @@ const Delivered = (props) => {
       </View>
       <ProgressDialog
         visible={isLoading}
-        title="Đang tải dữ liệu"
-        message="Vui lòng đợi trong giây lát..."
+        loaderColor="black"
+        lable="Vui lòng đợi trong giây lát..."
       />
     </ScrollView>
   )
@@ -111,7 +105,7 @@ const styles = StyleSheet.create({
     height: 36,
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: 5,
+    borderRadius: 30,
     marginTop: 10,
     marginBottom: 10,
   },

@@ -5,29 +5,42 @@ import Delivered from './OrderStatus/Delivered';
 import Canceled from './OrderStatus/Canceled';
 import Processing from './OrderStatus/Processing';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
-import back from '../../../back/back';
-
+import backToScreen from '../../../back/backToScreen';
 
 const Tab = createMaterialTopTabNavigator();
 
 const Order = (props) => {
   const { navigation } = props;
-  back(navigation);
+  backToScreen(navigation, 'BottomNavigation');
   return (
-    <View style={{ flex: 1, paddingTop: 30, backgroundColor: 'white' }}>
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 12, marginTop: 18 }}>
+    <View style={{ flex: 1, backgroundColor: 'white' }}>
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingTop: 6, paddingHorizontal: 12 }}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Image
-            style={styles.iconTopBar}
+            style={{ width: 22, height: 22 }}
             resizeMode='cover'
-            source={require('../../../../assets/images/back2.png')} />
+            source={require('../../../../assets/images/back.png')} />
         </TouchableOpacity>
-
-        <Text style={styles.textProfile}>My order</Text>
-        <View style={styles.iconTopBar}></View>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', height: 50 }}>
+          <Text style={{ color: 'black', fontWeight: '800', fontSize: 18 }}>My Order</Text>
+        </View>
+        <View style={{ width: 22, height: 22 }} />
       </View>
 
-      <Tab.Navigator>
+      <Tab.Navigator
+        screenOptions={() => ({
+          tabBarActiveTintColor: 'black',
+          tabBarInactiveTintColor: 'gray',
+          tabBarIndicatorStyle: {
+            backgroundColor: 'black',
+            height: 3,
+          },
+          tabBarLabelStyle: {
+            fontSize: 14,
+            fontWeight: 'bold',
+          }
+        })}
+      >
         <Tab.Screen options={{ headerShown: false }} name="Processing" component={Processing} />
         <Tab.Screen options={{ headerShown: false }} name="Delivered" component={Delivered} />
         <Tab.Screen options={{ headerShown: false }} name="Canceled" component={Canceled} />

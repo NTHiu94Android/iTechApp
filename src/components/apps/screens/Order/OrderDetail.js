@@ -4,9 +4,11 @@ import { UserContext } from '../../../users/UserContext';
 import { AppContext } from '../../AppContext';
 
 import ProgressDialog from 'react-native-progress-dialog';
+import back from '../../../back/back';
 
 const OrderDetail = (props) => {
   const { navigation } = props;
+  back(navigation);
   const { item } = props.route.params;
   const { user } = useContext(UserContext);
   const { } = useContext(AppContext);
@@ -33,12 +35,12 @@ const OrderDetail = (props) => {
 
   return (
     <View style={{ flex: 1, backgroundColor: 'white' }}>
-      <View style={container}>
-        <View style={header}>
-          <View style={viewHeader}>
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <View style={styles.viewHeader}>
             <TouchableOpacity onPress={() => navigation.goBack()}>
               <Image
-                style={icBack}
+                style={styles.icBack}
                 source={require('../../../../assets/images/back.png')}
                 resizeMode="cover"></Image>
             </TouchableOpacity>
@@ -47,57 +49,57 @@ const OrderDetail = (props) => {
         </View>
 
         <ScrollView style={{ flex: 1, backgroundColor: 'white' }} showsVerticalScrollIndicator={false}>
-          <View style={body}>
-            <View style={viewTxtOrder}>
-              <View style={viewOrder}>
-                <Text numberOfLines={1} style={txtOrder}>Order No{item._id}</Text>
+          <View style={styles.body}>
+            <View style={styles.viewTxtOrder}>
+              <View style={styles.viewOrder}>
+                <Text numberOfLines={1} style={styles.txtOrder}>Order No{item._id}</Text>
                 <Text>{item.orderDate}</Text>
               </View>
-              <View style={[viewDetail,]}>
-                <View style={viewTotal}>
-                  <Text style={txtTitle}>Total:</Text>
-                  <Text style={txtValue} >${item.totalPrice}</Text>
+              <View style={[styles.viewDetail,]}>
+                <View style={styles.viewTotal}>
+                  <Text style={styles.txtTitle}>Total:</Text>
+                  <Text style={styles.txtValue} >${item.totalPrice}</Text>
                 </View>
-                <View style={viewTotal}>
-                  <Text style={txtTitle}>Payments:</Text>
-                  <Text style={txtValuePayments}>Cash</Text>
+                <View style={styles.viewTotal}>
+                  <Text style={styles.txtTitle}>Payments:</Text>
+                  <Text style={styles.txtValuePayments}>Cash</Text>
                 </View>
-                <View style={viewStatus}>
-                  <Text style={txtTitle}>Status:</Text>
-                  {item.status == 'Delivered' && <Text style={txtValueStatus}>{item.status}</Text>}
-                  {item.status == 'Canceled' && <Text style={[txtValueStatus, { color: 'red' }]}>{item.status}</Text>}
-                  {item.status == 'Confirmed' && <Text style={[txtValueStatus]}>{item.status}</Text>}
-                  {item.status == 'Processing' && <Text style={[txtValueStatus, { color: '#FFD700' }]}>{item.status}</Text>}
+                <View style={styles.viewStatus}>
+                  <Text style={styles.txtTitle}>Status:</Text>
+                  {item.status == 'Delivered' && <Text style={styles.txtValueStatus}>{item.status}</Text>}
+                  {item.status == 'Canceled' && <Text style={[styles.txtValueStatus, { color: 'red' }]}>{item.status}</Text>}
+                  {item.status == 'Confirmed' && <Text style={[styles.txtValueStatus]}>{item.status}</Text>}
+                  {item.status == 'Processing' && <Text style={[styles.txtValueStatus, { color: '#FFD700' }]}>{item.status}</Text>}
                 </View>
               </View>
             </View>
 
             {/* view custom */}
-            <View style={viewTxtCustom}>
-              <View style={viewCustomer}>
-                <Text style={txtCustomer}>Customer Information</Text>
+            <View style={styles.viewTxtCustom}>
+              <View style={styles.viewCustomer}>
+                <Text style={styles.txtCustomer}>Customer Information</Text>
               </View>
-              <View style={viewInformation}>
-                <View style={viewName}>
-                  <Text style={txtTitle}>Name:</Text>
-                  <Text style={txtValue}>{user.name}</Text>
+              <View style={styles.viewInformation}>
+                <View style={styles.viewName}>
+                  <Text style={styles.txtTitle}>Name:</Text>
+                  <Text style={styles.txtValue}>{user.name}</Text>
                 </View>
-                <View style={viewTotal}>
-                  <Text style={txtTitle}>Phone number:</Text>
-                  <Text style={txtValue}>{user.numberPhone}</Text>
+                <View style={styles.viewTotal}>
+                  <Text style={styles.txtTitle}>Phone number:</Text>
+                  <Text style={styles.txtValue}>{user.numberPhone}</Text>
                 </View>
-                <View style={viewStatus}>
-                  <Text style={txtTitle}>Address:</Text>
-                  <Text style={txtValue}>{user.address}</Text>
+                <View style={styles.viewStatus}>
+                  <Text style={styles.txtTitle}>Address:</Text>
+                  <Text style={styles.txtValue}>{user.address}</Text>
                 </View>
               </View>
             </View>
           </View>
 
 
-          <View style={footer}>
-            <View style={[viewCustomer, { flexDirection: 'column' }]}>
-              <Text style={[txtCustomer, { marginBottom: 16, width: '100%' }]}>List product</Text>
+          <View style={styles.footer}>
+            <View style={[styles.viewCustomer, { flexDirection: 'column' }]}>
+              <Text style={[styles.txtCustomer, { marginBottom: 16, width: '100%' }]}>List product</Text>
               {
                 listOrderDetail.length > 0 &&
                 listOrderDetail.map((item) => <Item key={item._id} item={item} gotoComment={() => gotoComment(item)} />)
