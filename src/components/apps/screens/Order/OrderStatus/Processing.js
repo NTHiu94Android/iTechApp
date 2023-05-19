@@ -3,56 +3,23 @@ import React, { useContext, useEffect } from 'react'
 import { AppContext } from '../../../AppContext';
 import { UserContext } from '../../../../users/UserContext';
 
-const Item = ({ item, onpress }) => (
-  <View style={styles.containerItem}>
-    <View style={styles.rowItem}>
-      <Text style={{ fontSize: 16, fontWeight: '600', color: 'black' }}>Order {item._id}</Text>
-      <Text style={{ fontSize: 16, fontWeight: '400' }}>{item.orderDate}</Text>
-    </View>
-    <View style={{ borderBottomWidth: 1, borderBottomColor: 'black', marginVertical: 10 }}></View>
-    <View style={styles.rowItem}>
-      <View style={styles.rowItem}>
-        <Text style={{ fontSize: 16, fontWeight: '400' }}>Quantity: </Text>
-        <Text style={{ fontSize: 16, fontWeight: '600', color: 'black' }}>{item.quantity}</Text>
-      </View>
-      <View style={styles.rowItem}>
-        <Text style={{ fontSize: 16, fontWeight: '400' }}>Total Amount: </Text>
-        <Text style={{ fontSize: 16, fontWeight: '600', color: 'black' }}>{item.totalPrice}</Text>
-      </View>
-    </View>
-    <View style={[styles.rowItem, { marginTop: 16 }]}>
-      <TouchableOpacity onPress={onpress} style={styles.buttonDetail}>
-        <Text style={styles.textDetail}>Detail</Text>
-      </TouchableOpacity>
-      {
-        item.status == 'Processing' && <Text style={{ fontSize: 16, fontWeight: '600', color: '#FFD700' }}>{item.status}</Text>
-      }
-      {
-        item.status == 'Confirmed' && <Text style={{ fontSize: 16, fontWeight: '600', color: '#27AE60' }}>{item.status}</Text>
-      }
-    </View>
-  </View>
-);
-
 const Processing = (props) => {
   const { navigation } = props;
-  const { onGetOrderByIdUserAndStatus, listProcessing, setListProcessing, countOrderDetail, setCountOrderDetail } = useContext(AppContext);
+  const { } = useContext(AppContext);
   const { user } = useContext(UserContext);
+  const [listProcessing, setListProcessing] = useState([]);
 
   useEffect(() => {
+    const getOrderByIdUserAndStatus = async () => {
+      //Xu ly lay list order
+      setListProcessing(data);
+    };
     getOrderByIdUserAndStatus();
   }, []);
 
-  const getOrderByIdUserAndStatus = async () => {
-    const res1 = await onGetOrderByIdUserAndStatus(user._id, 'Processing');
-    const res2 = await onGetOrderByIdUserAndStatus(user._id, 'Confirmed');
-    //console.log("Processing list: ", res1); 
-    //console.log("Confirmed list: ", res2);
-    setListProcessing([...res1, ...res2]);
-  };
+
 
   const gotoOrderDetail = (item) => {
-    setCountOrderDetail(countOrderDetail + 1);
     navigation.navigate('OrderDetail', { item });
   };
 
@@ -113,6 +80,37 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   }
 });
+
+const Item = ({ item, onpress }) => (
+  <View style={styles.containerItem}>
+    <View style={styles.rowItem}>
+      <Text style={{ fontSize: 16, fontWeight: '600', color: 'black' }}>Order {item._id}</Text>
+      <Text style={{ fontSize: 16, fontWeight: '400' }}>{item.orderDate}</Text>
+    </View>
+    <View style={{ borderBottomWidth: 1, borderBottomColor: 'black', marginVertical: 10 }}></View>
+    <View style={styles.rowItem}>
+      <View style={styles.rowItem}>
+        <Text style={{ fontSize: 16, fontWeight: '400' }}>Quantity: </Text>
+        <Text style={{ fontSize: 16, fontWeight: '600', color: 'black' }}>{item.quantity}</Text>
+      </View>
+      <View style={styles.rowItem}>
+        <Text style={{ fontSize: 16, fontWeight: '400' }}>Total Amount: </Text>
+        <Text style={{ fontSize: 16, fontWeight: '600', color: 'black' }}>{item.totalPrice}</Text>
+      </View>
+    </View>
+    <View style={[styles.rowItem, { marginTop: 16 }]}>
+      <TouchableOpacity onPress={onpress} style={styles.buttonDetail}>
+        <Text style={styles.textDetail}>Detail</Text>
+      </TouchableOpacity>
+      {
+        item.status == 'Processing' && <Text style={{ fontSize: 16, fontWeight: '600', color: '#FFD700' }}>{item.status}</Text>
+      }
+      {
+        item.status == 'Confirmed' && <Text style={{ fontSize: 16, fontWeight: '600', color: '#27AE60' }}>{item.status}</Text>
+      }
+    </View>
+  </View>
+);
 
 const data = [
   {

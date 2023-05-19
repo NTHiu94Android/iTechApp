@@ -9,38 +9,22 @@ const OrderDetail = (props) => {
   const { navigation } = props;
   const { item } = props.route.params;
   const { user } = useContext(UserContext);
-  const { onGetOrderDetailsByIdOrder, countOrderDetail, onGetProductById, onGetCommentByIdUser, onGetCommentByIdUserAndIdProduct } = useContext(AppContext);
+  const { } = useContext(AppContext);
 
   const [listOrderDetail, setListOrderDetail] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    getOrderDetail();
-  }, [countOrderDetail]);
+    const getOrderDetail = async () => {
+      setIsLoading(true);
+      //Xu ly lay list order detail
 
-  const getOrderDetail = async () => {
-    setIsLoading(true);
-    const res = await onGetOrderDetailsByIdOrder(item._id);
-    for (let i = 0; i < res.length; i++) {
-      const product = await onGetProductById(res[i].idProduct);
-      const cmt = await onGetCommentByIdUserAndIdProduct(user._id, product._id);
-      console.log('cmt: ' + i, cmt);
-      if (cmt.length > 0) {
-        res[i].isCmt = true;
-      } else {
-        res[i].isCmt = false;
-      }
-      res[i].product = product;
-      res[i].status = item.status;
-    }
-    console.log('res list order detail: ', res.cmt);
-    if (res != undefined) {
-      setListOrderDetail(res);
-    } else {
-      setListOrderDetail([]);
-    }
-    setIsLoading(false);
-  };
+      setIsLoading(false);
+    };
+    getOrderDetail();
+  }, []);
+
+
 
   const gotoComment = (item) => {
     navigation.navigate('Comment', { item });
@@ -58,7 +42,7 @@ const OrderDetail = (props) => {
                 source={require('../../../../assets/images/back.png')}
                 resizeMode="cover"></Image>
             </TouchableOpacity>
-            <Text style={txtOrderDetail}>Order Detail</Text>
+            <Text style={styles.txtOrderDetail}>Order Detail</Text>
           </View>
         </View>
 
@@ -125,9 +109,8 @@ const OrderDetail = (props) => {
 
       <ProgressDialog
         visible={isLoading}
-        title="Đang tải dữ liệu"
-        message="Vui lòng đợi trong giây lát..."
-      />
+        loaderColor="black"
+        label="Please wait..." />
 
     </View>
   )
@@ -379,10 +362,10 @@ const Item = ({ item, gotoComment }) => {
   return (
     <View style={styles.listItem}>
       <View style={{ flexDirection: 'row' }}>
-        <Image source={{ uri: item.product.listImage[0] }} style={styles.imgLst} />
+        <Image source={{ uri: item.product.image }} style={styles.imgLst} />
         <View style={styles.listItemName}>
           <Text numberOfLines={1} style={styles.TextlstName}>{item.product.name}</Text>
-          <Text style={styles.TextlstPrice}>$ {item.product.price} * {item.amount}</Text>
+          <Text style={styles.TextlstPrice}>$ {item.totalPrice}</Text>
         </View>
       </View>
 
@@ -402,3 +385,10 @@ const Item = ({ item, gotoComment }) => {
 
   );
 };
+
+const OrderDetailData = [
+  {
+    id: '1',
+
+  }
+]
