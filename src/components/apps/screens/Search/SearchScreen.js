@@ -152,7 +152,7 @@ const SearchScreen = (props) => {
           {
             listSearch && listSearch.length > 0 ?
               listSearch.map((item) =>
-                <Item key={item._id} item={item} onPress={() => navigation.navigate('ProductDetail', { productItem: item })} />
+                <Item key={item._id} item={item} onPress={() => navigation.navigate('ProductDetail', { idProduct: item._id })} />
               ) : null
           }
         </View>

@@ -94,6 +94,45 @@ const ListProduct = ({ navigation, route }) => {
     setIsLoading(false);
   };
 
+  //Lay danh sach theo muc gia va idBrand 
+  const getProductsByPriceAndIdBrand = async (idBrand, priceStart, priceEnd) => {
+    setIsLoading(true);
+    const res = listProductRef.current;
+    const resReview = listReviewRef.current;
+    const resSubProduct = listSubProductRef.current;
+    const listProduct = res.data;
+    console.log('idBrand: ', idBrand);
+    console.log('price: ', priceStart + " ---- " + priceEnd);
+    let listFilter = [];
+    if (idBrand === 'all') {
+      for (let i = 0; i < listProduct.length; i++) {
+        if (listProduct[i].idCategory === category._id) {
+          listProduct[i].rating = await getStar(listProduct[i]._id, resReview);
+          const subProduct = await onGetSubProductsByIdProduct(listProduct[i]._id, resSubProduct);
+          listProduct[i].subProduct = subProduct;
+          if (listProduct[i].subProduct[0].price <= priceEnd && listProduct[i].subProduct[0].price >= priceStart) {
+            listFilter.push(listProduct[i]);
+            console.log('listFilter: ', listProduct[i].name);
+          }
+        }
+      }
+    } else {
+      for (let i = 0; i < listProduct.length; i++) {
+        if (listProduct[i].idBrand === idBrand) {
+          listProduct[i].rating = await getStar(listProduct[i]._id, resReview);
+          const subProduct = await onGetSubProductsByIdProduct(listProduct[i]._id, resSubProduct);
+          listProduct[i].subProduct = subProduct;
+          if (listProduct[i].subProduct[0].price <= priceEnd && listProduct[i].subProduct[0].price >= priceStart) {
+            listFilter.push(listProduct[i]);
+            console.log('listFilter: ', listProduct[i].name);
+          }
+        }
+      }
+    }
+    setListProduct(listFilter);
+    setIsLoading(false);
+  };
+
   //Lay danh sach subProduct theo idProduct
   const onGetSubProductsByIdProduct = async (idProduct, res) => {
     try {
@@ -242,9 +281,28 @@ const ListProduct = ({ navigation, route }) => {
             }
           </ScrollView>
 
-          <View style={{ flexDirection: 'row', justifyContent: 'flex-end', marginBottom: 16, marginRight: 30 }}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 16, marginRight: 30 }}>
+            <ScrollView style={{ marginHorizontal: 12 }} horizontal={true} showsHorizontalScrollIndicator={false}>
+              <TouchableOpacity onPress={() => getProductsByPriceAndIdBrand(idSelected, 1, 100)} style={{ marginRight: 10 }}>
+                <Text style={{ color: 'blue', fontWeight: '600', fontSize: 16, textDecorationLine: 'underline' }}>1$-100$</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => getProductsByPriceAndIdBrand(idSelected, 100, 300)} style={{ marginRight: 10 }}>
+                <Text style={{ color: 'blue', fontWeight: '600', fontSize: 16, textDecorationLine: 'underline' }}>100$-300$</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => getProductsByPriceAndIdBrand(idSelected, 300, 500)} style={{ marginRight: 10 }}>
+                <Text style={{ color: 'blue', fontWeight: '600', fontSize: 16, textDecorationLine: 'underline' }}>300$-500$</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => getProductsByPriceAndIdBrand(idSelected, 500, 700)} style={{ marginRight: 10 }}>
+                <Text style={{ color: 'blue', fontWeight: '600', fontSize: 16, textDecorationLine: 'underline' }}>500$-700$</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => getProductsByPriceAndIdBrand(idSelected, 700, 999999999)} style={{ marginRight: 10 }}>
+                <Text style={{ color: 'blue', fontWeight: '600', fontSize: 16, textDecorationLine: 'underline' }}>Over 700$</Text>
+              </TouchableOpacity>
+
+
+            </ScrollView>
             <TouchableOpacity onPress={() => showDialogSort()}>
-              <Text style={{ color: 'black', fontWeight: '600', fontSize: 14, textDecorationLine: 'underline' }}>Sort by</Text>
+              <Text style={{ color: 'black', fontWeight: '800', fontSize: 16, textDecorationLine: 'underline' }}>Sort by</Text>
             </TouchableOpacity>
           </View>
 
@@ -256,7 +314,7 @@ const ListProduct = ({ navigation, route }) => {
             {
               listProduct ?
                 listProduct.map((item) =>
-                  <Item key={item._id} item={item} onPress={() => navigation.navigate('ProductDetail', { productItem: item })} />
+                  <Item key={item._id} item={item} onPress={() => navigation.navigate('ProductDetail', { idProduct: item._id })} />
                 ) : null
             }
           </View>

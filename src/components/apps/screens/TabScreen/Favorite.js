@@ -38,6 +38,7 @@ const Favorite = (props) => {
         for (let i = 0; i < response.data.length; i++) {
           const subProduct = await onGetSubProductById(response.data[i].idSubProduct);
           const product = listProduct.find(item => item._id === subProduct.idProduct);
+          response.data[i].product = product;
           response.data[i].image = product.image;
           response.data[i].color = subProduct.color;
           response.data[i].name = product.name;
@@ -143,6 +144,7 @@ const Favorite = (props) => {
           <Item
             addOneToCart={() => addOneToCart(item)}
             deleteFavoriteItem={() => deleteFavoriteItem(item._id)}
+            gotoProductDetail={() => navigation.navigate('ProductDetail', { idProduct: item.product._id })}
             name={item.name}
             color={item.color}
             image={item.image}
@@ -241,12 +243,14 @@ const styles = StyleSheet.create({
 
 })
 
-const Item = ({ name, price, image, color, deleteFavoriteItem, addOneToCart }) => {
+const Item = ({ name, price, image, color, deleteFavoriteItem, addOneToCart, gotoProductDetail }) => {
   return (
     <View style={styles.listItem}>
-      <View style={{ borderWidth: 1, borderColor: '#ddd', borderRadius: 8 }}>
-        <Image source={{ uri: image }} style={styles.imgLst} />
-      </View>
+      <TouchableOpacity onPress={gotoProductDetail}>
+        <View style={{ borderWidth: 1, borderColor: '#ddd', borderRadius: 8 }}>
+          <Image source={{ uri: image }} style={styles.imgLst} />
+        </View>
+      </TouchableOpacity>
       <View style={styles.listItemName}>
         <Text numberOfLines={1} style={styles.TextlstName}>{name}</Text>
         <Text style={{ fontSize: 16, color: 'black', fontWeight: '600' }}>{color}</Text>

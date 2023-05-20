@@ -1,19 +1,32 @@
-import { StyleSheet, Text, View, Image, ScrollView, TouchableOpacity, ToastAndroid } from 'react-native'
+import { StyleSheet, Text, View, Image, ScrollView, TouchableOpacity, ToastAndroid, useWindowDimensions } from 'react-native'
 import React, { useState, useContext, useEffect } from 'react'
 import { AppContext } from '../../AppContext';
 
 import { UserContext } from '../../../users/UserContext';
 
 import { Table, Row, Rows } from 'react-native-table-component';
+import RenderHtml from 'react-native-render-html';
 import Swiper from 'react-native-swiper';
 import ProgressDialog from 'react-native-progress-dialog';
 import back from '../../../back/back';
 
 
 const ProductDetail = ({ route, navigation }) => {
-  const { productItem } = route.params;
+  const { idProduct } = route.params;
+  const { width } = useWindowDimensions();
   back(navigation);
-  const { onGetPicturesByIdProduct, onAddOrderDetail, onGetOrderDetailByIdOrder } = useContext(AppContext);
+  const {
+    //Picture
+    onGetPicturesByIdProduct,
+    //Order detail
+    onAddOrderDetail, onGetOrderDetailByIdOrder,
+    //Product
+    onGetProductById,
+    //Review
+    onGetReviews,
+    //Sub product
+    onGetSubProducts,
+  } = useContext(AppContext);
   const { user } = useContext(UserContext);
   const [count, setCount] = useState(1);
   const [listImage, setListImage] = useState([]);
@@ -21,6 +34,8 @@ const ProductDetail = ({ route, navigation }) => {
   const [itemSelected, setItemSelected] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
+
+  const [productItem, setProductItem] = useState({});
 
   const tableHead = ['Parameter', 'Value'];
   const [tableData, setTableData] = useState(
@@ -32,20 +47,88 @@ const ProductDetail = ({ route, navigation }) => {
 
   //Lay tat ca hinh anh cua san pham va mau sac , binh luan
   useEffect(() => {
-    getListColor();
-    setTableData([
-      ['CPU', productItem.subProduct[0].cpu],
-      ['Ram', productItem.subProduct[0].ram],
-      ['Rom', productItem.subProduct[0].rom],
-      ['Screen', productItem.subProduct[0].screen],
-      ['Pin', productItem.subProduct[0].pin],
-      ['Camera', productItem.subProduct[0].fontCamera],
-    ]);
+    //Lay danh sach mau
+    const getData = async () => {
+      try {
+        let colors = [];
+        const product = await onGetProductById(idProduct);
+        const resReview = await onGetReviews();
+        const resSubProduct = await onGetSubProducts();
+        //Them danh sach subProduct va rating vao product 
+        product.subProduct = await onGetSubProductsByIdProduct(idProduct, resSubProduct);
+        product.rating = await getStar(idProduct, resReview);
+        //Set product
+        setProductItem(product);
+        //Lay danh sach mau
+        for (let i = 0; i < product.subProduct.length; i++) {
+          colors.push(product.subProduct[i].color);
+        }
+        //Set mau mac dinh, lay hinh anh mac dinh, lay thong tin mac dinh, kiem tra yeu thich
+        setItemSelected(product.subProduct[0]);
+        checkFavorite(product.subProduct[0]._id);
+        setListCorlor(colors);
+        getImagesProduct(product.subProduct[0]._id);
+
+        setTableData([
+          ['CPU', product.subProduct[0].cpu],
+          ['Ram', product.subProduct[0].ram],
+          ['Rom', product.subProduct[0].rom],
+          ['Screen', product.subProduct[0].screen],
+          ['Pin', product.subProduct[0].pin],
+          ['Camera', product.subProduct[0].fontCamera],
+        ]);
+
+      } catch (error) {
+        console.log("Get list color error: ", error);
+      }
+    };
+    getData();
   }, []);
+
+  //Lay danh sach subProduct theo idProduct
+  const onGetSubProductsByIdProduct = async (idProduct, res) => {
+    try {
+
+      if (res == null || res == undefined) {
+        return;
+      } else {
+        const subProduct = res.data.filter((item) => item.idProduct == idProduct);
+        return subProduct;
+      }
+    } catch (error) {
+      console.log('onGetSubProductsByIdProduct error: ', error);
+    }
+  };
+
+  //Lay sao tu danh gia set vao tung item
+  const getStar = async (idProduct, res) => {
+    let star = 0;
+    let count = 0;
+
+    if (res == null || res == undefined) {
+      return 0;
+    }
+    const review = res.data;
+    for (let i = 0; i < review.length; i++) {
+      if (review[i].idProduct == idProduct) {
+        count = count + 1;
+        star += review[i].rating;
+      }
+    }
+    if (count == 0) {
+      return 0;
+    } else {
+      return (star / count).toFixed(1);
+    }
+  };
+
+  const source = {
+    html: `${itemSelected.description}`
+  }
 
   //Xu ly thay doi so luong san pham them vao cart
   const handleCountPlus = () => {
-    if (count < 9 && productItem.subProduct[0].quantity > count + 1)
+    if (count < 9)
       setCount(count + 1);
   };
   const handleCountMinus = () => {
@@ -67,29 +150,12 @@ const ProductDetail = ({ route, navigation }) => {
     setIsFavorite(check);
   };
 
-  //Lay danh sach mau
-  const getListColor = async () => {
-    try {
-      let colors = [];
-      const subProduct = productItem.subProduct;
-      for (let i = 0; i < subProduct.length; i++) {
-        colors.push(subProduct[i].color);
-      }
-      setItemSelected(subProduct[0]);
-      checkFavorite(subProduct[0]._id);
-      setListCorlor(colors);
-      getImagesProduct(subProduct[0]._id);
-
-    } catch (error) {
-      console.log("Get list color error: ", error);
-    }
-  };
-
   //Lay anh theo mau
   const getImageByColor = async (color) => {
     setIsLoading(false);
     try {
-      const subProduct = productItem.subProduct;
+      const resSubProduct = await onGetSubProducts();
+      const subProduct = await onGetSubProductsByIdProduct(idProduct, resSubProduct);
       for (let i = 0; i < subProduct.length; i++) {
         if (subProduct[i].color == color) {
           getImagesProduct(subProduct[i]._id);
@@ -297,7 +363,7 @@ const ProductDetail = ({ route, navigation }) => {
 
           {/* View table */}
           <View style={{ flex: 1, backgroundColor: '#fff' }}>
-            <Text style={{ color: 'black', fontWeight: '700', fontSize: 16, marginTop: 14, marginBottom: 8 }}>Product information</Text>
+            <Text style={{ color: 'black', fontWeight: '700', fontSize: 18, marginTop: 14, marginBottom: 8 }}>Product information</Text>
             <Table borderStyle={{ borderWidth: 2, borderColor: '#c8e1ff' }}>
               <Row data={tableHead} style={styles.head} textStyle={styles.text} />
               <Rows data={tableData} textStyle={styles.text} />
@@ -306,10 +372,16 @@ const ProductDetail = ({ route, navigation }) => {
 
           {/* View description */}
           <View style={{ flexDirection: 'column' }}>
-            <Text style={{ color: 'black', fontWeight: '700', marginTop: 14, fontSize: 16 }}>Description</Text>
-            <Text style={{ color: '#808080', fontWeight: '300', textAlign: 'justify', marginTop: 8, }}>
-              {itemSelected.description}
-            </Text>
+            <Text style={{ color: 'black', fontWeight: '700', marginTop: 14, fontSize: 18 }}>Description</Text>
+            {
+              source.html == '' ?
+                <Text>Description</Text> :
+                <RenderHtml
+                  contentWidth={width}
+                  source={source}
+                />
+            }
+
           </View>
 
         </View>

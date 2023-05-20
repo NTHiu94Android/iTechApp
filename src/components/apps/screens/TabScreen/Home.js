@@ -116,8 +116,8 @@ const Home = (props) => {
         navigation.navigate('ListProduct', { category });
     };
 
-    const goToProductDetail = (productItem) => {
-        navigation.navigate('ProductDetail', { productItem });
+    const goToProductDetail = (idProduct) => {
+        navigation.navigate('ProductDetail', { idProduct });
     };
 
     return (
@@ -229,7 +229,7 @@ const Home = (props) => {
                     {/* List item */}
                     <FlatList
                         data={ListSale}
-                        renderItem={({ item }) => <Item onPress={() => goToProductDetail(item)} item={item} />}
+                        renderItem={({ item }) => <Item onPress={() => goToProductDetail(item._id)} item={item} />}
                         keyExtractor={item => item._id}
                         horizontal={true}
                         showsHorizontalScrollIndicator={false}
@@ -258,7 +258,7 @@ const Home = (props) => {
                     {/* List item */}
                     <FlatList
                         data={ListPhone}
-                        renderItem={({ item }) => <Item onPress={() => goToProductDetail(item)} item={item} />}
+                        renderItem={({ item }) => <Item onPress={() => goToProductDetail(item._id)} item={item} />}
                         keyExtractor={item => item._id}
                         horizontal={true}
                         showsHorizontalScrollIndicator={false}
@@ -287,7 +287,7 @@ const Home = (props) => {
                     {/* List item */}
                     <FlatList
                         data={ListLaptop}
-                        renderItem={({ item }) => <Item onPress={() => goToProductDetail(item)} item={item} />}
+                        renderItem={({ item }) => <Item onPress={() => goToProductDetail(item._id)} item={item} />}
                         keyExtractor={item => item._id}
                         horizontal={true}
                         showsHorizontalScrollIndicator={false}

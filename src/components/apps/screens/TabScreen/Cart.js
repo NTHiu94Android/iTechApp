@@ -15,7 +15,7 @@ const Cart = (props) => {
     //Count
     countCart, setCountCart,
     //Sub product
-    onGetSubProductById, onGetSubProducts,
+    onGetSubProducts,
     //Product
     onGetProducts,
     //Order detail
@@ -157,6 +157,7 @@ const Cart = (props) => {
           showsVerticalScrollIndicator={false}
           renderItem={({ item }) =>
             <Item
+              gotoProductDetail={() => navigation.navigate('ProductDetail', { idProduct: item.product._id })}
               deleteItem={() => deleteItem(item._id)}
               plus={() => updateItem(item._id, item.amount > 9 ? item.amount : item.amount + 1)}
               minus={() => updateItem(item._id, item.amount > 1 ? item.amount - 1 : 1)}
@@ -199,13 +200,15 @@ const Cart = (props) => {
 
 export default Cart
 
-const Item = ({ item, plus, minus, deleteItem }) => (
+const Item = ({ item, plus, minus, deleteItem, gotoProductDetail }) => (
 
   <View style={styles.item}>
     <View style={{ flexDirection: 'row' }}>
-      <View style={{ borderWidth: 1, borderColor: '#ddd', borderRadius: 8 }}>
-        <Image source={{ uri: item.imageurl }} style={styles.image} />
-      </View>
+      <TouchableOpacity onPress={gotoProductDetail}>
+        <View style={{ borderWidth: 1, borderColor: '#ddd', borderRadius: 8 }}>
+          <Image source={{ uri: item.imageurl }} style={styles.image} />
+        </View>
+      </TouchableOpacity>
       <View style={{ justifyContent: 'space-between', paddingVertical: 5, paddingStart: 10 }}>
         <View>
           <Text style={{ fontSize: 18, fontWeight: '800', color: 'black' }}>{item.prodName}</Text>
