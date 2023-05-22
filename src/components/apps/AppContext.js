@@ -1,21 +1,23 @@
-import React, { createContext, useContext, useState } from 'react'
+import React, { createContext, useContext, useEffect, useState, useRef } from 'react'
 import {
   //Category & Brand
   getCategories, getBrandsByIdCategory,
   //Product, subProduct
-  getProducts, getSubProductsByIdProduct, getSubProducts,
+  getProducts, getSubProductsByIdProduct, getSubProducts, updateSubProduct,
   //Picture
-  getPicturesByIdProduct,
+  getPicturesByIdProduct, getPictures,
   //Order
   addOrder, getOrdersByIdUser, updateOrder,
   //OrderDetail
   addOrderDetail, getOrderDetailsByIdOrder, deleteOrderDetail, updateOrderDetail,
   //Review
   getReviews,
+  //Address
+  getAddressByIdUser, addAddress, updateAddress, deleteAddress,
 
 } from './AppService';
 import { UserContext } from '../users/UserContext';
-//import { UserContext } from '../users/UserContext';
+import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
 
 export const AppContext = createContext();
 
@@ -25,8 +27,39 @@ export const AppContextProvider = (props) => {
   const [listCart, setListCart] = useState([]);
   const [listFavorite, setListFavorite] = useState([]);
 
+  const [countAddress, setCountAddress] = useState(0);
   const [countCart, setCountCart] = useState(0);
   const [countFavorite, setCountFavorite] = useState(0);
+
+  // const objRef = useRef({});
+
+  // useEffect(() => {
+  //   const getDatas = async () => {
+  //     //Lay danh sach san pham, sub san pham, hinh anh
+  //     const resProducts = await onGetProducts();
+      
+  //     const resSubProducts = await onGetSubProducts();
+  //     const resPictures = await onGetPictures();
+  //     //Lay thuong hieu, danh muc
+  //     const resCategories = await onGetCategories();
+  //     const listCategories = resCategories.data;
+  //     //Lay danh sach thuong hieu theo danh muc
+  //     let listBrands = [];
+  //     for(let i = 0; i < listCategories.length; i++) {
+  //       const resBrands = await onGetBrandsByIdCategory(listCategories[i]._id);
+  //       listBrands.push(resBrands.data);
+  //     }
+
+  //     objRef.current = {
+  //       listProducts: resProducts,
+  //       listSubProducts: resSubProducts,
+  //       listPictures: resPictures,
+  //       listCategories: resCategories,
+  //       listBrands: listBrands,
+  //     }
+  //   };
+  //   getDatas();
+  // }, []);
 
 
   //-------------------------------------------------Category & Brand-------------------------------------------------
@@ -114,6 +147,16 @@ export const AppContextProvider = (props) => {
     }
   };
 
+  //Cap nhat so luong subProduct
+  const onUpdateSubProduct = async (idSubProduct, quantity) => {
+    try {
+      const res = await updateSubProduct(idSubProduct, quantity);
+      return res;
+    } catch (error) {
+      console.log('onUpdateSubProduct error: ', error);
+    }
+  };
+
   //-------------------------------------------------Picture-------------------------------------------------
   //Lay tat ca picture theo idProduct
   const onGetPicturesByIdProduct = async (idSubProduct) => {
@@ -122,6 +165,16 @@ export const AppContextProvider = (props) => {
       return res;
     } catch (error) {
       console.log('onGetPicturesByIdProduct error: ', error);
+    }
+  };
+
+  //Lay tat ca picture
+  const onGetPictures = async () => {
+    try {
+      const res = await getPictures();
+      return res;
+    } catch (error) {
+      console.log('onGetPictures error: ', error);
     }
   };
 
@@ -201,10 +254,34 @@ export const AppContextProvider = (props) => {
 
   //-------------------------------------------------Order-------------------------------------------------
   //Them order
+  const onAddOrder = async (dateCreate, datePayment, totalPrice, status, paymentMethod, address, idUser) => {
+    try {
+      const res = await addOrder(dateCreate, datePayment, totalPrice, status, paymentMethod, address, idUser);
+      return res;
+    } catch (error) {
+      console.log('onAddOrder error: ', error);
+    }
+  };
 
   //Lay danh sach order by idUser
+  const onGetOrdersByIdUser = async (idUser) => {
+    try {
+      const res = await getOrdersByIdUser(idUser);
+      return res;
+    } catch (error) {
+      console.log('onGetOrdersByIdUser error: ', error);
+    }
+  };
 
   //Cap nhat order
+  const onUpdateOrder = async (_id, datePayment, status) => {
+    try {
+      const res = await updateOrder(_id, datePayment, status);
+      return res;
+    } catch (error) {
+      console.log('onUpdateOrder error: ', error);
+    }
+  };
 
 
   //-------------------------------------------------Review-------------------------------------------------
@@ -218,6 +295,47 @@ export const AppContextProvider = (props) => {
     }
   };
 
+  //-------------------------------------------------Address-------------------------------------------------
+  //Them address
+  const onAddAddress = async (body, status, idUser) => {
+    try {
+      const res = await addAddress(body, status, idUser);
+      return res;
+    } catch (error) {
+      console.log('onAddAddress error: ', error);
+    }
+  };
+
+  //Lay danh sach address by idUser
+  const onGetAddressByIdUser = async (idUser) => {
+    try {
+      const res = await getAddressByIdUser(idUser);
+      return res;
+    } catch (error) {
+      console.log('onGetAddressByIdUser error: ', error);
+    }
+  };
+
+  //Cap nhat address
+  const onUpdateAddress = async (idAddress, body, status, idUser) => {
+    try {
+      const res = await updateAddress(idAddress, body, status, idUser);
+      return res;
+    } catch (error) {
+      console.log('onUpdateAddress error: ', error);
+    }
+  };
+
+  //Xoa address
+  const onDeleteAddress = async (idAddress) => {
+    try {
+      const res = await deleteAddress(idAddress);
+      return res;
+    } catch (error) {
+      console.log('onDeleteAddress error: ', error);
+    }
+  };
+
   return (
     <AppContext.Provider value={{
       //Category & Brand
@@ -225,19 +343,27 @@ export const AppContextProvider = (props) => {
       //Product
       onGetProducts, onGetProductById, onGetProductByName,
       //Sub Product
-      onGetSubProductsByIdProduct, onGetSubProducts, onGetSubProductById,
+      onGetSubProductsByIdProduct, onGetSubProducts, onGetSubProductById, onUpdateSubProduct,
       //Reviews
       onGetReviews,
       //Picture
-      onGetPicturesByIdProduct,
+      onGetPicturesByIdProduct, onGetPictures,
       //OrderDetail
       onAddOrderDetail, onGetOrderDetailByIdOrder,
       onDeleteOrderDetail, onUpdateOrderDetail,
+      //Order
+      onAddOrder, onGetOrdersByIdUser, onUpdateOrder,
+      //Address
+      onAddAddress, onGetAddressByIdUser, onUpdateAddress, onDeleteAddress,
       //State
       listFavorite, setListFavorite,
       listCart, setListCart,
       countCart, setCountCart,
       countFavorite, setCountFavorite,
+      countAddress, setCountAddress,
+      //Object reference
+      // objRef,
+
     }}>
       {children}
     </AppContext.Provider>

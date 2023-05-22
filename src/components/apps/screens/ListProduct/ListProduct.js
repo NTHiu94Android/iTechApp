@@ -11,7 +11,7 @@ import back from '../../../back/back';
 const ListProduct = ({ navigation, route }) => {
   back(navigation);
   const { category } = route.params;
-  const { onGetBrandsByIdCategory, onGetProducts, onGetSubProducts, onGetReviews } = useContext(AppContext);
+  const { onGetBrandsByIdCategory, onGetProducts, onGetSubProducts, onGetReviews, objRef } = useContext(AppContext);
   const [listBrand, setListBrand] = useState([]);
   const [listProduct, setListProduct] = useState([]);
   const [visibleSort, setVisibleSort] = useState(false);

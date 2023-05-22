@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View, Image, ScrollView, TouchableOpacity, ToastAndroid, useWindowDimensions } from 'react-native'
-import React, { useState, useContext, useEffect } from 'react'
+import React, { useState, useContext, useEffect, useRef } from 'react'
 import { AppContext } from '../../AppContext';
 
 import { UserContext } from '../../../users/UserContext';
@@ -37,6 +37,8 @@ const ProductDetail = ({ route, navigation }) => {
 
   const [productItem, setProductItem] = useState({});
 
+  const resSubProductRef = useRef({});
+
   const tableHead = ['Parameter', 'Value'];
   const [tableData, setTableData] = useState(
     [
@@ -54,6 +56,7 @@ const ProductDetail = ({ route, navigation }) => {
         const product = await onGetProductById(idProduct);
         const resReview = await onGetReviews();
         const resSubProduct = await onGetSubProducts();
+        resSubProductRef.current = resSubProduct;
         //Them danh sach subProduct va rating vao product 
         product.subProduct = await onGetSubProductsByIdProduct(idProduct, resSubProduct);
         product.rating = await getStar(idProduct, resReview);
@@ -154,8 +157,7 @@ const ProductDetail = ({ route, navigation }) => {
   const getImageByColor = async (color) => {
     setIsLoading(false);
     try {
-      const resSubProduct = await onGetSubProducts();
-      const subProduct = await onGetSubProductsByIdProduct(idProduct, resSubProduct);
+      const subProduct = await onGetSubProductsByIdProduct(idProduct, resSubProductRef.current);
       for (let i = 0; i < subProduct.length; i++) {
         if (subProduct[i].color == color) {
           getImagesProduct(subProduct[i]._id);
@@ -362,13 +364,13 @@ const ProductDetail = ({ route, navigation }) => {
           </View>
 
           {/* View table */}
-          <View style={{ flex: 1, backgroundColor: '#fff' }}>
+          {/* <View style={{ flex: 1, backgroundColor: '#fff' }}>
             <Text style={{ color: 'black', fontWeight: '700', fontSize: 18, marginTop: 14, marginBottom: 8 }}>Product information</Text>
             <Table borderStyle={{ borderWidth: 2, borderColor: '#c8e1ff' }}>
               <Row data={tableHead} style={styles.head} textStyle={styles.text} />
               <Rows data={tableData} textStyle={styles.text} />
             </Table>
-          </View>
+          </View> */}
 
           {/* View description */}
           <View style={{ flexDirection: 'column' }}>

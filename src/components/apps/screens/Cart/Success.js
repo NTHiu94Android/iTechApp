@@ -1,10 +1,10 @@
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React from 'react'
-import back from '../../../back/back';
+import backToScreen from '../../../back/backToScreen';
 
 const Success = (props) => {
   const { navigation } = props;
-  back(navigation);
+  backToScreen(navigation, 'BottomNavigation');
   return (
     <View style={{ padding: 30, flex: 1, flexDirection: 'column', justifyContent: 'space-evenly' }}>
       <View style={{ alignItems: 'center' }}>

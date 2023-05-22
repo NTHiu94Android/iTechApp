@@ -1,12 +1,74 @@
-import { StyleSheet, Text, View, TouchableOpacity, Image, ScrollView, TextInput } from 'react-native'
-import React from 'react'
+import { StyleSheet, Text, View, TouchableOpacity, Image, ScrollView, TextInput, Alert } from 'react-native'
+import React, { useContext, useState } from 'react'
 import back from '../../../back/back';
+
+import { UserContext } from '../../../users/UserContext';
+import { AppContext } from '../../AppContext';
+
+import ProgressDialog from 'react-native-progress-dialog';
 
 const Shipping = (props) => {
     const { navigation } = props;
     back(navigation);
+
+    const { user, onUpdateProfile } = useContext(UserContext);
+    const { 
+        onAddAddress, onGetAddressByIdUser, 
+        setCountAddress, countAddress,
+    } = useContext(AppContext);
+
+    const [isLoading, setIsLoading] = useState(false);
+    const [numberPhone, setNumberPhone] = useState('');
+    const [address, setAddress] = useState('');
+
+    const handleAddAddress = async () => {
+        try {
+            setIsLoading(true);
+            let check = false;
+            if (+numberPhone === NaN || numberPhone.length < 10 ||
+                numberPhone.length > 11 || numberPhone.indexOf('0') !== 0) {
+                Alert.alert('Invalid number phone');
+                setIsLoading(false);
+                return;
+            }
+            if(address === ''){
+                Alert.alert('Invalid address');
+                setIsLoading(false);
+                return;
+            }
+
+            //Update numberPhone
+            //id, email, name, birthday, numberPhone, avatar
+            await onUpdateProfile(user._id, user.email, user.name, user.birthday, numberPhone, user.avatar);
+
+            const resGetAddress = await onGetAddressByIdUser(user._id);
+            if (resGetAddress.data != undefined) {
+                if (resGetAddress.data.length === 0) {
+                    check = true;
+                }
+            }
+            const res = await onAddAddress(address, check, user._id);
+            if (res.data != undefined) {
+                console.log('handleAddAddress res: ', res.data);
+                setCountAddress(countAddress + 1);
+                setIsLoading(false);
+                navigation.goBack();
+            }
+        } catch (error) {
+            setIsLoading(false);
+            console.log('handleAddAddress error: ', error);
+        }
+    };
+
     return (
         <View style={styleShippingAddress.container}>
+
+            <ProgressDialog
+                visible={isLoading}
+                loaderColor="black"
+                lable="Please wait..."
+            />
+
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 6, paddingHorizontal: 12 }}>
                 <TouchableOpacity onPress={() => navigation.goBack()}>
                     <Image
@@ -29,23 +91,30 @@ const Shipping = (props) => {
                     {/* Full Name */}
                     <View style={styleShippingAddress.input}>
                         <Text>Full Name</Text>
-                        <TextInput placeholder='Ex:' ></TextInput>
+                        <Text>{user.name}</Text>
                     </View>
 
                     {/* Address */}
                     <View style={styleShippingAddress.input}>
                         <Text>Andress</Text>
-                        <TextInput placeholder='Ex:' ></TextInput>
+                        <TextInput
+                            value={address}
+                            onChangeText={(text) => setAddress(text)}
+                            placeholder='Ex:' ></TextInput>
                     </View>
 
                     {/* ZipCode */}
                     <View style={styleShippingAddress.input}>
-                        <Text>ZipCode (Postal Code)</Text>
-                        <TextInput placeholder='Ex:' ></TextInput>
+                        <Text>Number phone</Text>
+                        <TextInput
+                            value={numberPhone}
+                            onChangeText={(text) => setNumberPhone(text)}
+                            keyboardType='numeric'
+                            placeholder='Ex: 0778023038' >
+                        </TextInput>
                     </View>
 
-                    {/* Country */}
-                    <View style={styleShippingAddress.viewCountry}>
+                    {/* <View style={styleShippingAddress.viewCountry}>
                         <View>
                             <Text>Country</Text>
                             <TextInput placeholder='Select Country'></TextInput>
@@ -58,7 +127,6 @@ const Shipping = (props) => {
                         </View>
                     </View>
 
-                    {/* City */}
                     <View style={styleShippingAddress.viewCountry}>
                         <View>
                             <Text>City</Text>
@@ -72,7 +140,6 @@ const Shipping = (props) => {
                         </View>
                     </View>
 
-                    {/* District */}
                     <View style={styleShippingAddress.viewCountry}>
                         <View>
                             <Text>District</Text>
@@ -84,14 +151,14 @@ const Shipping = (props) => {
                                 source={require('../../../../assets/images/down.png')}
                                 resizeMode="cover"></Image>
                         </View>
-                    </View>
+                    </View> */}
 
 
                 </View>
             </ScrollView>
             {/* SAVE ADDRESS */}
             <View style={styleShippingAddress.btn}>
-                <TouchableOpacity>
+                <TouchableOpacity onPress={() => handleAddAddress()}>
                     <Text style={styleShippingAddress.btnText}>SAVE ADDRESS</Text>
                 </TouchableOpacity>
             </View>
@@ -147,7 +214,7 @@ const styleShippingAddress = StyleSheet.create({
     },
 
     btn: {
-        position: 'relative',
+        //position: 'relative',
         backgroundColor: 'black',
         bottom: 20,
         width: '90%',

@@ -27,6 +27,7 @@ import UpdateAvatar from './screens/Setting/UpdateAvatar';
 import Order from './screens/Order/Order';
 import OrderDetail from './screens/Order/OrderDetail';
 import MyProfile from './screens/TabScreen/MyProfile';
+import ShippingUpdate from './screens/Shipping/ShippingUpdate';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator()
@@ -109,6 +110,7 @@ const AppNavigation = () => {
                 <Stack.Screen options={{ headerShown: false }} name='OrderDetail' component={OrderDetail} />
                 <Stack.Screen options={{ headerShown: false }} name='Setting' component={Setting} />
                 <Stack.Screen options={{ headerShown: false }} name='Shipping' component={Shipping} />
+                <Stack.Screen options={{ headerShown: false }} name='ShippingUpdate' component={ShippingUpdate} />
                 <Stack.Screen options={{ headerShown: false }} name='ShippngAdress' component={ShippngAdress} />
                 <Stack.Screen options={{ headerShown: false }} name='EditPassword' component={EditPassword} />
                 <Stack.Screen options={{ headerShown: false }} name='UpdateProfile' component={UpdateProfile} />

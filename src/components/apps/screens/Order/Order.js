@@ -15,7 +15,7 @@ const Order = (props) => {
   return (
     <View style={{ flex: 1, backgroundColor: 'white' }}>
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingTop: 6, paddingHorizontal: 12 }}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
+        <TouchableOpacity onPress={() => navigation.navigate('BottomNavigation')}>
           <Image
             style={{ width: 22, height: 22 }}
             resizeMode='cover'

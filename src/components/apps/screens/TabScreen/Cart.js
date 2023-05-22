@@ -61,6 +61,7 @@ const Cart = (props) => {
           data[i].product = product;
 
           sum += data[i].totalPrice;
+
         }
         setListCart(data);
         setTotal(sum);
@@ -124,6 +125,13 @@ const Cart = (props) => {
     }
   };
 
+  //Den trang thanh toan
+  const goToCheckOut = () => {
+    const data = {
+      listCart: listCart
+    }
+    navigation.navigate("CheckOut", {data : data});
+  };
 
   return (
     <View style={{ flex: 1, backgroundColor: 'white', position: 'relative' }}>
@@ -177,7 +185,7 @@ const Cart = (props) => {
                 <Text style={{ fontSize: 20 }}>$ {total.toFixed(2)}</Text>
               </View>
 
-              <TouchableOpacity onPress={() => navigation.navigate("CheckOut")} style={{ backgroundColor: '#000', height: 50, borderRadius: 30, flexDirection: 'column', justifyContent: 'center' }}>
+              <TouchableOpacity onPress={() => goToCheckOut()} style={{ backgroundColor: '#000', height: 50, borderRadius: 30, flexDirection: 'column', justifyContent: 'center' }}>
                 <Text style={{ color: '#fff', textAlign: 'center', fontSize: 20, fontWeight: 'bold' }}>Check out</Text>
                 {/* Bấm đây nhảy qua check out */}
               </TouchableOpacity>
@@ -192,7 +200,7 @@ const Cart = (props) => {
       <ProgressDialog
         visible={isLoading}
         loaderColor="black"
-        lable="Vui lòng đợi trong giây lát..."
+        lable="Please wait..."
       />
     </View>
   )

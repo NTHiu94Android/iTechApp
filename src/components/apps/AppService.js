@@ -36,10 +36,22 @@ export const getSubProducts = async () => {
     return response;
 };
 
+//Cap nhat subProduct
+export const updateSubProduct = async (_id, quantity) => {
+    const response = await CustomAxios().post('/sub-products/api/update-sub-product', { _id, quantity });
+    return response;
+};
+
 //---------------------------------Picture---------------------------------
 //Lay tat ca picture theo idProduct
 export const getPicturesByIdProduct = async (idSubProduct) => {
     const response = await CustomAxios().get(`/pictures/api/get-pictures-by-idSubProduct/${idSubProduct}`);
+    return response;
+};
+
+//Lay tat ca picture 
+export const getPictures = async () => {
+    const response = await CustomAxios().get('/pictures/api/get-all-picture');
     return response;
 };
   
@@ -74,9 +86,9 @@ export const updateOrderDetail = async(_id, quantity, idOrder, idSubProduct) => 
 
 //---------------------------------Order---------------------------------
 //Them don hang
-export const addOrder = async (dateCreate, totalPrice, status, paymentMethod, address, idUser) => {
+export const addOrder = async (dateCreate, datePayment, totalPrice, status, paymentMethod, address, idUser) => {
     const data = {
-        dateCreate, totalPrice, status, paymentMethod, address, idUser
+        dateCreate, datePayment, totalPrice, status, paymentMethod, address, idUser
     };
     const response = await CustomAxios().post(`/orders/api/add-order`, data);
     return response;
@@ -89,9 +101,9 @@ export const getOrdersByIdUser = async(idUser) => {
 }
 
 //Cap nhat don hang
-export const updateOrder = async(_id, dateCreate, totalPrice, status, paymentMethod, address, idUser) => {
+export const updateOrder = async(_id, datePayment, status) => {
     const data = {
-        _id, dateCreate, totalPrice, status, paymentMethod, address, idUser
+        _id, datePayment, status
     }
     const res = await CustomAxios().post(`/orders/api/update-order`, data);
     return res;
@@ -102,6 +114,38 @@ export const updateOrder = async(_id, dateCreate, totalPrice, status, paymentMet
 export const getReviews = async () => {
     const response = await CustomAxios().get('/reviews/api/get-all-review');
     return response;
+};
+
+
+//---------------------------------Adderss---------------------------------
+//Lay danh sach dia chi theo idUser
+export const getAddressByIdUser = async(idUser) => {
+    const res = await CustomAxios().get(`/address/api/get-address-by-idUser/${idUser}`);
+    return res;
+};
+
+//Them dia chi
+export const addAddress = async (body, status, idUser) => {
+    const data = {
+        body, status, idUser
+    };
+    const response = await CustomAxios().post(`/address/api/add-address`, data);
+    return response;
+}
+
+//Cap nhat dia chi
+export const updateAddress = async(_id, body, status, idUser) => {
+    const data = {
+        _id, body, status, idUser
+    }
+    const res = await CustomAxios().post(`/address/api/update-address`, data);
+    return res;
+};
+
+//Xoa dia chi
+export const deleteAddress = async(_id) => {
+    const res = await CustomAxios().get(`/address/api/delete-address/${_id}`);
+    return res;
 };
 
 
