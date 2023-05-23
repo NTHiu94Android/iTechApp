@@ -54,6 +54,18 @@ export const getPictures = async () => {
     const response = await CustomAxios().get('/pictures/api/get-all-picture');
     return response;
 };
+
+//Them hinh anh
+export const addPicture = async (url, idSubProduct, idReview) => {
+    const response = await CustomAxios().post('/pictures/api/add-picture', { url, idSubProduct, idReview });
+    return response;
+}
+
+//Upload hinh anh
+export const uploadPicture = async (picture) => {
+    const response = await CustomAxios('multipart/form-data').post('/pictures/api/upload-picture', picture);
+    return response;
+}
   
 
 //---------------------------------OrderDetail---------------------------------
@@ -115,6 +127,15 @@ export const getReviews = async () => {
     const response = await CustomAxios().get('/reviews/api/get-all-review');
     return response;
 };
+
+//Them review moi
+export const addReview = async (content, rating, idUser, idProduct) => {
+    const data = {
+        content, rating, idUser, idProduct
+    }
+    const res = await CustomAxios().post('/reviews/api/add-review', data);
+    return res;
+}
 
 
 //---------------------------------Adderss---------------------------------

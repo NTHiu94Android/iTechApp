@@ -27,7 +27,7 @@ const Register = (props) => {
       ToastAndroid.show('Email is not valid', ToastAndroid.SHORT);
       return;
     }
-    if (!email || !password || !name || !birthday || !numberPhone || !confirmPassword) {
+    if (!email || !password || !name || !confirmPassword) {
       alert('Please fill all the fields');
       return;
     };
@@ -37,7 +37,7 @@ const Register = (props) => {
     };
     setIsLoading(true);
     //email, password, name, birthday, numberPhone, avatar
-    const user = await onRegister(email, password, name, birthday, numberPhone, avatar);
+    const user = await onRegister(email, password, name, "", "", avatar);
     if (user == null || user == undefined) {
       ToastAndroid.show('Register successfully!', ToastAndroid.SHORT);
       navigation.navigate('Login');

@@ -32,6 +32,7 @@ const CheckOut = (props) => {
   const [dataSend, setDataSend] = useState({});
 
   const [address, setAddress] = useState('');
+  const [total, setTotal] = useState(0);
 
   useEffect(() => {
     setDataSendToPaypal();
@@ -39,6 +40,7 @@ const CheckOut = (props) => {
 
   useEffect(() => {
     getAddress();
+    getTotal();
   }, [countAddress]);
 
   //Lay data gui len server
@@ -106,6 +108,21 @@ const CheckOut = (props) => {
     }
   };
 
+  //Tinh tong tien
+  const getTotal = () => {
+    //Tinh tong tien
+    let total = 0;
+    for (let i = 0; i < data.listCart.length; i++) {
+      let price = data.listCart[i].subProduct.price;
+      if (data.listCart[i].subProduct.sale != 0) {
+        price = price - price * data.listCart[i].subProduct.sale / 100;
+      }
+      total += data.listCart[i].amount * price;
+    }
+    setTotal(total);
+
+  };
+
   //Xu ly thanh toan
   const gotoSuccess = async () => {
     try {
@@ -130,15 +147,6 @@ const CheckOut = (props) => {
       if (isSelect == '2') {
         await pay();
       } else {
-        //Tinh tong tien
-        let total = 0;
-        for (let i = 0; i < data.listCart.length; i++) {
-          let price = data.listCart[i].subProduct.price;
-          if (data.listCart[i].subProduct.sale != 0) {
-            price = price - price * data.listCart[i].subProduct.sale / 100;
-          }
-          total += data.listCart[i].amount * price;
-        }
         //Them don hang
         //dateCreate, datePayment, totalPrice, status, paymentMethod, address, idUser
         const res = await onAddOrder(orderDate, "", total, status, paymentMethod, address, user._id);
@@ -213,15 +221,7 @@ const CheckOut = (props) => {
           const orderDate = `${day}/${month}/${year}`;
           const status = "Processing";
           const paymentMethod = 'Paypal';
-          //Tinh tong tien
-          let total = 0;
-          for (let i = 0; i < data.listCart.length; i++) {
-            let price = data.listCart[i].subProduct.price;
-            if (data.listCart[i].subProduct.sale != 0) {
-              price = price - price * data.listCart[i].subProduct.sale / 100;
-            }
-            total += data.listCart[i].amount * price;
-          }
+
           //Them don hang
           //dateCreate, datePayment, totalPrice, status, paymentMethod, address, idUse
           const res = await onAddOrder(orderDate, orderDate, total, status, paymentMethod, address, user._id);
@@ -344,7 +344,7 @@ const CheckOut = (props) => {
           </View>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
             <Text style={{ fontSize: 18 }}>Total:</Text>
-            <Text style={{ fontSize: 18, fontWeight: '300' }}>$ 1000</Text>
+            <Text style={{ fontSize: 18, fontWeight: '300' }}>$ {total}</Text>
           </View>
         </View>
 

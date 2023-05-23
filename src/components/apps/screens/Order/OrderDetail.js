@@ -12,7 +12,7 @@ const OrderDetail = (props) => {
   const { item } = props.route.params;
 
   const { user } = useContext(UserContext);
-  const { onGetSubProductById, onGetProductById } = useContext(AppContext);
+  const { onGetSubProductById, onGetProductById, onGetReviews, countOrderDetail } = useContext(AppContext);
 
   const [listOrderDetail, setListOrderDetail] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -20,27 +20,37 @@ const OrderDetail = (props) => {
   useEffect(() => {
     const getOrderDetail = async () => {
       setIsLoading(true);
+      //Lay tat ca review
+      const resReviews = await onGetReviews();
+      const reviews = resReviews.data;
+      //lay review theo idUser
+      const reviewsUser = reviews.filter((item) => item.idUser === user._id);
       //Xu ly lay list order detail
       const list = item.orderDetails;
       for (let i = 0; i < list.length; i++) {
         const resSubProducts = await onGetSubProductById(list[i].idSubProduct);
         const product = await onGetProductById(resSubProducts.idProduct);
-        console.log('Product:>>>>>>>>>>>>>. ', product);
         list[i].product = product;
         list[i].subProduct = resSubProducts;
+        list[i].status = item.status;
+        const review = reviewsUser.filter((item) => item.idProduct === product._id);
+        if (review.length > 0) {
+          list[i].isCmt = true;
+        }else{
+          list[i].isCmt = false;
+        }
       }
-      console.log('List>>>>>>>>>>>>>>>>>: ', list);
 
       setListOrderDetail(list);
       setIsLoading(false);
     };
     getOrderDetail();
-  }, []);
+  }, [countOrderDetail]);
 
 
 
   const gotoComment = (item) => {
-    navigation.navigate('Comment', { item });
+    navigation.navigate('AddReview', { item });
   };
 
 
@@ -387,7 +397,7 @@ const styles = StyleSheet.create({
 });
 
 const Item = ({ item, gotoComment }) => {
-  console.log('Item render: ', item);
+  //console.log('Item render: ', item);
   return (
     <View style={styles.listItem}>
       <View style={{ flexDirection: 'row' }}>
@@ -401,7 +411,7 @@ const Item = ({ item, gotoComment }) => {
             <View style={{}}>
               {
                 item.status == 'Delivered' && item.isCmt == false ?
-                  <TouchableOpacity style={styles.btnReview} onPress={() => gotoComment()}>
+                  <TouchableOpacity style={styles.btnReview} onPress={gotoComment}>
                     <Text style={styles.textReview}>Review</Text>
                   </TouchableOpacity> :
                   null

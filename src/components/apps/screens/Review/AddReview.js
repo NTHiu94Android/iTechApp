@@ -6,30 +6,105 @@ import { AppContext } from '../../AppContext';
 import { UserContext } from '../../../users/UserContext';
 
 import ProgressDialog from 'react-native-progress-dialog';
+import * as ImagePicker from 'react-native-image-picker';
 
 const AddReview = (props) => {
   const { navigation } = props;
+  const { item } = props.route.params;
+  //console.log('Item on Add review screen: >>>>>>>>>>>>>>> ', item);
   back(navigation);
 
-  const { } = useContext(AppContext);
+  const { onAddReview, onUploadPicture, onAddPicture, countOrderDetail, setCountOrderDetail } = useContext(AppContext);
   const { user } = useContext(UserContext);
 
   const [star, setStar] = useState(5);
   const [text, setText] = useState('');
 
+  const [images, setImages] = useState([]);
+  const [file, setFile] = useState(null);
+
   const [isLoading, setIsLoading] = useState(false);
 
+  //Them review moi
   const handleSendCmt = async () => {
     setIsLoading(true);
-    //Xu ly gui comment
-    navigation.goBack();
+    try {
+      if (images.length == 0 && text == '') {
+        setIsLoading(false);
+        return;
+      }
+
+      //Add review:   content, rating, idUser, idProduct
+      const resReview = await onAddReview(text, star, user._id, item.product._id);
+
+      if (images.length != 0) {
+        //Upload picture
+        for (let i = 0; i < file.length; i++) {
+          const formData = new FormData();
+          formData.append('picture', {
+            uri: file[i].uri,
+            type: file[i].type,
+            name: file[i].fileName,
+          });
+          const resPicture = await onUploadPicture(formData);
+          if (resPicture.data == null || resPicture.data == undefined) {
+            setIsLoading(false);
+            return;
+          }
+          //Add picture:   url, idSubProduct, idReview
+          await onAddPicture(resPicture.data, item.product._id, resReview.data._id);
+          
+        }
+      }
+
+      setCountOrderDetail(countOrderDetail + 1);
+      navigation.goBack();
+      setIsLoading(false);
+
+    } catch (error) {
+      console.log("Error send review: ", error);
+    }
     setIsLoading(false);
+  }
+
+  //Xu ly chon anh
+  const handleChoosePhoto = async () => {
+    const options = {
+      mediaType: 'photo',
+      //includeBase64: false,
+      //maxFiles: undefined,
+      selectionLimit: 3, // Số lượng hình ảnh tối đa có thể chọn
+      multiple: true,
+      quality: 1.0,
+      maxWidth: 500,
+      maxHeight: 500,
+      allowsEditing: true,
+      noData: true,
+      storageOptions: {
+        skipBackup: true,
+      },
+    };
+
+    ImagePicker.launchImageLibrary(options, (response) => {
+      if (response.didCancel) {
+        console.log('Image selection cancelled');
+      } else if (response.error) {
+        console.log('Error selecting images: ', response.error);
+      } else if (response.assets) {
+        const selectedImages = response.assets.map((asset) => asset.uri);
+        //console.log('selectedImages: ', response.assets);
+        setImages(selectedImages);
+        setFile(response.assets);
+      }
+    });
   };
 
-  const handleChoosePhoto = () => {
-    //Xu ly chon anh
-
-  }
+  const handleRemoveImage = (uri) => {
+    const newImages = images.filter((image) => image !== uri);
+    setImages(newImages);
+    const newFile = file.filter((file) => file.uri !== uri);
+    setFile(newFile);
+  };
 
   return (
     <View style={{ flex: 1, backgroundColor: 'white', paddingHorizontal: 12 }}>
@@ -55,10 +130,10 @@ const AddReview = (props) => {
           <Image
             style={styles.imgProduct}
             resizeMode='cover'
-            source={{ uri: 'https://www.xtmobile.vn/vnt_upload/product/02_2022/thumbs/(600x600)_crop_samsung-galaxy-s22-plus-chinh-hang.jpg' }} />
+            source={{ uri: item.product.image }} />
           <View>
-            <Text numberOfLines={1} style={{ color: 'black', fontWeight: '800', fontSize: 20, marginStart: 8, width: 250 }}>Samsung s22 Ultra</Text>
-            <Text numberOfLines={3} style={{ fontWeight: '200', fontSize: 14, marginStart: 8, width: 250, marginTop: 4 }}>Description</Text>
+            <Text numberOfLines={1} style={{ color: 'black', fontWeight: '800', fontSize: 20, marginStart: 8, width: 250 }}>{item.product.name}</Text>
+            <Text numberOfLines={3} style={{ fontWeight: '200', fontSize: 14, marginStart: 8, width: 250, marginTop: 4 }}>{item.subProduct.screen}</Text>
           </View>
 
         </View>
@@ -262,9 +337,33 @@ const AddReview = (props) => {
             multiline={true} />
         </View>
 
+        {/* View image */}
+        {images ? (
+          <View style={{ flexDirection: 'row', marginVertical: 8, position: 'relative' }}>
+            {images.map((uri, index) => (
+              <View key={index} style={{ marginRight: 5 }}>
+                <Image
+                  style={{ width: 100, height: 100 }}
+                  resizeMode='cover'
+                  source={{ uri: uri }}
+                />
+                <TouchableOpacity style={{ position: 'absolute', top: 0, right: 0 }} onPress={() => handleRemoveImage(uri)}>
+                  <Image
+                    style={{ width: 20, height: 20, }}
+                    resizeMode='cover'
+                    source={require('../../../../assets/images/del.png')}
+                  />
+                </TouchableOpacity>
+              </View>
+            ))}
+          </View>
+        ) : (
+          <View></View>
+        )}
+
         <TouchableOpacity
           onPress={() => handleChoosePhoto()}
-          style={{  height: 60, marginTop: 6, alignItems: 'center', flexDirection: 'row'}}>
+          style={{ height: 60, marginTop: 6, alignItems: 'center', flexDirection: 'row' }}>
           <View style={{ borderWidth: 1, borderColor: '#ddd', borderRadius: 8, padding: 5 }}>
             <Image
               style={{ width: 40, height: 40 }}

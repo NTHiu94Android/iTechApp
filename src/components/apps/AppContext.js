@@ -5,13 +5,13 @@ import {
   //Product, subProduct
   getProducts, getSubProductsByIdProduct, getSubProducts, updateSubProduct,
   //Picture
-  getPicturesByIdProduct, getPictures,
+  getPicturesByIdProduct, getPictures, uploadPicture, addPicture,
   //Order
   addOrder, getOrdersByIdUser, updateOrder,
   //OrderDetail
   addOrderDetail, getOrderDetailsByIdOrder, deleteOrderDetail, updateOrderDetail,
   //Review
-  getReviews,
+  getReviews, addReview,
   //Address
   getAddressByIdUser, addAddress, updateAddress, deleteAddress,
 
@@ -30,6 +30,7 @@ export const AppContextProvider = (props) => {
   const [countCart, setCountCart] = useState(0);
   const [countFavorite, setCountFavorite] = useState(0);
   const [countOrder, setCountOrder] = useState(0);
+  const [countOrderDetail, setCountOrderDetail] = useState(0);
 
   // const objRef = useRef({});
 
@@ -178,6 +179,29 @@ export const AppContextProvider = (props) => {
     }
   };
 
+  //Them hinh anh moi
+  const onAddPicture = async (url, idSubProduct, idReview) => {
+    try {
+      const res = await addPicture(url, idSubProduct, idReview);
+      return res;
+    } catch (error) {
+      console.log('onAddPicture error: ', error);
+    }
+  }
+
+  //Upload hinh anh
+  const onUploadPicture = async (image) => {
+    try {
+      const response = await uploadPicture(image);
+      if(response.data != null || response.data != undefined){
+        return response;
+      }
+      return null;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   //-------------------------------------------------OrderDetail-------------------------------------------------
   //Them san pham yeu thich / gio hang
   const onAddOrderDetail = async (quantity, price, idOrder, idSubProduct) => {
@@ -243,9 +267,9 @@ export const AppContextProvider = (props) => {
   };
 
   //Cap nhat san pham yeu thich / gio hang
-  const onUpdateOrderDetail = async (idOrderDetail, quantity, idOrder, idSubProduct) => {
+  const onUpdateOrderDetail = async (_id, quantity, idOrder, idSubProduct) => {
     try {
-      const res = await updateOrderDetail(idOrderDetail, quantity, idOrder, idSubProduct);
+      const res = await updateOrderDetail(_id, quantity, idOrder, idSubProduct);
       return res;
     } catch (error) {
       console.log('onUpdateOrderDetail error: ', error);
@@ -294,6 +318,16 @@ export const AppContextProvider = (props) => {
       console.log('onGetReviews error: ', error);
     }
   };
+
+  //Them review moi
+  const onAddReview = async (content, rating, idUser, idProduct) => {
+    try {
+      const res = await addReview(content, rating, idUser, idProduct);
+      return res;
+    } catch (error) {
+      console.log('onAddReview error: ', error);
+    }
+  }
 
   //-------------------------------------------------Address-------------------------------------------------
   //Them address
@@ -345,9 +379,9 @@ export const AppContextProvider = (props) => {
       //Sub Product
       onGetSubProductsByIdProduct, onGetSubProducts, onGetSubProductById, onUpdateSubProduct,
       //Reviews
-      onGetReviews,
+      onGetReviews, onAddReview,
       //Picture
-      onGetPicturesByIdProduct, onGetPictures,
+      onGetPicturesByIdProduct, onGetPictures, onUploadPicture, onAddPicture,
       //OrderDetail
       onAddOrderDetail, onGetOrderDetailByIdOrder,
       onDeleteOrderDetail, onUpdateOrderDetail,
@@ -362,6 +396,7 @@ export const AppContextProvider = (props) => {
       countFavorite, setCountFavorite,
       countAddress, setCountAddress,
       countOrder, setCountOrder,
+      countOrderDetail, setCountOrderDetail,
       //Object reference
       // objRef,
 

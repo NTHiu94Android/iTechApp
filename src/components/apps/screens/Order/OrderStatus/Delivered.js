@@ -33,7 +33,7 @@ const Item = ({ item, onpress }) => (
 
 const Delivered = (props) => {
   const { navigation } = props;
-  const { onGetOrdersByIdUser, countOrder } = useContext(AppContext);
+  const { onGetOrdersByIdUser, countOrder, onGetOrderDetailByIdOrder } = useContext(AppContext);
   const { user } = useContext(UserContext);
   const [listDelivered, setListDelivered] = useState([]);
 
@@ -49,6 +49,15 @@ const Delivered = (props) => {
         let list = [];
         for (let i = 0; i < orders.length; i++) {
           if (orders[i].status == 'Delivered') {
+            const resOrderDetails = await onGetOrderDetailByIdOrder(orders[i]._id);
+            const orderDetails = resOrderDetails.data; 
+            console.log("orderDetails", orderDetails);
+            let sum = 0;
+            for (let j = 0; j < orderDetails.length; j++) {
+              sum += orderDetails[j].quantity;
+            }
+            orders[i].quantity = sum;
+            orders[i].orderDetails = orderDetails;
             list.push(orders[i]);
           }
         }

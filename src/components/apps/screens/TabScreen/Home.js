@@ -9,7 +9,7 @@ import ProgressDialog from 'react-native-progress-dialog';
 const Home = (props) => {
     const { navigation } = props;
     const { } = useContext(UserContext);
-    const { onGetCategories, onGetProducts, onGetSubProducts, onGetReviews, objRef } = useContext(AppContext);
+    const { onGetCategories, onGetProducts, onGetSubProducts, onGetReviews, countOrderDetail } = useContext(AppContext);
 
     const [listCategory, setListCategory] = useState([]);
 
@@ -75,7 +75,7 @@ const Home = (props) => {
             setIsLoading(false);
         };
         getData();
-    }, []);
+    }, [countOrderDetail]);
 
     //Lay danh sach subProduct theo idProduct
     const onGetSubProductsByIdProduct = async (idProduct, res) => {
