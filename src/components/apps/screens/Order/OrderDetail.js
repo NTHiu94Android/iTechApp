@@ -10,8 +10,9 @@ const OrderDetail = (props) => {
   const { navigation } = props;
   back(navigation);
   const { item } = props.route.params;
+
   const { user } = useContext(UserContext);
-  const { } = useContext(AppContext);
+  const { onGetSubProductById, onGetProductById } = useContext(AppContext);
 
   const [listOrderDetail, setListOrderDetail] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -20,7 +21,17 @@ const OrderDetail = (props) => {
     const getOrderDetail = async () => {
       setIsLoading(true);
       //Xu ly lay list order detail
+      const list = item.orderDetails;
+      for (let i = 0; i < list.length; i++) {
+        const resSubProducts = await onGetSubProductById(list[i].idSubProduct);
+        const product = await onGetProductById(resSubProducts.idProduct);
+        console.log('Product:>>>>>>>>>>>>>. ', product);
+        list[i].product = product;
+        list[i].subProduct = resSubProducts;
+      }
+      console.log('List>>>>>>>>>>>>>>>>>: ', list);
 
+      setListOrderDetail(list);
       setIsLoading(false);
     };
     getOrderDetail();
@@ -58,7 +69,7 @@ const OrderDetail = (props) => {
           <View style={styles.body}>
             <View style={styles.viewTxtOrder}>
               <View style={styles.viewOrder}>
-                <Text numberOfLines={1} style={styles.txtOrder}>Order No{item._id}</Text>
+                <Text numberOfLines={1} style={styles.txtOrder}>Order No: {item._id}</Text>
                 <Text>{item.orderDate}</Text>
               </View>
               <View style={[styles.viewDetail,]}>
@@ -67,8 +78,16 @@ const OrderDetail = (props) => {
                   <Text style={styles.txtValue} >${item.totalPrice}</Text>
                 </View>
                 <View style={styles.viewTotal}>
+                  <Text style={styles.txtTitle}>Date create:</Text>
+                  <Text style={styles.txtValue} >{item.dateCreate}</Text>
+                </View>
+                <View style={styles.viewTotal}>
+                  <Text style={styles.txtTitle}>Quantity:</Text>
+                  <Text style={styles.txtValue} >{item.quantity} Product</Text>
+                </View>
+                <View style={styles.viewTotal}>
                   <Text style={styles.txtTitle}>Payments:</Text>
-                  <Text style={styles.txtValuePayments}>Cash</Text>
+                  <Text style={styles.txtValuePayments}>{item.paymentMethod}</Text>
                 </View>
                 <View style={styles.viewStatus}>
                   <Text style={styles.txtTitle}>Status:</Text>
@@ -96,7 +115,7 @@ const OrderDetail = (props) => {
                 </View>
                 <View style={styles.viewStatus}>
                   <Text style={styles.txtTitle}>Address:</Text>
-                  <Text style={styles.txtValue}>{user.address}</Text>
+                  <Text style={styles.txtValue}>{item.address}</Text>
                 </View>
               </View>
             </View>
@@ -142,7 +161,8 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   listItemName: {
-    paddingStart: 20,
+    marginStart: 20,
+    width: '72%'
   },
   TextlstName: {
     fontWeight: 'normal',
@@ -167,7 +187,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 5, margin: 5
+    padding: 5,
   },
   textReview: {
     color: 'white',
@@ -179,7 +199,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
     paddingHorizontal: 5,
     borderRadius: 4,
-    elevation: 5,
+    elevation: 10,
     shadowOffset: {
       width: 1,
       height: 3
@@ -220,6 +240,7 @@ const styles = StyleSheet.create({
   },
   viewCustomer: {
     padding: 18,
+    paddingBottom: 0,
     flexDirection: 'row',
     color: 'black',
     justifyContent: 'flex-start',
@@ -231,9 +252,8 @@ const styles = StyleSheet.create({
   viewTxtCustom: {
     marginHorizontal: 10,
     paddingHorizontal: 5,
-    marginTop: 20,
     borderRadius: 4,
-    elevation: 5,
+    elevation: 10,
     shadowOffset: {
       width: 1,
       height: 3
@@ -253,7 +273,8 @@ const styles = StyleSheet.create({
   },
 
   viewStatus: {
-    paddingVertical: 15,
+    marginBottom: 20,
+    marginTop: 8,
     flexDirection: 'row',
     color: 'black',
     justifyContent: 'space-around',
@@ -280,14 +301,15 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginRight: 30,
     marginStart: 15,
+    color: 'black',
+    fontWeight: '600'
   },
 
   viewTotal: {
-    paddingTop: 15,
+    paddingTop: 8,
     flexDirection: 'row',
     color: 'black',
     justifyContent: 'space-around',
-    paddingVertical: 15,
     flexDirection: 'row',
     color: 'black',
     justifyContent: 'space-around',
@@ -304,7 +326,6 @@ const styles = StyleSheet.create({
     color: 'black',
     alignItems: 'flex-start',
     marginRight: 30,
-    maxWidth: 200,
   },
   viewOrder: {
     flexDirection: 'row',
@@ -312,7 +333,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     backgroundColor: 'white',
-    padding: 18
+    padding: 18,
+    paddingBottom: 8,
   },
 
   viewTxtOrder: {
@@ -330,7 +352,7 @@ const styles = StyleSheet.create({
   },
 
   body: {
-    marginTop: 30
+    marginTop: 20
   },
 
   /*
@@ -365,37 +387,37 @@ const styles = StyleSheet.create({
 });
 
 const Item = ({ item, gotoComment }) => {
-  console.log("Itemmmmmmmmmmmmmm: ", item.isCmt);
+  console.log('Item render: ', item);
   return (
     <View style={styles.listItem}>
       <View style={{ flexDirection: 'row' }}>
         <Image source={{ uri: item.product.image }} style={styles.imgLst} />
         <View style={styles.listItemName}>
-          <Text numberOfLines={1} style={styles.TextlstName}>{item.product.name}</Text>
-          <Text style={styles.TextlstPrice}>$ {item.totalPrice}</Text>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+            <View>
+              <Text numberOfLines={1} style={{ color: 'black', fontSize: 16, fontWeight: '800', maxWidth: 180 }}>{item.product.name}</Text>
+              <Text style={styles.TextlstPrice}>Color: {item.subProduct.color}</Text>
+            </View>
+            <View style={{}}>
+              {
+                item.status == 'Delivered' && item.isCmt == false ?
+                  <TouchableOpacity style={styles.btnReview} onPress={() => gotoComment()}>
+                    <Text style={styles.textReview}>Review</Text>
+                  </TouchableOpacity> :
+                  null
+              }
+            </View>
+          </View>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', }}>
+            <Text style={styles.TextlstPrice}>$ {item.price}</Text>
+            <Text style={styles.TextlstPrice}>Quantity: {item.quantity}</Text>
+          </View>
         </View>
       </View>
 
-      <View >
-        {
-          item.status == 'Delivered' && item.isCmt == false ?
-            <TouchableOpacity style={styles.btnReview} onPress={() => gotoComment()}>
-              <Text style={styles.textReview}>Review</Text>
-            </TouchableOpacity> :
-            <TouchableOpacity style={[styles.btnReview, { backgroundColor: '#CCCCCC' }]}>
-              <Text style={styles.textReview}>Review</Text>
-            </TouchableOpacity>
-        }
-      </View>
+
 
     </View>
 
   );
 };
-
-const OrderDetailData = [
-  {
-    id: '1',
-
-  }
-]

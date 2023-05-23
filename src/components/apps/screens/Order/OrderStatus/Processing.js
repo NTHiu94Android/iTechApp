@@ -7,24 +7,58 @@ import ProgressDialog from 'react-native-progress-dialog';
 
 const Processing = (props) => {
   const { navigation } = props;
-  const { } = useContext(AppContext);
+  const { 
+    onGetOrdersByIdUser, onGetOrderDetailByIdOrder, onUpdateOrder,
+    countOrder, setCountOrder,
+   } = useContext(AppContext);
   const { user } = useContext(UserContext);
   const [isLoading, setIsLoading] = useState(false);
   const [listProcessing, setListProcessing] = useState([]);
 
   useEffect(() => {
     const getOrderByIdUserAndStatus = async () => {
-      //Xu ly lay list order
-      setListProcessing(data);
+      try {
+        setIsLoading(true);
+        const resOrders = await onGetOrdersByIdUser(user._id);
+        const orders = resOrders.data;
+        //Lay tat ca hoa don tru idCart va idFavorite
+        let list = [];
+        for (let i = 0; i < orders.length; i++) {
+          if (orders[i].status == 'Processing' || orders[i].status == 'Confirmed') {
+            const resOrderDetails = await onGetOrderDetailByIdOrder(orders[i]._id);
+            const orderDetails = resOrderDetails.data;
+            let sum = 0;
+            for (let j = 0; j < orderDetails.length; j++) {
+              sum += orderDetails[j].quantity;
+            }
+            orders[i].quantity = sum;
+            orders[i].orderDetails = orderDetails;
+            list.push(orders[i]);
+          }
+        }
+        setListProcessing(list);
+        setIsLoading(false);
+      } catch (error) {
+        setIsLoading(false);
+        console.log("Error getOrders", error);
+      }
     };
     getOrderByIdUserAndStatus();
-  }, []);
-
-
+  }, [countOrder]);
 
   const gotoOrderDetail = (item) => {
     navigation.navigate('OrderDetail', { item });
   };
+
+  const cancelOrder = async (item) => {
+    try {
+      setIsLoading(true);
+      await onUpdateOrder(item._id, item.datePayment, 'Canceled');
+      setCountOrder(countOrder+1);
+    } catch (error) {
+      console.log('Error cancel order: ', error);
+    }
+  }
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: 'white' }}>
@@ -36,7 +70,12 @@ const Processing = (props) => {
       <View style={styles.container}>
         {
           listProcessing.length > 0 &&
-          listProcessing.map((item) => <Item key={item._id} item={item} onpress={() => gotoOrderDetail(item)} />)
+          listProcessing.map((item) =>
+            <Item
+              key={item._id}
+              item={item}
+              cancel={() => cancelOrder(item)}
+              onpress={() => gotoOrderDetail(item)} />)
         }
       </View>
     </ScrollView>
@@ -89,14 +128,14 @@ const styles = StyleSheet.create({
   }
 });
 
-const Item = ({ item, onpress }) => (
+const Item = ({ item, onpress, cancel }) => (
   <View style={styles.containerItem}>
     <View style={styles.rowItem}>
       <Text style={{ fontSize: 16, fontWeight: '600', color: 'black' }}>Order {item._id}</Text>
-      <Text style={{ fontSize: 16, fontWeight: '400' }}>{item.orderDate}</Text>
+      <Text style={{ fontSize: 16, fontWeight: '400' }}>{item.dateCreate}</Text>
     </View>
     <View style={{ borderBottomWidth: 1, borderBottomColor: 'black', marginVertical: 10 }}></View>
-    <View style={styles.rowItem}>
+    <View style={{ flexDirection: 'column' }}>
       <View style={styles.rowItem}>
         <Text style={{ fontSize: 16, fontWeight: '400' }}>Quantity: </Text>
         <Text style={{ fontSize: 16, fontWeight: '600', color: 'black' }}>{item.quantity}</Text>
@@ -105,17 +144,31 @@ const Item = ({ item, onpress }) => (
         <Text style={{ fontSize: 16, fontWeight: '400' }}>Total Amount: </Text>
         <Text style={{ fontSize: 16, fontWeight: '600', color: 'black' }}>{item.totalPrice}</Text>
       </View>
+      <View style={styles.rowItem}>
+        <Text style={{ fontSize: 16, fontWeight: '400' }}>Date create: </Text>
+        <Text style={{ fontSize: 16, fontWeight: '600', color: 'black' }}>{item.dateCreate}</Text>
+      </View>
+      <View style={styles.rowItem}>
+        <Text style={{ fontSize: 16, fontWeight: '400' }}>Payment method: </Text>
+        <Text style={{ fontSize: 16, fontWeight: '600', color: 'black' }}>{item.paymentMethod}</Text>
+      </View>
+      <View style={styles.rowItem}>
+        <Text style={{ fontSize: 16, fontWeight: '400' }}>Status: </Text>
+        {
+          item.status == 'Processing' && <Text style={{ fontSize: 16, fontWeight: '600', color: '#FFD700' }}>{item.status}</Text>
+        }
+        {
+          item.status == 'Confirmed' && <Text style={{ fontSize: 16, fontWeight: '600', color: '#27AE60' }}>{item.status}</Text>
+        }
+      </View>
     </View>
     <View style={[styles.rowItem, { marginTop: 16 }]}>
       <TouchableOpacity onPress={onpress} style={styles.buttonDetail}>
         <Text style={styles.textDetail}>Detail</Text>
       </TouchableOpacity>
-      {
-        item.status == 'Processing' && <Text style={{ fontSize: 16, fontWeight: '600', color: '#FFD700' }}>{item.status}</Text>
-      }
-      {
-        item.status == 'Confirmed' && <Text style={{ fontSize: 16, fontWeight: '600', color: '#27AE60' }}>{item.status}</Text>
-      }
+      <TouchableOpacity onPress={cancel} style={[styles.buttonDetail, { backgroundColor: 'red' }]}>
+        <Text style={styles.textDetail}>Cancel</Text>
+      </TouchableOpacity>
     </View>
   </View>
 );

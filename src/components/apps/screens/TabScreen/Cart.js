@@ -92,6 +92,7 @@ const Cart = (props) => {
           sum += listCart[i].totalPrice;
         }
       };
+
       setTotal(sum);
       setListCart(listCartNew);
       setIsLoading(false);
@@ -130,7 +131,7 @@ const Cart = (props) => {
     const data = {
       listCart: listCart
     }
-    navigation.navigate("CheckOut", {data : data});
+    navigation.navigate("CheckOut", { data: data });
   };
 
   return (

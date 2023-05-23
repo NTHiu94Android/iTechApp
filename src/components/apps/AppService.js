@@ -58,8 +58,8 @@ export const getPictures = async () => {
 
 //---------------------------------OrderDetail---------------------------------
 //Them san pham yeu thich / gio hang
-export const addOrderDetail = async (quantity, idOrder, idSubProduct) => {
-    const response = await CustomAxios().post(`/order-details/api/add-order-detail`, { quantity, idOrder, idSubProduct });
+export const addOrderDetail = async (quantity, price, idOrder, idSubProduct) => {
+    const response = await CustomAxios().post(`/order-details/api/add-order-detail`, { quantity, price, idOrder, idSubProduct });
     return response;
 };
 

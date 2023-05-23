@@ -17,7 +17,6 @@ import {
 
 } from './AppService';
 import { UserContext } from '../users/UserContext';
-import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
 
 export const AppContext = createContext();
 
@@ -30,6 +29,7 @@ export const AppContextProvider = (props) => {
   const [countAddress, setCountAddress] = useState(0);
   const [countCart, setCountCart] = useState(0);
   const [countFavorite, setCountFavorite] = useState(0);
+  const [countOrder, setCountOrder] = useState(0);
 
   // const objRef = useRef({});
 
@@ -180,7 +180,7 @@ export const AppContextProvider = (props) => {
 
   //-------------------------------------------------OrderDetail-------------------------------------------------
   //Them san pham yeu thich / gio hang
-  const onAddOrderDetail = async (quantity, idOrder, idSubProduct) => {
+  const onAddOrderDetail = async (quantity, price, idOrder, idSubProduct) => {
     try {
       if (idOrder === user.idFavorite) {
         const resOrderDetail = await onGetOrderDetailByIdOrder(idOrder);
@@ -196,7 +196,7 @@ export const AppContextProvider = (props) => {
           }
         }
         if (check == true) return false;
-        await addOrderDetail(quantity, idOrder, idSubProduct);
+        await addOrderDetail(quantity, price, idOrder, idSubProduct);
         setCountFavorite(countFavorite + 1);
         return true;
 
@@ -213,7 +213,7 @@ export const AppContextProvider = (props) => {
           }
         }
         if (check == true) return false;
-        await addOrderDetail(quantity, idOrder, idSubProduct);
+        await addOrderDetail(quantity, price, idOrder, idSubProduct);
         setCountCart(countCart + 1);
         return true;
       }
@@ -361,6 +361,7 @@ export const AppContextProvider = (props) => {
       countCart, setCountCart,
       countFavorite, setCountFavorite,
       countAddress, setCountAddress,
+      countOrder, setCountOrder,
       //Object reference
       // objRef,
 

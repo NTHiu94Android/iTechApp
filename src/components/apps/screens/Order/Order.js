@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 
 import Delivered from './OrderStatus/Delivered';
@@ -12,8 +12,10 @@ const Tab = createMaterialTopTabNavigator();
 const Order = (props) => {
   const { navigation } = props;
   backToScreen(navigation, 'BottomNavigation');
+
   return (
     <View style={{ flex: 1, backgroundColor: 'white' }}>
+
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingTop: 6, paddingHorizontal: 12 }}>
         <TouchableOpacity onPress={() => navigation.navigate('BottomNavigation')}>
           <Image

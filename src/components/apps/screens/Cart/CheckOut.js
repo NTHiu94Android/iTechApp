@@ -17,7 +17,7 @@ const CheckOut = (props) => {
   const {
     onGetAddressByIdUser, onAddOrder,
     countAddress,
-    onDeleteOrderDetail,
+    onUpdateOrderDetail,
     countCart, setCountCart,
   } = useContext(AppContext);
 
@@ -143,9 +143,9 @@ const CheckOut = (props) => {
         //dateCreate, datePayment, totalPrice, status, paymentMethod, address, idUser
         const res = await onAddOrder(orderDate, "", total, status, paymentMethod, address, user._id);
         console.log("Res add order: ", res.data);
-        if (res) {
+        if (res.data != undefined) {
           //Xoa gio hang
-          handleDleteOrderDetail(data.listCart);
+          handleDleteOrderDetail(data.listCart, res.data._id);
           navigation.navigate('Success');
         } else {
           Alert.alert('Payment failed');
@@ -230,7 +230,7 @@ const CheckOut = (props) => {
 
             //Xoa gio hang
             const list = data.listCart;
-            handleDleteOrderDetail(list);
+            handleDleteOrderDetail(list, res.data._id);
 
             //Chuyen sang trang success
             navigation.navigate('Success');
@@ -253,12 +253,11 @@ const CheckOut = (props) => {
   }
 
   //Xoa gio hang
-  const handleDleteOrderDetail = async (list) => {
+  const handleDleteOrderDetail = async (list, idOrder) => {
     try {
       for (let i = 0; i < list.length; i++) {
-        await onDeleteOrderDetail(list[i]._id);
+        await onUpdateOrderDetail(list[i]._id, list[i].quantity, idOrder, list[i].idSubProduct);
       }
-      await onDeleteOrderDetail();
       setCountCart(countCart-1);
     } catch (error) {
       console.log("Error handleDleteOrderDetail: ", error);

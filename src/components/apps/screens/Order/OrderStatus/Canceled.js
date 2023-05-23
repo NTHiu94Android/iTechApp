@@ -33,7 +33,7 @@ const Item = ({ item, onpress }) => (
 
 const Canceled = (props) => {
   const { navigation } = props;
-  const { } = useContext(AppContext);
+  const { onGetOrdersByIdUser, countOrder, onGetOrderDetailByIdOrder } = useContext(AppContext);
   const { user } = useContext(UserContext);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -41,10 +41,34 @@ const Canceled = (props) => {
 
   useEffect(() => {
     const getOrderByIdUserAndStatus = async () => {
-
+      try {
+        setIsLoading(true);
+        const resOrders = await onGetOrdersByIdUser(user._id);
+        const orders = resOrders.data;
+        //Lay tat ca hoa don tru idCart va idFavorite
+        let list = [];
+        for (let i = 0; i < orders.length; i++) {
+          if (orders[i].status == 'Canceled') {
+            const resOrderDetails = await onGetOrderDetailByIdOrder(orders[i]._id);
+            const orderDetails = resOrderDetails.data;
+            let sum = 0;
+            for (let j = 0; j < orderDetails.length; j++) {
+              sum += orderDetails[j].quantity;
+            }
+            orders[i].quantity = sum;
+            orders[i].orderDetails = orderDetails;
+            list.push(orders[i]);
+          }
+        }
+        setListCanceled(list);
+        setIsLoading(false);
+      } catch (error) {
+        setIsLoading(false);
+        console.log("Error getOrders", error);
+      }
     };
     getOrderByIdUserAndStatus();
-  }, []);
+  }, [countOrder]);
 
 
 
@@ -57,7 +81,7 @@ const Canceled = (props) => {
       <ProgressDialog
         visible={isLoading}
         loaderColor="black"
-        lable="Vui lòng đợi trong giây lát..."
+        lable="Please wait..."
       />
       <View style={styles.container}>
         {

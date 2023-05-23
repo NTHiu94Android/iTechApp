@@ -33,7 +33,7 @@ const Item = ({ item, onpress }) => (
 
 const Delivered = (props) => {
   const { navigation } = props;
-  const {  } = useContext(AppContext);
+  const { onGetOrdersByIdUser, countOrder } = useContext(AppContext);
   const { user } = useContext(UserContext);
   const [listDelivered, setListDelivered] = useState([]);
 
@@ -41,14 +41,28 @@ const Delivered = (props) => {
 
   useEffect(() => {
     const getOrderByIdUserAndStatus = async () => {
-      setIsLoading(true);
-      
-      setIsLoading(false);
+      try {
+        setIsLoading(true);
+        const resOrders = await onGetOrdersByIdUser(user._id);
+        const orders = resOrders.data;
+        //Lay tat ca hoa don tru idCart va idFavorite
+        let list = [];
+        for (let i = 0; i < orders.length; i++) {
+          if (orders[i].status == 'Delivered') {
+            list.push(orders[i]);
+          }
+        }
+        setListDelivered(list);
+        setIsLoading(false);
+      } catch (error) {
+        setIsLoading(false);
+        console.log("Error getOrders", error);
+      }
     };
     getOrderByIdUserAndStatus();
-  }, []);
+  }, [countOrder]);
 
-  
+
 
   const gotoOrderDetail = (item) => {
     navigation.navigate('OrderDetail', { item });
@@ -65,7 +79,7 @@ const Delivered = (props) => {
       <ProgressDialog
         visible={isLoading}
         loaderColor="black"
-        lable="Vui lòng đợi trong giây lát..."
+        lable="Please wait..."
       />
     </ScrollView>
   )

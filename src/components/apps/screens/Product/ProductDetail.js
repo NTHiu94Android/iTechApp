@@ -4,7 +4,7 @@ import { AppContext } from '../../AppContext';
 
 import { UserContext } from '../../../users/UserContext';
 
-import { Table, Row, Rows } from 'react-native-table-component';
+//import { Table, Row, Rows } from 'react-native-table-component';
 import RenderHtml from 'react-native-render-html';
 import Swiper from 'react-native-swiper';
 import ProgressDialog from 'react-native-progress-dialog';
@@ -39,13 +39,13 @@ const ProductDetail = ({ route, navigation }) => {
 
   const resSubProductRef = useRef({});
 
-  const tableHead = ['Parameter', 'Value'];
-  const [tableData, setTableData] = useState(
-    [
-      ['1', '2'],
-      ['a', 'b']
-    ]
-  );
+  // const tableHead = ['Parameter', 'Value'];
+  // const [tableData, setTableData] = useState(
+  //   [
+  //     ['1', '2'],
+  //     ['a', 'b']
+  //   ]
+  // );
 
   //Lay tat ca hinh anh cua san pham va mau sac , binh luan
   useEffect(() => {
@@ -72,14 +72,14 @@ const ProductDetail = ({ route, navigation }) => {
         setListCorlor(colors);
         getImagesProduct(product.subProduct[0]._id);
 
-        setTableData([
-          ['CPU', product.subProduct[0].cpu],
-          ['Ram', product.subProduct[0].ram],
-          ['Rom', product.subProduct[0].rom],
-          ['Screen', product.subProduct[0].screen],
-          ['Pin', product.subProduct[0].pin],
-          ['Camera', product.subProduct[0].fontCamera],
-        ]);
+        // setTableData([
+        //   ['CPU', product.subProduct[0].cpu],
+        //   ['Ram', product.subProduct[0].ram],
+        //   ['Rom', product.subProduct[0].rom],
+        //   ['Screen', product.subProduct[0].screen],
+        //   ['Pin', product.subProduct[0].pin],
+        //   ['Camera', product.subProduct[0].fontCamera],
+        // ]);
 
       } catch (error) {
         console.log("Get list color error: ", error);
@@ -197,7 +197,9 @@ const ProductDetail = ({ route, navigation }) => {
     try {
       let idOrder = '';
       name == 'Cart' ? idOrder = user.idCart : idOrder = user.idFavorite;
-      const res = await onAddOrderDetail(number, idOrder, itemSelected._id);
+      let price = 0;
+      itemSelected.sale > 0 ? price = itemSelected.price - itemSelected.price * itemSelected.sale / 100 : price = itemSelected.price;
+      const res = await onAddOrderDetail(number, price, idOrder, itemSelected._id);
       if (res == true) {
         if (name == 'Cart') {
           navigation.navigate(name);
