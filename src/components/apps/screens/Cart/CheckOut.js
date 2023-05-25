@@ -16,7 +16,7 @@ const CheckOut = (props) => {
   const { user } = useContext(UserContext);
   const {
     onGetAddressByIdUser, onAddOrder,
-    countAddress,
+    countAddress, onGetSubProducts,
     onUpdateOrderDetail,
     countCart, setCountCart,
   } = useContext(AppContext);
@@ -109,18 +109,41 @@ const CheckOut = (props) => {
   };
 
   //Tinh tong tien
-  const getTotal = () => {
+  const getTotal = async () => {
     //Tinh tong tien
     let total = 0;
+    let total2 = 0;
+    const resSubProduct = await onGetSubProducts();
     for (let i = 0; i < data.listCart.length; i++) {
+      //Tinh tong tien
       let price = data.listCart[i].subProduct.price;
       if (data.listCart[i].subProduct.sale != 0) {
         price = price - price * data.listCart[i].subProduct.sale / 100;
       }
       total += data.listCart[i].amount * price;
+      //Kiem tra lai gia tien
+      const subProduct = resSubProduct.data.find(item => item._id == data.listCart[i].subProduct._id);
+      if (subProduct != undefined) {
+        if (subProduct.sale != 0) {
+          data.listCart[i].subProduct.price = subProduct.price - subProduct.price * subProduct.sale / 100;
+        } else {
+          data.listCart[i].subProduct.price = subProduct.price;
+        }
+        total2 += data.listCart[i].amount * data.listCart[i].subProduct.price;
+      }
+
+    };
+
+    console.log('Total ----- Total2: ', total, ' ----- ', total2);
+    if (total2 != total) {
+      Alert.alert('Price has changed');
+      setCountCart(countCart + 1);
+      navigation.navigate('Cart');
+      setIsLoading(false);
+      return;
     }
     setTotal(total);
-
+    setIsLoading(false);
   };
 
   //Xu ly thanh toan
@@ -143,12 +166,38 @@ const CheckOut = (props) => {
       let paymentMethod = '';
       isSelect == '1' ? paymentMethod = 'Cash on delivery' : paymentMethod = 'Paypal';
 
+      //kiem tra lai gia tien lai gia tien
+      let total2 = 0;
+      const resSubProduct = await onGetSubProducts();
+      for (let i = 0; i < data.listCart.length; i++) {
+        const subProduct = resSubProduct.data.find(item => item._id == data.listCart[i].subProduct._id);
+        if (subProduct != undefined) {
+          if (subProduct.sale != 0) {
+            data.listCart[i].subProduct.price = subProduct.price - subProduct.price * subProduct.sale / 100;
+          } else {
+            data.listCart[i].subProduct.price = subProduct.price;
+          }
+          total2 += data.listCart[i].amount * data.listCart[i].subProduct.price;
+        }
+
+      };
+
+      console.log('Total ----- Total2: ', total, ' ----- ', total2);
+      if (total2 != total) {
+        Alert.alert('Price has changed');
+        setIsLoading(false);
+        setCountCart(countCart + 1);
+        navigation.navigate('Cart');
+        return;
+      }
+
       //Xu ly thanh toan
       if (isSelect == '2') {
         await pay();
       } else {
         //Them don hang
         //dateCreate, datePayment, totalPrice, status, paymentMethod, address, idUser
+
         const res = await onAddOrder(orderDate, "", total, status, paymentMethod, address, user._id);
         console.log("Res add order: ", res.data);
         if (res.data != undefined) {
@@ -256,9 +305,9 @@ const CheckOut = (props) => {
   const handleDleteOrderDetail = async (list, idOrder) => {
     try {
       for (let i = 0; i < list.length; i++) {
-        await onUpdateOrderDetail(list[i]._id, list[i].quantity, idOrder, list[i].idSubProduct);
+        await onUpdateOrderDetail(list[i]._id, list[i].quantity, list[i].price, idOrder, list[i].idSubProduct);
       }
-      setCountCart(countCart-1);
+      setCountCart(countCart - 1);
     } catch (error) {
       console.log("Error handleDleteOrderDetail: ", error);
     }

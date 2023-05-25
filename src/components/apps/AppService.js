@@ -75,11 +75,17 @@ export const addOrderDetail = async (quantity, price, idOrder, idSubProduct) => 
     return response;
 };
 
-//Lay danh sach san pham yeu thich/gio hang
+//Lay danh sach san pham yeu thich/gio hang theo idOrder
 export const getOrderDetailsByIdOrder = async(idOrder) => {
     const res = await CustomAxios().get(`/order-details/api/get-order-detail-by-idOrder/${idOrder}`);
     return res;
 }
+
+//Lay tat ca san pham yeu thich/gio hang
+export const getOrderDetails = async() => {
+    const res = await CustomAxios().get(`/order-details/api/get-all-order-detail`);
+    return res;
+};
 
 //Xoa san pham yeu thich/gio hang
 export const deleteOrderDetail = async(id) => {
@@ -88,9 +94,9 @@ export const deleteOrderDetail = async(id) => {
 };
 
 //Cap nhat san pham yeu thich/gio hang
-export const updateOrderDetail = async(_id, quantity, idOrder, idSubProduct) => {
+export const updateOrderDetail = async(_id, quantity, price, idOrder, idSubProduct) => {
     const data = {
-        _id, quantity, idOrder, idSubProduct
+        _id, quantity, price, idOrder, idSubProduct
     }
     const res = await CustomAxios().post(`/order-details/api/update-order-detail`, data);
     return res;
@@ -129,9 +135,9 @@ export const getReviews = async () => {
 };
 
 //Them review moi
-export const addReview = async (content, rating, idUser, idProduct) => {
+export const addReview = async (time, content, rating, idUser, idProduct) => {
     const data = {
-        content, rating, idUser, idProduct
+        time, content, rating, idUser, idProduct
     }
     const res = await CustomAxios().post('/reviews/api/add-review', data);
     return res;
@@ -167,6 +173,13 @@ export const updateAddress = async(_id, body, status, idUser) => {
 export const deleteAddress = async(_id) => {
     const res = await CustomAxios().get(`/address/api/delete-address/${_id}`);
     return res;
+};
+
+//---------------------------------User---------------------------------
+//Lay danh sach user
+export const getUsers = async () => {
+    const response = await CustomAxios().get('/users/api/get-all-user');
+    return response;
 };
 
 

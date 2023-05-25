@@ -33,9 +33,15 @@ const AddReview = (props) => {
         setIsLoading(false);
         return;
       }
+      //Lay ngay hien tai
+      const date = new Date();
+      const day = date.getDate();
+      const month = date.getMonth() + 1;
+      const year = date.getFullYear();
+      const dayNow = `${day}/${month}/${year}`;
 
       //Add review:   content, rating, idUser, idProduct
-      const resReview = await onAddReview(text, star, user._id, item.product._id);
+      const resReview = await onAddReview(dayNow, text, star, user._id, item.product._id);
 
       if (images.length != 0) {
         //Upload picture

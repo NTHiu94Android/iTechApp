@@ -55,6 +55,8 @@ const Cart = (props) => {
           } else {
             data[i].price = subProduct.price - (subProduct.price * subProduct.sale / 100);
           }
+          data[i].totalPriceNoSale = subProduct.price * data[i].quantity;
+          await onUpdateOrderDetail(data[i]._id, data[i].quantity, data[i].price, data[i].idOrder, data[i].idSubProduct);
           data[i].totalPrice = data[i].price * data[i].quantity;
           data[i].amount = data[i].quantity;
           data[i].subProduct = subProduct;
@@ -87,7 +89,7 @@ const Cart = (props) => {
           listCart[i].totalPrice = listCart[i].price * newValue;
           listCartNew[i] = listCart[i];
           sum += listCartNew[i].totalPrice;
-          updateItemCart(listCart[i]._id, newValue, listCart[i].idOrder, listCart[i].idSubProduct, listCart[i].subProduct);
+          updateItemCart(listCart[i]._id, newValue, listCart[i].idOrder, listCart[i].price, listCart[i].idSubProduct, listCart[i].subProduct);
         } else {
           sum += listCart[i].totalPrice;
         }
@@ -102,13 +104,13 @@ const Cart = (props) => {
     }
   };
 
-  const updateItemCart = async (_idOrderDetail, _amount, _idOrder, _idSubProduct, subProduct) => {
+  const updateItemCart = async (_idOrderDetail, _amount, price, _idOrder, _idSubProduct, subProduct) => {
     try {
       if (subProduct.quantity < _amount) {
         alert("Số lượng sản phẩm trong kho không đủ!");
         return;
       }
-      await onUpdateOrderDetail(_idOrderDetail, _amount, _idOrder, _idSubProduct);
+      await onUpdateOrderDetail(_idOrderDetail, _amount, price, _idOrder, _idSubProduct);
       //setCountCart(countCart + 1);
     } catch (error) {
       console.log("Update item cart error: ", error);
@@ -224,7 +226,16 @@ const Item = ({ item, plus, minus, deleteItem, gotoProductDetail }) => (
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: 200, alignItems: 'center' }}>
             <View style={{ marginTop: 4 }}>
               <Text style={{ fontSize: 16, fontWeight: '600', color: 'black' }}>{item.color}</Text>
-              <Text style={{ fontSize: 16, fontWeight: '600', color: 'black', marginTop: 4 }}>$ {item.totalPrice}</Text>
+              <View style={{flexDirection: 'row'}}>
+                {
+                  item.subProduct.sale > 0 ?
+                    <Text style={{ fontSize: 16, fontWeight: '400', color: 'black', marginTop: 4, marginRight: 8, textDecorationLine: 'line-through' }}>
+                      $ {item.totalPriceNoSale}
+                    </Text> : null
+                }
+                <Text style={{ fontSize: 16, fontWeight: '600', color: 'red', marginTop: 4 }}>$ {item.totalPrice}</Text>
+              </View>
+
             </View>
             <View style={styles.qualityRange}>
               <TouchableOpacity onPress={plus}>

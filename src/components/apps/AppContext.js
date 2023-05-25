@@ -9,11 +9,13 @@ import {
   //Order
   addOrder, getOrdersByIdUser, updateOrder,
   //OrderDetail
-  addOrderDetail, getOrderDetailsByIdOrder, deleteOrderDetail, updateOrderDetail,
+  addOrderDetail, getOrderDetailsByIdOrder, deleteOrderDetail, updateOrderDetail, getOrderDetails,
   //Review
   getReviews, addReview,
   //Address
   getAddressByIdUser, addAddress, updateAddress, deleteAddress,
+  //User
+  getUsers,
 
 } from './AppService';
 import { UserContext } from '../users/UserContext';
@@ -256,6 +258,17 @@ export const AppContextProvider = (props) => {
     }
   }
 
+  //Lay danh sach order detail
+  const onGetOrderDetails = async () => {
+    try {
+      const res = await getOrderDetails();
+      return res;
+    } catch (error) {
+      console.log("onGetOrderDetails", error);
+    }
+  };
+
+
   //Xoa san pham yeu thich / gio hang
   const onDeleteOrderDetail = async (idOrderDetail) => {
     try {
@@ -267,9 +280,9 @@ export const AppContextProvider = (props) => {
   };
 
   //Cap nhat san pham yeu thich / gio hang
-  const onUpdateOrderDetail = async (_id, quantity, idOrder, idSubProduct) => {
+  const onUpdateOrderDetail = async (_id, quantity, price, idOrder, idSubProduct) => {
     try {
-      const res = await updateOrderDetail(_id, quantity, idOrder, idSubProduct);
+      const res = await updateOrderDetail(_id, quantity, price, idOrder, idSubProduct);
       return res;
     } catch (error) {
       console.log('onUpdateOrderDetail error: ', error);
@@ -320,9 +333,9 @@ export const AppContextProvider = (props) => {
   };
 
   //Them review moi
-  const onAddReview = async (content, rating, idUser, idProduct) => {
+  const onAddReview = async (time, content, rating, idUser, idProduct) => {
     try {
-      const res = await addReview(content, rating, idUser, idProduct);
+      const res = await addReview(time, content, rating, idUser, idProduct);
       return res;
     } catch (error) {
       console.log('onAddReview error: ', error);
@@ -370,6 +383,18 @@ export const AppContextProvider = (props) => {
     }
   };
 
+  //-------------------------------------------------User-------------------------------------------------
+  //Lay danh sach user
+  const onGetUsers = async () => {
+    try {
+      const res = await getUsers();
+      return res;
+    } catch (error) {
+      console.log('onGetUsers error: ', error);
+    }
+  };
+
+
   return (
     <AppContext.Provider value={{
       //Category & Brand
@@ -384,11 +409,13 @@ export const AppContextProvider = (props) => {
       onGetPicturesByIdProduct, onGetPictures, onUploadPicture, onAddPicture,
       //OrderDetail
       onAddOrderDetail, onGetOrderDetailByIdOrder,
-      onDeleteOrderDetail, onUpdateOrderDetail,
+      onDeleteOrderDetail, onUpdateOrderDetail, onGetOrderDetails,
       //Order
       onAddOrder, onGetOrdersByIdUser, onUpdateOrder,
       //Address
       onAddAddress, onGetAddressByIdUser, onUpdateAddress, onDeleteAddress,
+      //User
+      onGetUsers,
       //State
       listFavorite, setListFavorite,
       listCart, setListCart,
