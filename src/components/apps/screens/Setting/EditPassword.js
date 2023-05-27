@@ -1,65 +1,166 @@
-import { Image, Pressable, StyleSheet, Text, TextInput, View } from 'react-native'
-import React from 'react'
+import { StyleSheet, Text, View, TouchableOpacity, TextInput, Image, ToastAndroid, ScrollView } from 'react-native'
+import React, { useContext, useState } from 'react'
 
-const EditPassword = () => {
+import ProgressDialog from 'react-native-progress-dialog';
+import { UserContext } from '../../../users/UserContext';
+import back from '../../../back/back';
+
+const EditPassword = (props) => {
+  const { navigation } = props;
+  back(navigation);
+  const { onChangePassword, user } = useContext(UserContext);
+
+  const [isLoading, setIsLoading] = useState(false);
+
+  const [password, setPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+
+  const [isShowPassword, setIsShowPassword] = useState(true);
+  const [isShowNewPassword, setIsShowNewPassword] = useState(true);
+  const [isShowConfirmPassword, setIsShowConfirmPassword] = useState(true);
+
+  const handleEditPassword = async () => {
+    setIsLoading(true);
+    if(password == "" || newPassword == "" || confirmPassword == "") {
+      ToastAndroid.show("Please fill all fields!", ToastAndroid.SHORT);
+      setIsLoading(false);
+      return;
+    }; 
+    if(newPassword != confirmPassword) {
+      ToastAndroid.show("New password and confirm password are not the same!", ToastAndroid.SHORT);
+      setIsLoading(false);
+      return;
+    }
+    if(password == newPassword) {
+      ToastAndroid.show("New password and current password are the same!", ToastAndroid.SHORT);
+      setIsLoading(false);
+      return;
+    }
+    if(newPassword.length < 6 || newPassword.length > 20) {
+      ToastAndroid.show("New password must be from 6 to 20 characters!", ToastAndroid.SHORT);
+      setIsLoading(false);
+      return;
+    }
+    const res = await onChangePassword(user._id, password, newPassword, confirmPassword);
+    setIsLoading(false);
+    if (res) {
+      ToastAndroid.show("Change password successfully!", ToastAndroid.SHORT);
+      navigation.goBack();
+    } else {
+      ToastAndroid.show("Change password failed!", ToastAndroid.SHORT);
+    }
+  };
+
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Image
-          style={styles.img}
-          source={require('../../../../assets/images/back.png')} ></Image>
-        <Text style={styles.title}>Update password</Text>
+    <View style={{ flex: 1, paddingHorizontal: 12, justifyContent: 'space-between', backgroundColor: 'white' }}>
+
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 6 }}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Image
+            style={{ width: 22, height: 22 }}
+            resizeMode='cover'
+            source={require('../../../../assets/images/back.png')} />
+        </TouchableOpacity>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', height: 50 }}>
+          <Text style={{ color: 'black', fontWeight: '800', fontSize: 18 }}>Update password</Text>
+        </View>
+
+        <View style={{ width: 22, height: 22 }} />
       </View>
 
-      <View style={styles.body}>
-        <View style={styles.viewInput}>
-          <TextInput
-            style={styles.input}
-            keyboardType='password'
-            placeholder="Current password"></TextInput>
+      <ProgressDialog
+        visible={isLoading}
+        loaderColor="black"
+        label="Please wait..." />
 
-          <Pressable>
-            <Image
-              style={styles.icon}
-              source={require('../../../../assets/images/blind.png')} >
-            </Image>
-          </Pressable>
+      <ScrollView style={{ flex: 1, backgroundColor: 'white', paddingHorizontal: 20, paddingTop: 30 }}>
+
+        {/* Password */}
+        <View style={{ position: 'relative' }}>
+          <Text style={{ color: 'black', fontWeight: '800', fontSize: 16, }}>Password</Text>
+          <TextInput
+            value={password}
+            onChangeText={setPassword}
+            placeholder="*********"
+            style={{}}
+            secureTextEntry={isShowPassword} />
+          {
+            !isShowPassword ?
+              <TouchableOpacity onPress={() => setIsShowPassword(true)} style={{ position: 'absolute', right: 0, top: 30 }}>
+                <Image
+                  style={{ width: 24, height: 24 }}
+                  source={require('../../../../assets/images/eye.png')}
+                />
+              </TouchableOpacity> :
+              <TouchableOpacity onPress={() => setIsShowPassword(false)} style={{ position: 'absolute', right: 0, top: 30 }}>
+                <Image
+                  style={{ width: 24, height: 24 }}
+                  source={require('../../../../assets/images/eye-off.png')}
+                />
+              </TouchableOpacity>
+          }
+          <View style={{ height: 1, backgroundColor: 'black', marginBottom: 20 }} ></View>
         </View>
 
-        <View style={styles.viewInput}>
+        {/* New Password */}
+        <View style={{ position: 'relative' }}>
+          <Text style={{ color: 'black', fontWeight: '800', fontSize: 16, }}>New Password</Text>
           <TextInput
-            style={styles.input}
-            keyboardType='password'
-            placeholder="New password"></TextInput>
-
-          <Pressable>
-            <Image
-              style={styles.icon}
-              source={require('../../../../assets/images/blind.png')} >
-            </Image>
-          </Pressable>
+            value={newPassword}
+            onChangeText={setNewPassword}
+            placeholder="*********"
+            style={{}}
+            secureTextEntry={isShowNewPassword} />
+          {
+            !isShowNewPassword ?
+              <TouchableOpacity onPress={() => setIsShowNewPassword(true)} style={{ position: 'absolute', right: 0, top: 30 }}>
+                <Image
+                  style={{ width: 24, height: 24 }}
+                  source={require('../../../../assets/images/eye.png')}
+                />
+              </TouchableOpacity> :
+              <TouchableOpacity onPress={() => setIsShowNewPassword(false)} style={{ position: 'absolute', right: 0, top: 30 }}>
+                <Image
+                  style={{ width: 24, height: 24 }}
+                  source={require('../../../../assets/images/eye-off.png')}
+                />
+              </TouchableOpacity>
+          }
+          <View style={{ height: 1, backgroundColor: 'black', marginBottom: 20 }} ></View>
         </View>
 
-        <View style={styles.viewInput}>
+        {/* Confirm password */}
+        <View style={{ position: 'relative' }}>
+          <Text style={{ color: 'black', fontWeight: '800', fontSize: 16, }}>Confirm password</Text>
           <TextInput
-            style={styles.input}
-            keyboardType='password'
-            placeholder="Retype password"></TextInput>
-
-          <Pressable>
-            <Image
-              style={styles.icon}
-              source={require('../../../../assets/images/blind.png')} >
-            </Image>
-          </Pressable>
+            value={confirmPassword}
+            onChangeText={setConfirmPassword}
+            placeholder="*********"
+            style={{}}
+            secureTextEntry={isShowConfirmPassword} />
+          <View style={{ height: 1, backgroundColor: 'black', marginBottom: 20 }} ></View>
+          {
+            !isShowConfirmPassword ?
+              <TouchableOpacity onPress={() => setIsShowConfirmPassword(true)} style={{ position: 'absolute', right: 0, top: 30 }}>
+                <Image
+                  style={{ width: 24, height: 24 }}
+                  source={require('../../../../assets/images/eye.png')}
+                />
+              </TouchableOpacity> :
+              <TouchableOpacity onPress={() => setIsShowConfirmPassword(false)} style={{ position: 'absolute', right: 0, top: 30 }}>
+                <Image
+                  style={{ width: 24, height: 24 }}
+                  source={require('../../../../assets/images/eye-off.png')}
+                />
+              </TouchableOpacity>
+          }
         </View>
 
-        <Pressable style={styles.btn}>
-          <Text style={styles.txtBtn}>Submit</Text>
-        </Pressable>
-      </View>
-
-      <View style={styles.footer}></View>
+        <TouchableOpacity onPress={() => handleEditPassword()} style={styles.btn}>
+          <Text style={{ color: '#ffffff', textAlign: 'center', fontWeight: 'bold' }} >Submit</Text>
+        </TouchableOpacity>
+      </ScrollView>
     </View>
   )
 }
@@ -67,77 +168,13 @@ const EditPassword = () => {
 export default EditPassword
 
 const styles = StyleSheet.create({
-  footer: {
-    flex: 0.5,
-  },
-
-  // body
-  txtBtn: {
-    color: 'white',
-    fontSize: 16,
-  },
   btn: {
-    marginVertical: 15,
-    justifyContent: 'center',
-    alignItems: 'center',
+    width: '80%',
     height: 50,
-    width: 150,
-    borderRadius: 10,
     backgroundColor: 'black',
-  },
-  viewInput: {
+    borderRadius: 30,
     justifyContent: 'center',
     alignItems: 'center',
-    flexDirection: 'row',
-  },
-  icon: {
-    width: 16,
-    height: 16,
-    position: 'absolute',
-    alignItems: 'flex-end',
-  },
-  input: {
-    position: 'relative',
-
-    paddingHorizontal: 15,
-    height: 40,
-    width: 300,
-    borderBottomWidth: 1,
-    marginVertical: 15,
-
-  },
-  txtTitle: {
-
-  },
-  body: {
-    flex: 5,
-    marginVertical: 20,
-    alignItems: 'center',
-  },
-
-
-  // header
-
-  title: {
-    marginHorizontal: 25,
-    fontWeight: 'bold',
-    color: 'black',
-    fontSize: 18,
-  },
-  img: {
-    width: 16,
-    height: 16,
-  },
-  header: {
-    marginHorizontal: 15,
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-    flex: 0.5,
-    flexDirection: 'row',
-
-  },
-  container: {
-    flex: 1,
-  },
-
+    alignSelf: 'center',
+  }
 })

@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect } from 'react'
-import { login, register, updateFcmToken, forgot_password, update_profile } from './UserService';
+import { login, register, updateFcmToken, change_password, forgot_password, update_profile } from './UserService';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import jwt_decode from "jwt-decode";
@@ -33,9 +33,9 @@ export const UserContextProvider = (props) => {
   //   loginUserCheckRemember();
   // }, []);
 
-  const onLogin = async (email, password, fcmToken) => {
+  const onLogin = async (username, email, password, fcmToken) => {
     try {
-      const response = await login(email, password, fcmToken);
+      const response = await login(username, email, password, fcmToken);
       if (response) {
         const token = response.accessToken;
         await AsyncStorage.setItem('token', token);
@@ -76,9 +76,9 @@ export const UserContextProvider = (props) => {
     }
   };
 
-  const onRegister = async (email, password, name, birthday, numberPhone, avatar) => {
+  const onRegister = async (username, email, password, name, birthday, numberPhone, avatar) => {
     try {
-      const response = await register(email, password, name, birthday, numberPhone, avatar);
+      const response = await register(username, email, password, name, birthday, numberPhone, avatar);
       return response.data;
     } catch (error) {
       console.log("OnRegister Error: ", error);
@@ -88,9 +88,19 @@ export const UserContextProvider = (props) => {
   const onUpdateProfile = async (id, email, name, birthday, numberPhone, avatar) => {
     try {
       const response = await update_profile(id, email, name, birthday, numberPhone, avatar);
+      setUser(response.data);
       return response.data;
     } catch (error) {
       console.log("OnUpdateProfile Error: ", error);
+    }
+  };
+
+  const onChangePassword = async (id, password, new_password, confirm_password) => {
+    try {
+      const response = await change_password(id, password, new_password, confirm_password);
+      return response.data;
+    } catch (error) {
+      console.log("OnChangePassword Error: ", error);
     }
   };
 
@@ -107,7 +117,7 @@ export const UserContextProvider = (props) => {
   return (
     <UserContext.Provider value={{
       user, setUser, onLogin, onLogout, onRegister,
-      onUpdateProfile, onUpdateFcmToken, onForgotPassword
+      onUpdateProfile, onUpdateFcmToken, onForgotPassword, onChangePassword
     }}>
       {children}
     </UserContext.Provider>

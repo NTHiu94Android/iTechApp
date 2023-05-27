@@ -94,9 +94,9 @@ export const deleteOrderDetail = async(id) => {
 };
 
 //Cap nhat san pham yeu thich/gio hang
-export const updateOrderDetail = async(_id, quantity, price, idOrder, idSubProduct) => {
+export const updateOrderDetail = async(_id, quantity, price, isCmt, idOrder, idSubProduct) => {
     const data = {
-        _id, quantity, price, idOrder, idSubProduct
+        _id, quantity, price, isCmt, idOrder, idSubProduct
     }
     const res = await CustomAxios().post(`/order-details/api/update-order-detail`, data);
     return res;

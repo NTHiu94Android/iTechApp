@@ -9,7 +9,7 @@ const Register = (props) => {
   const { navigation } = props;
   const { onRegister } = useContext(UserContext);
   const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -21,13 +21,13 @@ const Register = (props) => {
   back(navigation);
 
   const handleRegister = async () => {
-    const patternEmail = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
-    const checkEmail = patternEmail.test(email);
-    if (!checkEmail) {
-      ToastAndroid.show('Email is not valid', ToastAndroid.SHORT);
-      return;
-    }
-    if (!email || !password || !name || !confirmPassword) {
+    // const patternEmail = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+    // const checkEmail = patternEmail.test(email);
+    // if (!checkEmail) {
+    //   ToastAndroid.show('Email is not valid', ToastAndroid.SHORT);
+    //   return;
+    // }
+    if (!username || !password || !name || !confirmPassword) {
       alert('Please fill all the fields');
       return;
     };
@@ -35,14 +35,22 @@ const Register = (props) => {
       alert('Password and Confirm Password must be the same');
       return;
     };
+    if(password.length < 6){
+      alert('Password must be at least 6 characters');
+      return;
+    }
+    if(username.length < 6 || username.length > 20){
+      alert('Username must be between 6 and 20 characters');
+      return;
+    }
     setIsLoading(true);
-    //email, password, name, birthday, numberPhone, avatar
-    const user = await onRegister(email, password, name, "", "", avatar);
+    //username, email, password, name, birthday, numberPhone, avatar
+    const user = await onRegister(username, null, password, name, "", "", avatar);
     if (user == null || user == undefined) {
       ToastAndroid.show('Register successfully!', ToastAndroid.SHORT);
-      navigation.navigate('Login');
     } else {
       ToastAndroid.show('Register fail!', ToastAndroid.SHORT);
+      navigation.navigate('Login');
     }
     setIsLoading(false);
 
@@ -68,13 +76,12 @@ const Register = (props) => {
         </View>
 
         <View style={{ width: '100%', justifyContent: 'center', }}>
-          {/* Email */}
-          <Text style={{ color: 'black', fontWeight: '800', fontSize: 16, marginTop: 20 }}>Email</Text>
+          {/* Username */}
+          <Text style={{ color: 'black', fontWeight: '800', fontSize: 16, marginTop: 20 }}>Username</Text>
           <TextInput
-            value={email}
-            onChangeText={setEmail}
-            placeholder="Ex: johndoe194@gmail.com"
-            style={{}} />
+            value={username}
+            onChangeText={setUsername}
+            placeholder="Ex: johndoe194@gmail.com" />
           <View style={{ height: 1, backgroundColor: 'black', marginBottom: 20 }} ></View>
 
           {/* Name */}
@@ -82,9 +89,7 @@ const Register = (props) => {
           <TextInput
             value={name}
             onChangeText={setName}
-            placeholder="Ex: John Doe"
-            style={{}}
-            secureTextEntry={true} />
+            placeholder="Ex: John Doe"/>
           <View style={{ height: 1, backgroundColor: 'black', marginBottom: 20 }} ></View>
 
           {/* Password */}

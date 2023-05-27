@@ -12,7 +12,7 @@ import { UserContext } from '../UserContext';
 const Login = (props) => {
   const { navigation } = props;
   const { onLogin, onRegister } = useContext(UserContext);
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [isShowPassword, setIsShowPassword] = useState(true);
 
@@ -25,7 +25,7 @@ const Login = (props) => {
 
   const handleLogin = async () => {
     setIsLoading(true);
-    if (!email || !password) {
+    if (!username || !password) {
       //neu tren android
       if (Platform.OS === 'android') {
         ToastAndroid.showWithGravityAndOffset('Please fill all the fields!', ToastAndroid.SHORT, ToastAndroid.BOTTOM, 25, 50);
@@ -36,7 +36,7 @@ const Login = (props) => {
       return;
     } else {
       const fcmToken = await AsyncStorage.getItem('fcmToken');
-      const res = await onLogin(email, password, fcmToken);
+      const res = await onLogin(username, null, password, fcmToken);
       if (res != null || res != undefined) {
         console.log("Login success!");
       } else {
@@ -71,15 +71,15 @@ const Login = (props) => {
 
       const fcmToken = await AsyncStorage.getItem('fcmToken');
       //console.log("FCM Token Login screen: ", fcmToken);
-      const usLogin = await onLogin(userResult.email, userResult.uid, fcmToken);
+      const usLogin = await onLogin(null, userResult.email, userResult.uid, fcmToken);
       if (usLogin) {
         console.log("Login success");
       } else if (usLogin == null || usLogin == undefined) {
-        //email, password, name, birthday, address, numberPhone, avatar
-        const usRegister = await onRegister(userResult.email, userResult.uid, userResult.displayName, "15/10/1999", "", userResult.photoURL);
+        //username, email, password, name, birthday, address, numberPhone, avatar
+        const usRegister = await onRegister(null, userResult.email, userResult.uid, userResult.displayName, "", "", userResult.photoURL);
         if (usRegister) {
           console.log("Register success");
-          const res = await onLogin(userResult.email, userResult.uid, fcmToken);
+          const res = await onLogin(null, userResult.email, userResult.uid, fcmToken);
           if (res) {
             console.log("Login success after register");
           } else {
@@ -117,11 +117,11 @@ const Login = (props) => {
           <Text style={{ fontWeight: 'bold', color: 'black', fontSize: 20, }} >WELCOME BACK</Text>
 
           <View style={{}}>
-            <Text style={{ color: 'black', fontWeight: '800', fontSize: 16, marginTop: 40 }}>Email</Text>
+            <Text style={{ color: 'black', fontWeight: '800', fontSize: 16, marginTop: 40 }}>Username</Text>
             <TextInput
-              value={email}
-              onChangeText={setEmail}
-              placeholder="Enter your email"
+              value={username}
+              onChangeText={setUsername}
+              placeholder="Enter your username"
               style={{}} />
             <View style={{ height: 1, backgroundColor: 'black', }} ></View>
           </View>

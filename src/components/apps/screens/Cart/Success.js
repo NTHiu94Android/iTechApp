@@ -22,6 +22,11 @@ const Success = (props) => {
           style={{ backgroundColor: '#000', height: 50, borderRadius: 30, justifyContent: 'center' }}>
           <Text style={{ color: '#fff', textAlign: 'center', fontSize: 20, fontWeight: 'bold' }}>Track your orders</Text>
         </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => navigation.popToTop()}
+          style={{ backgroundColor: '#000', height: 50, borderRadius: 30, justifyContent: 'center' }}>
+          <Text style={{ color: '#fff', textAlign: 'center', fontSize: 20, fontWeight: 'bold' }}>Back home</Text>
+        </TouchableOpacity>
       </View>
     </View>
   )

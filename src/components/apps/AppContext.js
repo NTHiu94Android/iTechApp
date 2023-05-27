@@ -181,6 +181,17 @@ export const AppContextProvider = (props) => {
     }
   };
 
+  //Lay hinh anh theo idReview
+  const onGetPicturesByIdReview = async (idReview) => {
+    try {
+      const res = await onGetPictures();
+      const listPictures = res.data.filter((item) => item.idReview === idReview);
+      return listPictures;
+    } catch (error) {
+      console.log('onGetPicturesByIdReview error: ', error);
+    }
+  };
+
   //Them hinh anh moi
   const onAddPicture = async (url, idSubProduct, idReview) => {
     try {
@@ -280,9 +291,9 @@ export const AppContextProvider = (props) => {
   };
 
   //Cap nhat san pham yeu thich / gio hang
-  const onUpdateOrderDetail = async (_id, quantity, price, idOrder, idSubProduct) => {
+  const onUpdateOrderDetail = async (_id, quantity, price, isCmt, idOrder, idSubProduct) => {
     try {
-      const res = await updateOrderDetail(_id, quantity, price, idOrder, idSubProduct);
+      const res = await updateOrderDetail(_id, quantity, price, isCmt, idOrder, idSubProduct);
       return res;
     } catch (error) {
       console.log('onUpdateOrderDetail error: ', error);
@@ -406,7 +417,7 @@ export const AppContextProvider = (props) => {
       //Reviews
       onGetReviews, onAddReview,
       //Picture
-      onGetPicturesByIdProduct, onGetPictures, onUploadPicture, onAddPicture,
+      onGetPicturesByIdProduct, onGetPictures, onUploadPicture, onAddPicture, onGetPicturesByIdReview,
       //OrderDetail
       onAddOrderDetail, onGetOrderDetailByIdOrder,
       onDeleteOrderDetail, onUpdateOrderDetail, onGetOrderDetails,

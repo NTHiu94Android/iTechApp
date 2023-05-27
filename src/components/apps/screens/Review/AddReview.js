@@ -14,7 +14,7 @@ const AddReview = (props) => {
   //console.log('Item on Add review screen: >>>>>>>>>>>>>>> ', item);
   back(navigation);
 
-  const { onAddReview, onUploadPicture, onAddPicture, countOrderDetail, setCountOrderDetail } = useContext(AppContext);
+  const { onAddReview, onUploadPicture, onAddPicture, countOrderDetail, setCountOrderDetail, onUpdateOrderDetail} = useContext(AppContext);
   const { user } = useContext(UserContext);
 
   const [star, setStar] = useState(5);
@@ -42,6 +42,7 @@ const AddReview = (props) => {
 
       //Add review:   content, rating, idUser, idProduct
       const resReview = await onAddReview(dayNow, text, star, user._id, item.product._id);
+      await onUpdateOrderDetail(item._id, item.quantity, item.price, true, item.idOrder, item.idSubProduct);
 
       if (images.length != 0) {
         //Upload picture
@@ -390,8 +391,8 @@ const AddReview = (props) => {
 
       <ProgressDialog
         visible={isLoading}
-        title="Đang tải dữ liệu"
-        message="Vui lòng đợi trong giây lát..." />
+        loaderColor="black"
+        label="Please wait..." />
 
     </View>
   )

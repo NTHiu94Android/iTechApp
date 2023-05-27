@@ -111,38 +111,27 @@ const CheckOut = (props) => {
   //Tinh tong tien
   const getTotal = async () => {
     //Tinh tong tien
-    let total = 0;
     let total2 = 0;
+    let numberProduct = 0;
     const resSubProduct = await onGetSubProducts();
     for (let i = 0; i < data.listCart.length; i++) {
-      //Tinh tong tien
-      let price = data.listCart[i].subProduct.price;
-      if (data.listCart[i].subProduct.sale != 0) {
-        price = price - price * data.listCart[i].subProduct.sale / 100;
-      }
-      total += data.listCart[i].amount * price;
       //Kiem tra lai gia tien
       const subProduct = resSubProduct.data.find(item => item._id == data.listCart[i].subProduct._id);
       if (subProduct != undefined) {
         if (subProduct.sale != 0) {
           data.listCart[i].subProduct.price = subProduct.price - subProduct.price * subProduct.sale / 100;
         } else {
-          data.listCart[i].subProduct.price = subProduct.price;
+          data.listCart[i].subProduct.price = subProduct.price; 
         }
         total2 += data.listCart[i].amount * data.listCart[i].subProduct.price;
       }
+      numberProduct += data.listCart[i].amount;
 
     };
+    data.numberProduct = numberProduct;
+    console.log('numberProduct: ', numberProduct);
 
-    console.log('Total ----- Total2: ', total, ' ----- ', total2);
-    if (total2 != total) {
-      Alert.alert('Price has changed');
-      setCountCart(countCart + 1);
-      navigation.navigate('Cart');
-      setIsLoading(false);
-      return;
-    }
-    setTotal(total);
+    setTotal(total2);
     setIsLoading(false);
   };
 
@@ -305,7 +294,7 @@ const CheckOut = (props) => {
   const handleDleteOrderDetail = async (list, idOrder) => {
     try {
       for (let i = 0; i < list.length; i++) {
-        await onUpdateOrderDetail(list[i]._id, list[i].quantity, list[i].price, idOrder, list[i].idSubProduct);
+        await onUpdateOrderDetail(list[i]._id, list[i].quantity, list[i].price, false, idOrder, list[i].idSubProduct);
       }
       setCountCart(countCart - 1);
     } catch (error) {
@@ -343,19 +332,21 @@ const CheckOut = (props) => {
         <View style={{ justifyContent: 'space-between', marginTop: 30 }}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12 }}>
             <Text style={{ fontSize: 18, fontWeight: '800', color: 'black' }}>Shipping Address</Text>
-            <Image
-              source={require('../../../../assets/images/edit.png')}
-              style={{ width: 20, height: 20, resizeMode: 'contain' }}
-            />
+            <TouchableOpacity onPress={() => navigation.navigate('ShippngAdress')}>
+              <Image
+                source={require('../../../../assets/images/edit.png')}
+                style={{ width: 20, height: 20, resizeMode: 'contain' }}
+              />
+            </TouchableOpacity>
           </View>
           <View style={[styles.box, { backgroundColor: '#fff', borderRadius: 8, paddingVertical: 10, }]}>
             <Text style={{ fontSize: 18, fontWeight: 'bold', borderBottomWidth: 0.5, borderBottomColor: 'grey', padding: 10 }}>{user.name}</Text>
-            <Text style={{ fontSize: 14, lineHeight: 25, padding: 10, fontWeight: '400' }}>Phone: {user.numberPhone}</Text>
-            <Text style={{ fontSize: 14, marginHorizontal: 10, marginBottom: 10, fontWeight: '400' }}>Address: {address}</Text>
+            <Text style={{ fontSize: 14, lineHeight: 25, padding: 10, fontWeight: '500' }}>Phone: {user.numberPhone}</Text>
+            <Text style={{ fontSize: 14, marginHorizontal: 10, marginBottom: 10, fontWeight: '500' }}>Address: {address}</Text>
           </View>
         </View>
 
-        {/* Delivery method */}
+        {/* Payment method */}
         <View style={{ justifyContent: 'space-between', marginTop: 30 }}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 }}>
             <Text style={{ fontSize: 18, fontWeight: '800', color: 'black' }}>Payment method</Text>
@@ -382,18 +373,25 @@ const CheckOut = (props) => {
         </View>
 
         {/* Total price */}
-        <View style={[styles.box, { padding: 10, borderRadius: 8, height: 125, justifyContent: 'space-between', marginTop: 10, marginBottom: 20, }]}>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10, marginTop: 20 }}>
+            <Text style={{ fontSize: 18, fontWeight: '800', color: 'black' }}>Infomation & order</Text>
+        </View>
+        <View style={[styles.box, { padding: 10, borderRadius: 8, justifyContent: 'space-between', marginBottom: 20, }]}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-            <Text style={{ fontSize: 18 }}>Order:</Text>
-            <Text style={{ fontSize: 18, fontWeight: '300' }}>$ 997</Text>
+            <Text style={{ fontSize: 16, fontWeight: '500' }}>The number of products:</Text>
+            <Text style={{ fontSize: 16, fontWeight: '300' }}>{data.numberProduct} (Product)</Text>
           </View>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-            <Text style={{ fontSize: 18 }}>Delivery::</Text>
-            <Text style={{ fontSize: 18, fontWeight: '300' }}>$ 3</Text>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 8 }}>
+            <Text style={{ fontSize: 16, fontWeight: '500' }}>Total(provisional):</Text>
+            <Text style={{ fontSize: 16, fontWeight: '300', color: 'black' }}>$ {total}</Text>
           </View>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-            <Text style={{ fontSize: 18 }}>Total:</Text>
-            <Text style={{ fontSize: 18, fontWeight: '300' }}>$ {total}</Text>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 8 }}>
+            <Text style={{ fontSize: 16, fontWeight: '500' }}>Promotion:</Text>
+            <Text style={{ fontSize: 16, fontWeight: '300' }}>0{}</Text>
+          </View>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 8 }}>
+            <Text style={{ fontSize: 16, fontWeight: '500' }}>Total:</Text>
+            <Text style={{ fontSize: 16, fontWeight: '800', color: 'black' }}>$ {total}</Text>
           </View>
         </View>
 

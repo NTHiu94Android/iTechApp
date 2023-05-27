@@ -19,8 +19,9 @@ const ForgotPassword = (props) => {
       setIsLoading(true);
       //forgot password
       const res = await onForgotPassword(email);
-      if (res.data) {
+      if (res) {
          ToastAndroid.show('Please check your email!', ToastAndroid.SHORT);
+         navigation.navigate('Login');
       } else {
          ToastAndroid.show('Email does not exist!', ToastAndroid.SHORT);
       }
@@ -57,8 +58,8 @@ const ForgotPassword = (props) => {
          </View>
          <ProgressDialog
             visible={isLoading}
-            title="Đang tải dữ liệu"
-            message="Vui lòng đợi trong giây lát..." />
+            loaderColor="black"
+            label="Please wait..." />
       </ScrollView>
    )
 }

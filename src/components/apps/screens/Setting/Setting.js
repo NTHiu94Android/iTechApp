@@ -75,7 +75,12 @@ const Setting = (props) => {
               <Text style={styleSetting.txtNameUser}>{user.name}</Text>
 
               <Text style={[styleSetting.txtName, { marginTop: 15 }]}>Email</Text>
-              <Text style={styleSetting.txtNameUser}>{user.email}</Text>
+              {
+                user.email == null ?
+                  <Text style={styleSetting.txtNameUser}>(Update email)</Text> :
+                  <Text style={styleSetting.txtNameUser}>{user.email}</Text>
+              }
+
             </View>
 
           </View>
@@ -85,13 +90,17 @@ const Setting = (props) => {
             <View style={styleSetting.viewPassword}>
               <Text style={styleSetting.txtPersonalInformation}>Password</Text>
               <View>
-                <TouchableOpacity onPress={() => handleEditPassword()}>
-                  <Image
-                    style={styleSetting.icEdit1}
-                    source={require('../../../../assets/images/edit.png')}
-                    resizeMode="cover">
-                  </Image>
-                </TouchableOpacity>
+                {
+                  user.loginType == 'username' ?
+                    <TouchableOpacity onPress={() => handleEditPassword()}>
+                      <Image
+                        style={styleSetting.icEdit1}
+                        source={require('../../../../assets/images/edit.png')}
+                        resizeMode="cover">
+                      </Image>
+                    </TouchableOpacity> : null
+                }
+
               </View>
             </View>
             <Text style={styleSetting.txtName}>Name:</Text>

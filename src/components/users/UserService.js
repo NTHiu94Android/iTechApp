@@ -6,8 +6,9 @@ export const get_user_by_id = async (id) => {
     return response;
 }
 
-export const login = async (email, password, tokenFcm) => {
+export const login = async (username, email, password, tokenFcm) => {
     const body = {
+        username: username,
         email: email,
         password: password,
         fcmToken: tokenFcm
@@ -25,8 +26,9 @@ export const updateFcmToken = async (_id, tokenFcm) => {
     return response;
 };
 
-export const register = async (email, password, name, birthday, numberPhone, avatar) => {
+export const register = async (username, email, password, name, birthday, numberPhone, avatar) => {
     const body = {
+        username: username,
         email: email,
         password: password,
         name: name,
@@ -53,9 +55,10 @@ export const update_profile = async (id, email, name, birthday, numberPhone, ava
 }
 
 //Doi mat khau
-export const change_password = async (id, new_password, confirm_password) => {
+export const change_password = async (id, password, new_password, confirm_password) => {
     const body = {
         id: id,
+        password: password,
         new_password: new_password,
         confirm_password: confirm_password,
     }

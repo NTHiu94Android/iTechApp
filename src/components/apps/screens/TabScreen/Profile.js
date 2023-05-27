@@ -33,7 +33,7 @@ const Profile = (props) => {
             <View style={styles.viewImgProfile}>
               <View style={styles.viewInfo}>
                 <Text style={styles.textName}>My orders</Text>
-                <Text style={styles.textStatus}>Already have 10 orders</Text>
+                <Text style={styles.textStatus}>See all your orders</Text>
               </View>
               <TouchableOpacity onPress={() => navigation.navigate('Order')}>
                 <Image
@@ -49,7 +49,7 @@ const Profile = (props) => {
             <View style={styles.viewImgProfile}>
               <View style={styles.viewInfo}>
                 <Text style={styles.textName}>Shipping Addresses</Text>
-                <Text style={styles.textStatus}>03 Addresses</Text>
+                <Text style={styles.textStatus}>See all your addresses</Text>
               </View>
               <TouchableOpacity onPress={() => navigation.navigate('ShippngAdress')}>
                 <Image
@@ -65,7 +65,7 @@ const Profile = (props) => {
             <View style={styles.viewImgProfile}>
               <View style={styles.viewInfo}>
                 <Text style={styles.textName}>Payment Method</Text>
-                <Text style={styles.textStatus}>You have 2 cards</Text>
+                <Text style={styles.textStatus}>Your payment method</Text>
               </View>
               <TouchableOpacity>
                 <Image
@@ -81,7 +81,7 @@ const Profile = (props) => {
             <View style={styles.viewImgProfile}>
               <View style={styles.viewInfo}>
                 <Text style={styles.textName}>My reviews</Text>
-                <Text style={styles.textStatus}>Reviews for 5 items</Text>
+                <Text style={styles.textStatus}>See all your reviews</Text>
               </View>
               <TouchableOpacity >
                 <Image
@@ -97,7 +97,7 @@ const Profile = (props) => {
             <View style={styles.viewImgProfile}>
               <View style={styles.viewInfo}>
                 <Text style={styles.textName}>Setting</Text>
-                <Text style={styles.textStatus}>Notification, Password, FAQ, Contact</Text>
+                <Text style={styles.textStatus}>Infomation, Password, Contact</Text>
               </View>
               <TouchableOpacity onPress={() => navigation.navigate('Setting')}>
                 <Image

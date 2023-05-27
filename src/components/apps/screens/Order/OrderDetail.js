@@ -12,7 +12,7 @@ const OrderDetail = (props) => {
   const { item } = props.route.params;
 
   const { user } = useContext(UserContext);
-  const { onGetSubProductById, onGetProductById, onGetReviews, countOrderDetail } = useContext(AppContext);
+  const { onGetSubProductById, onGetProductById, countOrderDetail, onGetOrderDetailByIdOrder } = useContext(AppContext);
 
   const [listOrderDetail, setListOrderDetail] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -20,25 +20,16 @@ const OrderDetail = (props) => {
   useEffect(() => {
     const getOrderDetail = async () => {
       setIsLoading(true);
-      //Lay tat ca review
-      const resReviews = await onGetReviews();
-      const reviews = resReviews.data;
-      //lay review theo idUser
-      const reviewsUser = reviews.filter((item) => item.idUser === user._id);
       //Xu ly lay list order detail
-      const list = item.orderDetails;
+      const resOrderDetails = await onGetOrderDetailByIdOrder(item._id);
+      const list = resOrderDetails.data;
+      //const list = item.orderDetails;
       for (let i = 0; i < list.length; i++) {
         const resSubProducts = await onGetSubProductById(list[i].idSubProduct);
         const product = await onGetProductById(resSubProducts.idProduct);
         list[i].product = product;
         list[i].subProduct = resSubProducts;
         list[i].status = item.status;
-        const review = reviewsUser.filter((item) => item.idProduct === product._id);
-        if (review.length > 0) {
-          list[i].isCmt = true;
-        }else{
-          list[i].isCmt = false;
-        }
       }
 
       setListOrderDetail(list);

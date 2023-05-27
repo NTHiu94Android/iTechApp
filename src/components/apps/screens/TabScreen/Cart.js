@@ -55,8 +55,9 @@ const Cart = (props) => {
           } else {
             data[i].price = subProduct.price - (subProduct.price * subProduct.sale / 100);
           }
+          data[i].priceNoSale = subProduct.price;
           data[i].totalPriceNoSale = subProduct.price * data[i].quantity;
-          await onUpdateOrderDetail(data[i]._id, data[i].quantity, data[i].price, data[i].idOrder, data[i].idSubProduct);
+          await onUpdateOrderDetail(data[i]._id, data[i].quantity, data[i].price, false, data[i].idOrder, data[i].idSubProduct);
           data[i].totalPrice = data[i].price * data[i].quantity;
           data[i].amount = data[i].quantity;
           data[i].subProduct = subProduct;
@@ -88,8 +89,9 @@ const Cart = (props) => {
           listCart[i].amount = newValue;
           listCart[i].totalPrice = listCart[i].price * newValue;
           listCartNew[i] = listCart[i];
+          listCartNew[i].totalPriceNoSale = listCart[i].priceNoSale * newValue;
           sum += listCartNew[i].totalPrice;
-          updateItemCart(listCart[i]._id, newValue, listCart[i].idOrder, listCart[i].price, listCart[i].idSubProduct, listCart[i].subProduct);
+          updateItemCart(listCart[i]._id, newValue, listCart[i].price, listCart[i].idOrder, listCart[i].idSubProduct, listCart[i].subProduct);
         } else {
           sum += listCart[i].totalPrice;
         }
@@ -110,7 +112,7 @@ const Cart = (props) => {
         alert("Số lượng sản phẩm trong kho không đủ!");
         return;
       }
-      await onUpdateOrderDetail(_idOrderDetail, _amount, price, _idOrder, _idSubProduct);
+      await onUpdateOrderDetail(_idOrderDetail, _amount, price, false, _idOrder, _idSubProduct);
       //setCountCart(countCart + 1);
     } catch (error) {
       console.log("Update item cart error: ", error);
@@ -213,20 +215,40 @@ export default Cart
 
 const Item = ({ item, plus, minus, deleteItem, gotoProductDetail }) => (
 
-  <View style={styles.item}>
-    <View style={{ flexDirection: 'row' }}>
+  <View style={[styles.item, { position: 'relative' }]}>
+    <View style={{ flexDirection: 'row',  }}>
       <TouchableOpacity onPress={gotoProductDetail}>
-        <View style={{ borderWidth: 1, borderColor: '#ddd', borderRadius: 8 }}>
+        <View style={{ borderWidth: 1, borderColor: '#ddd', borderRadius: 8, padding: 5, marginTop: 5 }}>
           <Image source={{ uri: item.imageurl }} style={styles.image} />
         </View>
       </TouchableOpacity>
       <View style={{ justifyContent: 'space-between', paddingVertical: 5, paddingStart: 10 }}>
         <View>
-          <Text style={{ fontSize: 18, fontWeight: '800', color: 'black' }}>{item.prodName}</Text>
+          <Text numberOfLines={1} style={{ fontSize: 18, fontWeight: '800', color: 'black', width: '90%' }}>{item.prodName}</Text>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: 200, alignItems: 'center' }}>
             <View style={{ marginTop: 4 }}>
-              <Text style={{ fontSize: 16, fontWeight: '600', color: 'black' }}>{item.color}</Text>
-              <View style={{flexDirection: 'row'}}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginVertical: 8}}>
+                <Text style={{ fontSize: 16, fontWeight: '600', color: 'black', marginRight: 30 }}>
+                  Color: {item.color.charAt(0).toUpperCase() + item.color.slice(1)}
+                </Text>
+                <View style={styles.qualityRange}>
+                  <TouchableOpacity onPress={plus}>
+                    <Image
+                      style={{ width: 25, height: 25 }}
+                      source={require('../../../../assets/images/btn_plus.png')}
+                    />
+                  </TouchableOpacity>
+                  <Text style={{ fontSize: 18 }}>{item.amount}</Text>
+                  <TouchableOpacity onPress={minus}>
+                    <Image
+                      style={{ width: 25, height: 25 }}
+                      source={require('../../../../assets/images/btn_minus.png')} />
+                  </TouchableOpacity>
+                </View>
+              </View>
+
+              <View style={{ flexDirection: 'row' }}>
+                <Text style={{ fontSize: 16, fontWeight: '600', color: 'black', marginTop: 4 }}>Price: </Text>
                 {
                   item.subProduct.sale > 0 ?
                     <Text style={{ fontSize: 16, fontWeight: '400', color: 'black', marginTop: 4, marginRight: 8, textDecorationLine: 'line-through' }}>
@@ -237,20 +259,7 @@ const Item = ({ item, plus, minus, deleteItem, gotoProductDetail }) => (
               </View>
 
             </View>
-            <View style={styles.qualityRange}>
-              <TouchableOpacity onPress={plus}>
-                <Image
-                  style={{ width: 25, height: 25 }}
-                  source={require('../../../../assets/images/btn_plus.png')}
-                />
-              </TouchableOpacity>
-              <Text style={{ fontSize: 18 }}>{item.amount}</Text>
-              <TouchableOpacity onPress={minus}>
-                <Image
-                  style={{ width: 25, height: 25 }}
-                  source={require('../../../../assets/images/btn_minus.png')} />
-              </TouchableOpacity>
-            </View>
+
 
           </View>
 
@@ -258,8 +267,8 @@ const Item = ({ item, plus, minus, deleteItem, gotoProductDetail }) => (
 
       </View>
     </View>
-    <TouchableOpacity onPress={deleteItem}>
-      <Image source={require('../../../../assets/images/del.png')} style={{ width: 24, height: 24 }} />
+    <TouchableOpacity style={{ position: 'absolute', top: 8, right: 10 }} onPress={deleteItem}>
+      <Image source={require('../../../../assets/images/del.png')} style={{ width: 20, height: 20, }} />
     </TouchableOpacity>
   </View>
 );

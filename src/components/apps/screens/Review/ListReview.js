@@ -8,7 +8,7 @@ const ListReview = (props) => {
   const { navigation } = props
   const { productItem } = props.route.params;
   back(navigation);
-  const { onGetReviews, onGetUsers } = useContext(AppContext);
+  const { onGetReviews, onGetUsers, onGetPicturesByIdReview } = useContext(AppContext);
 
   const [listReview, setListReview] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -20,10 +20,10 @@ const ListReview = (props) => {
       const resUser = await onGetUsers();
       const listUser = resUser.data;
       const reviews = resReviews.data;
-      if (!reviews || !listUser){
+      if (!reviews || !listUser) {
         setIsLoading(false);
         return;
-      } 
+      }
       //Loc ra danh sach review theo san pham sau do lay user tuong ung
       const reviewsByIdProduct = reviews.filter(review => review.idProduct === productItem._id);
       let numberReview = 0;
@@ -35,6 +35,9 @@ const ListReview = (props) => {
             break;
           }
         }
+        const listPicture = await onGetPicturesByIdReview(reviewsByIdProduct[i]._id);
+        reviewsByIdProduct[i].pictures = listPicture;
+
       }
       productItem.numberReview = numberReview;
       setListReview(reviewsByIdProduct);
@@ -74,7 +77,7 @@ const ListReview = (props) => {
             <View>
               <Image
                 style={styleReview.icImg}
-                source={require('../../../../assets/images/s23.jpg')}
+                source={{ uri: productItem.image }}
               ></Image>
             </View>
             <View style={styleReview.txtheader}>
@@ -173,43 +176,41 @@ const styleReview = StyleSheet.create({
   //Review
   BoxReview: {
     width: '90%',
-    height: 160,
     marginLeft: 20,
     marginTop: 30,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    backgroundColor: '#F1F1F1',
+    marginBottom: 5,
+    padding: 20,
+    backgroundColor: 'white',
+    elevation: 5,
+    shadowColor: 'grey',
+    shadowOffset: {width: -2, height: 4},
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
     borderRadius: 10,
-    justifyContent: 'center'
+    justifyContent: 'center',
+    position: 'relative'
   },
 
   icAva: {
     width: 50,
     height: 50,
-    bottom: 40,
-    marginLeft: 130, 
-    borderRadius: 50
+    top: -25,
+    left: '50%',
+    borderRadius: 50, position: 'absolute',
   },
 
   RName: {
-    bottom: 30,
     flexDirection: 'row',
     justifyContent: 'space-between'
   },
 
   RatingStar: {
-    bottom: 25,
     flexDirection: 'row'
   },
 
   icStar01: {
     width: 20,
     height: 20
-  },
-
-  //Comment
-  comment: {
-    bottom: 15,
   },
 
   //Button
@@ -225,21 +226,18 @@ const styleReview = StyleSheet.create({
 
   btnText: {
     color: 'white',
-    fontSize: 20
+    fontSize: 20,
   },
 });
 
-const Item = ({review}) => {
+const Item = ({ review }) => {
   return (
     <View style={styleReview.BoxReview}>
-      <Image
-        style={styleReview.icAva}
-        source={{ uri: review.user.avatar }}
-      />
+      
 
-      <View style={styleReview.RName}>
-        <Text>{review.user.name}</Text>
-        <Text>{review.time}</Text>
+      <View style={{flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8}}>
+        <Text style={{fontWeight: '800', fontSize: 16, color: 'black'}}>{review.user.name}</Text>
+        <Text style={{fontWeight: '600', fontSize: 16, color: 'black'}}>{review.time}</Text>
       </View>
       {
         review.rating === 1 &&
@@ -327,10 +325,31 @@ const Item = ({review}) => {
         </View>
       }
 
-
-      <View style={styleReview.comment}>
-        <Text>{review.content}</Text>
+      <View style={{flexDirection: 'row', maxWidth: '90%', marginTop: 8 }}>
+        {
+          review.pictures.map((item, index) => {
+            return (
+              <Image
+                style={{ width: 100, height: 100, borderRadius: 10, marginRight: 5, marginVertical: 5 }}
+                source={{ uri: item.url }}
+                key={index}
+              />
+            )
+          })
+        }
       </View>
+
+
+
+      <View style={{marginTop: 8}}>
+        <Text style={{fontWeight: '600', fontSize: 14, }}>{review.content}</Text>
+      </View>
+
+
+      <Image
+        style={styleReview.icAva}
+        source={{ uri: review.user.avatar }}
+      />
     </View>
   )
 }
