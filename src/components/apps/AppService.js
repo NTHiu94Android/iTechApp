@@ -182,6 +182,36 @@ export const getUsers = async () => {
     return response;
 };
 
+//---------------------------------Promotion---------------------------------
+//Lay danh sach khuyen mai
+export const getPromotions = async (idUser) => {
+    const response = await CustomAxios().get(`/promotions/api/get-all-promotion-by-id-user/${idUser}`);
+    return response;
+};
+
+//Them khuyen mai
+export const addPromotion = async (content, sale, code, dayStart, dayEnd, condition, idUser) => {
+    const data = {
+        content, sale, code, dayStart, dayEnd, condition, idUser
+    };
+    const response = await CustomAxios().post(`/promotions/api/add-promotion`, data);
+    return response;
+};
+
+//Cap nhat khuyen mai
+export const updatePromotion = async (_id, isSubmit) => {
+    const data = {
+        _id, isSubmit
+    };
+    const response = await CustomAxios().post(`/promotions/api/update-promotion-submit`, data);
+    return response;
+};
+
+//Xoa khuyen mai
+export const deletePromotion = async (_id) => {
+    const response = await CustomAxios().get(`/promotions/api/delete-promotion/${_id}`);
+    return response;
+};
 
 
 

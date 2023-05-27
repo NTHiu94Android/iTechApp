@@ -16,6 +16,8 @@ import {
   getAddressByIdUser, addAddress, updateAddress, deleteAddress,
   //User
   getUsers,
+  //Promotion
+  getPromotions, addPromotion, updatePromotion, deletePromotion, 
 
 } from './AppService';
 import { UserContext } from '../users/UserContext';
@@ -405,6 +407,48 @@ export const AppContextProvider = (props) => {
     }
   };
 
+  //-------------------------------------------------Promotion-------------------------------------------------
+  //Lay danh sach promotion
+  const onGetPromotions = async (idUser) => {
+    try {
+      const res = await getPromotions(idUser);
+      return res;
+    } catch (error) {
+      console.log('onGetPromotions error: ', error);
+    }
+  };
+
+  //Them promotion
+  const onAddPromotion = async (content, sale, code, dayStart, dayEnd, condition, idUser) => {
+    try {
+      const res = await addPromotion(content, sale, code, dayStart, dayEnd, condition, idUser);
+      return res;
+    } catch (error) {
+      console.log('onAddPromotion error: ', error);
+    }
+  };
+
+  //Cap nhat promotion
+  const onUpdatePromotion = async (_id, isSubmit) => {
+    try {
+      const res = await updatePromotion(_id, isSubmit);
+      return res;
+    } catch (error) {
+      console.log('onUpdatePromotion error: ', error);
+    }
+  };
+
+  //Xoa promotion
+  const onDeletePromotion = async (_id) => {
+    try {
+      const res = await deletePromotion(_id);
+      return res;
+    } catch (error) {
+      console.log('onDeletePromotion error: ', error);
+    }
+  };
+
+
 
   return (
     <AppContext.Provider value={{
@@ -427,6 +471,8 @@ export const AppContextProvider = (props) => {
       onAddAddress, onGetAddressByIdUser, onUpdateAddress, onDeleteAddress,
       //User
       onGetUsers,
+      //Promotion
+      onGetPromotions, onAddPromotion, onUpdatePromotion, onDeletePromotion,
       //State
       listFavorite, setListFavorite,
       listCart, setListCart,
