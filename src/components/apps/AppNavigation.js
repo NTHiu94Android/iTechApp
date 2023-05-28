@@ -23,7 +23,6 @@ import Shipping from './screens/Shipping/Shipping';
 import EditPassword from './screens/Setting/EditPassword';
 import UpdateProfile from './screens/Setting/UpdateProfile';
 import ShippngAdress from './screens/Shipping/ShippngAdress';
-import UpdateAvatar from './screens/Setting/UpdateAvatar';
 import Order from './screens/Order/Order';
 import OrderDetail from './screens/Order/OrderDetail';
 import ShippingUpdate from './screens/Shipping/ShippingUpdate';
@@ -113,7 +112,6 @@ const AppNavigation = () => {
                 <Stack.Screen options={{ headerShown: false }} name='ShippngAdress' component={ShippngAdress} />
                 <Stack.Screen options={{ headerShown: false }} name='EditPassword' component={EditPassword} />
                 <Stack.Screen options={{ headerShown: false }} name='UpdateProfile' component={UpdateProfile} />
-                <Stack.Screen options={{ headerShown: false }} name='UpdateAvatar' component={UpdateAvatar} />
                 <Stack.Screen options={{ headerShown: false }} name='AddReview' component={AddReview} />
                 <Stack.Screen options={{ headerShown: false }} name='ListReview' component={ListReview} />
 

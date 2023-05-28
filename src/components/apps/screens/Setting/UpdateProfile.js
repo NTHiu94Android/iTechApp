@@ -116,7 +116,7 @@ const UpdateProfile = (props) => {
             source={require('../../../../assets/images/back.png')} />
         </TouchableOpacity>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', height: 50 }}>
-          <Text style={{ color: 'black', fontWeight: '800', fontSize: 18 }}>Update password</Text>
+          <Text style={{ color: 'black', fontWeight: '800', fontSize: 18 }}>Update profile</Text>
         </View>
 
         <View style={{ width: 22, height: 22 }} />

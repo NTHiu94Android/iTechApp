@@ -180,22 +180,24 @@ const Cart = (props) => {
         />
         {
           listCart.length !== 0 ?
-            <View style={{ height: 150, justifyContent: 'space-between', paddingHorizontal: 12 }}>
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', backgroundColor: '#ffff', borderRadius: 10, paddingStart: 11 }}>
-                <TextInput>Enter your promo code</TextInput>
-                {/* <AntDesign name="rightsquare" size={44} color="black" /> */}
-              </View>
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 20 }}>
-                <Text style={{ fontSize: 20 }}>Total:</Text>
-                <Text style={{ fontSize: 20 }}>$ {total.toFixed(2)}</Text>
+            <View style={{ justifyContent: 'space-between', paddingHorizontal: 12, }}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 20, marginBottom: 12 }}>
+                <Text style={{ fontSize: 20, fontWeight: '800', color: 'black' }}>Total:</Text>
+                <Text style={{ fontSize: 20, color: 'red' }}>$ {total.toFixed(2)}</Text>
               </View>
 
-              <TouchableOpacity onPress={() => goToCheckOut()} style={{ backgroundColor: '#000', height: 50, borderRadius: 30, flexDirection: 'column', justifyContent: 'center' }}>
+              <TouchableOpacity
+                onPress={() => goToCheckOut()}
+                style={{ backgroundColor: '#000', height: 50, borderRadius: 30, flexDirection: 'column', justifyContent: 'center' }}>
                 <Text style={{ color: '#fff', textAlign: 'center', fontSize: 20, fontWeight: 'bold' }}>Check out</Text>
                 {/* Bấm đây nhảy qua check out */}
               </TouchableOpacity>
             </View> :
-            <View style={{ backgroundColor: '#BBB', height: 50, borderRadius: 30, flexDirection: 'column', justifyContent: 'center', paddingHorizontal: 12 }}>
+            <View style={{
+              backgroundColor: '#BBB', height: 50, borderRadius: 30,
+              flexDirection: 'column', justifyContent: 'center',
+              paddingHorizontal: 12, marginHorizontal: 12
+            }}>
               <Text style={{ color: '#fff', textAlign: 'center', fontSize: 20, fontWeight: 'bold' }}>Check out</Text>
             </View>
         }
@@ -216,7 +218,7 @@ export default Cart
 const Item = ({ item, plus, minus, deleteItem, gotoProductDetail }) => (
 
   <View style={[styles.item, { position: 'relative' }]}>
-    <View style={{ flexDirection: 'row',  }}>
+    <View style={{ flexDirection: 'row', }}>
       <TouchableOpacity onPress={gotoProductDetail}>
         <View style={{ borderWidth: 1, borderColor: '#ddd', borderRadius: 8, padding: 5, marginTop: 5 }}>
           <Image source={{ uri: item.imageurl }} style={styles.image} />
@@ -227,7 +229,7 @@ const Item = ({ item, plus, minus, deleteItem, gotoProductDetail }) => (
           <Text numberOfLines={1} style={{ fontSize: 18, fontWeight: '800', color: 'black', width: '90%' }}>{item.prodName}</Text>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: 200, alignItems: 'center' }}>
             <View style={{ marginTop: 4 }}>
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginVertical: 8}}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginVertical: 8 }}>
                 <Text style={{ fontSize: 16, fontWeight: '600', color: 'black', marginRight: 30 }}>
                   Color: {item.color.charAt(0).toUpperCase() + item.color.slice(1)}
                 </Text>
@@ -252,10 +254,10 @@ const Item = ({ item, plus, minus, deleteItem, gotoProductDetail }) => (
                 {
                   item.subProduct.sale > 0 ?
                     <Text style={{ fontSize: 16, fontWeight: '400', color: 'black', marginTop: 4, marginRight: 8, textDecorationLine: 'line-through' }}>
-                      $ {item.totalPriceNoSale}
+                      $ {item.totalPriceNoSale.toFixed(2)}
                     </Text> : null
                 }
-                <Text style={{ fontSize: 16, fontWeight: '600', color: 'red', marginTop: 4 }}>$ {item.totalPrice}</Text>
+                <Text style={{ fontSize: 16, fontWeight: '600', color: 'red', marginTop: 4 }}>$ {item.totalPrice.toFixed(2)}</Text>
               </View>
 
             </View>

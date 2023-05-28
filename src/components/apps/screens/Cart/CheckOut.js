@@ -1,4 +1,4 @@
-import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View, Modal, ActivityIndicator, alert, Alert } from 'react-native'
+import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View, Modal, ActivityIndicator, alert, Alert, TextInput } from 'react-native'
 import React, { useContext, useEffect, useState, useRef } from 'react'
 import back from '../../../back/back';
 import { UserContext } from '../../../users/UserContext';
@@ -19,6 +19,7 @@ const CheckOut = (props) => {
     countAddress, onGetSubProducts,
     onUpdateOrderDetail,
     countCart, setCountCart,
+    onGetPromotions,
   } = useContext(AppContext);
 
   const [isSelect, setIsSelect] = useState('1');
@@ -33,10 +34,50 @@ const CheckOut = (props) => {
 
   const [address, setAddress] = useState('');
   const [total, setTotal] = useState(0);
+  const [totalFinal, setTotalFinal] = useState(0);
+
+  const [sale, setSale] = useState(0);
+  const [code, setCode] = useState('');
+  const [alert, setAlert] = useState(false);
 
   useEffect(() => {
     setDataSendToPaypal();
   }, []);
+
+  const handleCheckCode = async () => {
+    setIsLoading(true);
+    const res = await onGetPromotions(user._id);
+    const promotions = res.data;
+    let check = false;
+    const day = new Date();
+    if (promotions != null && promotions.length > 0) {
+      for (let i = 0; i < promotions.length; i++) {
+        const dateStart = new Date(
+          parseInt(promotions[i].dayStart.split("/")[2]),
+          parseInt(promotions[i].dayStart.split("/")[1]) - 1,
+          parseInt(promotions[i].dayStart.split("/")[0]) + 1
+        );
+        const dateEnd = new Date(
+          parseInt(promotions[i].dayEnd.split("/")[2]),
+          parseInt(promotions[i].dayEnd.split("/")[1]) - 1,
+          parseInt(promotions[i].dayEnd.split("/")[0]) + 1
+        );
+        if (promotions[i].isSubmit == false && dateStart <= day && dateEnd >= day && promotions[i].code == code && total >= promotions[i].condition) {
+          check = true;
+          setSale(promotions[i].sale);
+          setAlert(false);
+          setTotalFinal( (total - total * promotions[i].sale / 100).toFixed(2) );
+          break;
+        }
+      }
+      if (check == false) {
+        setAlert(true);
+        setTotalFinal(total);
+      }
+    }
+    setIsLoading(false);
+
+  };
 
   useEffect(() => {
     getAddress();
@@ -121,7 +162,7 @@ const CheckOut = (props) => {
         if (subProduct.sale != 0) {
           data.listCart[i].subProduct.price = subProduct.price - subProduct.price * subProduct.sale / 100;
         } else {
-          data.listCart[i].subProduct.price = subProduct.price; 
+          data.listCart[i].subProduct.price = subProduct.price;
         }
         total2 += data.listCart[i].amount * data.listCart[i].subProduct.price;
       }
@@ -131,7 +172,8 @@ const CheckOut = (props) => {
     data.numberProduct = numberProduct;
     console.log('numberProduct: ', numberProduct);
 
-    setTotal(total2);
+    setTotal(total2.toFixed(2));
+    setTotalFinal(total2.toFixed(2));
     setIsLoading(false);
   };
 
@@ -187,7 +229,12 @@ const CheckOut = (props) => {
         //Them don hang
         //dateCreate, datePayment, totalPrice, status, paymentMethod, address, idUser
 
-        const res = await onAddOrder(orderDate, "", total, status, paymentMethod, address, user._id);
+        let res = null;
+        if(sale == 0){
+          res = await onAddOrder(orderDate, "", total, status, paymentMethod, address, user._id);
+        }else{
+          res = await onAddOrder(orderDate, "", totalFinal, status, paymentMethod, address, user._id);
+        }
         console.log("Res add order: ", res.data);
         if (res.data != undefined) {
           //Xoa gio hang
@@ -372,9 +419,30 @@ const CheckOut = (props) => {
           </View>
         </View>
 
+        <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center', marginTop: 12 }}>
+          <TextInput
+            style={{ height: 40, borderColor: 'gray', borderWidth: 1, borderRadius: 8, width: '80%', paddingHorizontal: 8 }}
+            onChangeText={text => setCode(text)}
+            value={code}
+            placeholder='Enter code promotion'
+          />
+          <TouchableOpacity
+            onPress={() => handleCheckCode()}
+            style={{ backgroundColor: 'black', padding: 10, borderRadius: 8, marginLeft: 10 }}>
+            <Text style={{ color: 'white', fontWeight: 'bold' }}>Check</Text>
+          </TouchableOpacity>
+        </View>
+
+        {
+          alert == true ?
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 10 }}>
+              <Text style={{ color: 'red', fontWeight: 'bold', fontStyle: 'italic' }}>Code is not correct !</Text>
+            </View> : null
+        }
+
         {/* Total price */}
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10, marginTop: 20 }}>
-            <Text style={{ fontSize: 18, fontWeight: '800', color: 'black' }}>Infomation & order</Text>
+          <Text style={{ fontSize: 18, fontWeight: '800', color: 'black' }}>Infomation & order</Text>
         </View>
         <View style={[styles.box, { padding: 10, borderRadius: 8, justifyContent: 'space-between', marginBottom: 20, }]}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
@@ -387,11 +455,11 @@ const CheckOut = (props) => {
           </View>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 8 }}>
             <Text style={{ fontSize: 16, fontWeight: '500' }}>Promotion:</Text>
-            <Text style={{ fontSize: 16, fontWeight: '300' }}>0{}</Text>
+            <Text style={{ fontSize: 16, fontWeight: '300' }}>{total * sale / 100}</Text>
           </View>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 8 }}>
             <Text style={{ fontSize: 16, fontWeight: '500' }}>Total:</Text>
-            <Text style={{ fontSize: 16, fontWeight: '800', color: 'black' }}>$ {total}</Text>
+            <Text style={{ fontSize: 16, fontWeight: '800', color: 'black' }}>$ {totalFinal}</Text>
           </View>
         </View>
 
