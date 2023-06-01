@@ -206,7 +206,7 @@ const ProductDetail = ({ route, navigation }) => {
         } else {
           console.log("San pham da duoc them vao danh sach yeu thich");
           setIsFavorite(true);
-          navigation.navigate(name);
+          //navigation.navigate(name);
           //ToastAndroid.show("Sản phẩm đã được thêm vào danh sách yêu thích", ToastAndroid.SHORT);
         }
       } else {
@@ -214,7 +214,7 @@ const ProductDetail = ({ route, navigation }) => {
           //Delete khoi ds yeu thich
           setIsFavorite(false);
         } else { //Cart
-          navigation.navigate(name);
+          //navigation.navigate(name);
           //ToastAndroid.show("Sản phẩm đã có trong giỏ hàng", ToastAndroid.SHORT);
         }
       }

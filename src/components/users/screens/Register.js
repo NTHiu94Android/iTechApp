@@ -47,9 +47,9 @@ const Register = (props) => {
     //username, email, password, name, birthday, numberPhone, avatar
     const user = await onRegister(username, null, password, name, "", "", avatar);
     if (user == null || user == undefined) {
-      ToastAndroid.show('Register successfully!', ToastAndroid.SHORT);
-    } else {
       ToastAndroid.show('Register fail!', ToastAndroid.SHORT);
+    } else {
+      ToastAndroid.show('Register successfully!', ToastAndroid.SHORT);
       navigation.navigate('Login');
     }
     setIsLoading(false);

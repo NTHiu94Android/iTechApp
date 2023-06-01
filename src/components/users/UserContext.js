@@ -88,7 +88,11 @@ export const UserContextProvider = (props) => {
   const onUpdateProfile = async (id, email, name, birthday, numberPhone, avatar) => {
     try {
       const response = await update_profile(id, email, name, birthday, numberPhone, avatar);
-      setUser(response.data);
+      if(response.data){
+        setUser(response.data);
+      }else{
+        console.log("OnUpdateProfile Error: ", error);
+      }
       return response.data;
     } catch (error) {
       console.log("OnUpdateProfile Error: ", error);

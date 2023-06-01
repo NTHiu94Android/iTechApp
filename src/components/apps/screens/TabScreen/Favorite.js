@@ -10,7 +10,7 @@ const Favorite = (props) => {
   const { navigation } = props;
   const { user } = useContext(UserContext);
   const {
-    onGetOrderDetailByIdOrder, listFavorite, setListFavorite,
+    onGetOrderDetailByIdOrder, listFavorite, setListFavorite, onAddAllFavoriteToCart,
     //Count
     countFavorite, setCountFavorite,
     //Product
@@ -60,11 +60,7 @@ const Favorite = (props) => {
   const addAllToCart = async () => {
     try {
       setIsLoading(true);
-      for (let i = 0; i < listFavorite.length; i++) {
-        await onAddOrderDetail(1, user.idCart, listFavorite[i].idSubProduct);
-        await deleteFavoriteItem(listFavorite[i]._id);
-      }
-      setCountFavorite(countFavorite + 1);
+      await onAddAllFavoriteToCart(listFavorite);
       setIsLoading(false);
     } catch (error) {
       setIsLoading(false);
@@ -90,7 +86,7 @@ const Favorite = (props) => {
   const addOneToCart = async (it) => {
     try {
       setIsLoading(true);
-      await onAddOrderDetail(1, user.idCart, it.idSubProduct);
+      await onAddOrderDetail(1, 0, user.idCart, it.idSubProduct);
       await deleteFavoriteItem(it._id);
       setCountFavorite(countFavorite + 1);
       setIsLoading(false);
@@ -128,15 +124,7 @@ const Favorite = (props) => {
         </TouchableOpacity>
       </View>
 
-      {
-        listFavorite && listFavorite.length !== 0 ?
-          <TouchableOpacity onPress={() => addAllToCart()} style={styles.button}>
-            <Text style={styles.buttonText}>Add all to my cart</Text>
-          </TouchableOpacity> :
-          <View style={[styles.button, { backgroundColor: '#BBB' }]}>
-            <Text style={styles.buttonText}>Add all to my cart</Text>
-          </View>
-      }
+
 
       <FlatList
         data={listFavorite}
@@ -153,6 +141,16 @@ const Favorite = (props) => {
         showsVerticalScrollIndicator={false}
         keyExtractor={item => item._id}
       />
+
+      {
+        listFavorite && listFavorite.length !== 0 ?
+          <TouchableOpacity onPress={() => addAllToCart()} style={styles.button}>
+            <Text style={styles.buttonText}>Add all to my cart</Text>
+          </TouchableOpacity> :
+          <View style={[styles.button, { backgroundColor: '#BBB' }]}>
+            <Text style={styles.buttonText}>Add all to my cart</Text>
+          </View>
+      }
 
       <ProgressDialog
         visible={isLoading}

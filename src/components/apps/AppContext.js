@@ -17,7 +17,7 @@ import {
   //User
   getUsers,
   //Promotion
-  getPromotions, addPromotion, updatePromotion, deletePromotion, 
+  getPromotions, addPromotion, updatePromotion, deletePromotion,
 
 } from './AppService';
 import { UserContext } from '../users/UserContext';
@@ -42,7 +42,7 @@ export const AppContextProvider = (props) => {
   //   const getDatas = async () => {
   //     //Lay danh sach san pham, sub san pham, hinh anh
   //     const resProducts = await onGetProducts();
-      
+
   //     const resSubProducts = await onGetSubProducts();
   //     const resPictures = await onGetPictures();
   //     //Lay thuong hieu, danh muc
@@ -208,7 +208,7 @@ export const AppContextProvider = (props) => {
   const onUploadPicture = async (image) => {
     try {
       const response = await uploadPicture(image);
-      if(response.data != null || response.data != undefined){
+      if (response.data != null || response.data != undefined) {
         return response;
       }
       return null;
@@ -258,6 +258,47 @@ export const AppContextProvider = (props) => {
       }
     } catch (error) {
       console.log('onAddOrderDetail error: ', error);
+    }
+  };
+
+  //Them tat ca san pham yeu thich vao gio hang
+  const onAddAllFavoriteToCart = async (listFavorite) => {
+    try {
+      //Them tat ca san pham yeu thich vao gio hang
+      //Lay danh sach hoa don chi tiet theo idCart
+      const resOrderDetail = await onGetOrderDetailByIdOrder(user.idCart);
+
+      //Duyen danh sach san pham yeu thich
+      for (let i = 0; i < listFavorite.length; i++) {
+        let check = false; 
+        //neu danh sach hoa don chi tiet khong rong
+        if (resOrderDetail.data != undefined) {
+          //Duyen danh sach hoa don chi tiet theo idCart
+          for (let j = 0; j < resOrderDetail.data.length; j++) {
+            console.log('resOrderDetail.data[i].idSubProduct: ', resOrderDetail.data[j].idSubProduct);
+            console.log('listFavorite[i].idSubProduct: ', listFavorite[i].idSubProduct);
+            //Neu idSubProduct cua san pham yeu thich trung voi idSubProduct cua hoa san pham trong gio hang
+            if (resOrderDetail.data[j].idSubProduct == listFavorite[i].idSubProduct) {
+              check = true;
+              break;
+            }
+          }
+        }
+        console.log('check: ', check);
+        //Neu khong trung thi them san pham yeu thich vao gio hang va xoa san pham yeu thich
+        if (check == false) {
+          onDeleteOrderDetail(listFavorite[i]._id);
+          await addOrderDetail(1, 0, user.idCart, listFavorite[i].idSubProduct);
+        }else{
+          onDeleteOrderDetail(listFavorite[i]._id);
+        }
+        
+      }
+      setCountFavorite(countFavorite + 10);
+      setCountCart(countCart + 10);
+      return true;
+    } catch (error) {
+      console.log('onAddAllFavoriteToCart error: ', error);
     }
   };
 
@@ -465,6 +506,7 @@ export const AppContextProvider = (props) => {
       //OrderDetail
       onAddOrderDetail, onGetOrderDetailByIdOrder,
       onDeleteOrderDetail, onUpdateOrderDetail, onGetOrderDetails,
+      onAddAllFavoriteToCart,
       //Order
       onAddOrder, onGetOrdersByIdUser, onUpdateOrder,
       //Address
