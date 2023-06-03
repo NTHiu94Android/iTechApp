@@ -460,9 +460,9 @@ export const AppContextProvider = (props) => {
   };
 
   //Them promotion
-  const onAddPromotion = async (content, sale, code, dayStart, dayEnd, condition, idUser) => {
+  const onAddPromotion = async (content, sale, maxSale, code, dayStart, dayEnd, condition, idUser) => {
     try {
-      const res = await addPromotion(content, sale, code, dayStart, dayEnd, condition, idUser);
+      const res = await addPromotion(content, sale, maxSale, code, dayStart, dayEnd, condition, idUser);
       return res;
     } catch (error) {
       console.log('onAddPromotion error: ', error);

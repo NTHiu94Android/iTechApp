@@ -190,9 +190,9 @@ export const getPromotions = async (idUser) => {
 };
 
 //Them khuyen mai
-export const addPromotion = async (content, sale, code, dayStart, dayEnd, condition, idUser) => {
+export const addPromotion = async (content, sale,  maxSale, code, dayStart, dayEnd, condition, idUser) => {
     const data = {
-        content, sale, code, dayStart, dayEnd, condition, idUser
+        content, sale, maxSale, code, dayStart, dayEnd, condition, idUser
     };
     const response = await CustomAxios().post(`/promotions/api/add-promotion`, data);
     return response;

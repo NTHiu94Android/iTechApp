@@ -13,7 +13,7 @@ const Profile = (props) => {
         <View>
 
           {/* Profile */}
-          <TouchableOpacity onPress={() => navigation.navigate('UpdateAvatar')}>
+          <TouchableOpacity>
             <View style={styles.viewProfile}>
               <View style={styles.viewImgProfile0}>
                 <Image
@@ -60,30 +60,14 @@ const Profile = (props) => {
             </View>
           </View>
 
-          {/* Payment method */}
+          {/* Voucher */}
           <View style={styles.viewOption}>
             <View style={styles.viewImgProfile}>
               <View style={styles.viewInfo}>
-                <Text style={styles.textName}>Payment Method</Text>
-                <Text style={styles.textStatus}>Your payment method</Text>
+                <Text style={styles.textName}>Vouchers</Text>
+                <Text style={styles.textStatus}>Your promotion code</Text>
               </View>
-              <TouchableOpacity>
-                <Image
-                  style={styles.iconTopBar}
-                  resizeMode='cover'
-                  source={require('../../../../assets/images/next2.png')} />
-              </TouchableOpacity>
-            </View>
-          </View>
-
-          {/* Reviews */}
-          <View style={styles.viewOption}>
-            <View style={styles.viewImgProfile}>
-              <View style={styles.viewInfo}>
-                <Text style={styles.textName}>My reviews</Text>
-                <Text style={styles.textStatus}>See all your reviews</Text>
-              </View>
-              <TouchableOpacity >
+              <TouchableOpacity onPress={() => navigation.navigate('ListPromotion')}>
                 <Image
                   style={styles.iconTopBar}
                   resizeMode='cover'

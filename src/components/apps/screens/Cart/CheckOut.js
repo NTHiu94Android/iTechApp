@@ -1,5 +1,8 @@
-import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View, Modal, ActivityIndicator, alert, Alert, TextInput } from 'react-native'
-import React, { useContext, useEffect, useState, useRef } from 'react'
+import {
+  Image, ScrollView, StyleSheet, Text, TouchableOpacity, View,
+  Modal, ActivityIndicator, Alert, TextInput, ToastAndroid
+} from 'react-native'
+import React, { useContext, useEffect, useState } from 'react'
 import back from '../../../back/back';
 import { UserContext } from '../../../users/UserContext';
 import { AppContext } from '../../AppContext';
@@ -19,7 +22,7 @@ const CheckOut = (props) => {
     countAddress, onGetSubProducts,
     onUpdateOrderDetail,
     countCart, setCountCart,
-    onGetPromotions,
+    onGetPromotions, onUpdatePromotion, onAddPromotion
   } = useContext(AppContext);
 
   const [isSelect, setIsSelect] = useState('1');
@@ -40,10 +43,19 @@ const CheckOut = (props) => {
   const [code, setCode] = useState('');
   const [alert, setAlert] = useState(false);
 
-  useEffect(() => {
-    setDataSendToPaypal();
-  }, []);
+  const [idPromotion, setIdPromotion] = useState('');
 
+  useEffect(() => {
+    getAddress();
+    getTotal();
+  }, [countAddress]);
+
+  useEffect(() => {
+    setDataSendToPaypal(totalFinal);
+  }, [totalFinal]);
+
+
+  //Check code promotion
   const handleCheckCode = async () => {
     setIsLoading(true);
     const res = await onGetPromotions(user._id);
@@ -64,14 +76,21 @@ const CheckOut = (props) => {
         );
         if (promotions[i].isSubmit == false && dateStart <= day && dateEnd >= day && promotions[i].code == code && total >= promotions[i].condition) {
           check = true;
-          setSale(promotions[i].sale);
+          if (total * promotions[i].sale / 100 > promotions[i].maxSale) {
+            setSale(promotions[i].maxSale);
+            setTotalFinal((total - promotions[i].maxSale).toFixed(2));
+          } else {
+            setSale(promotions[i].sale);
+            setTotalFinal((total - total * promotions[i].sale / 100).toFixed(2));
+          }
+          setIdPromotion(promotions[i]._id);
           setAlert(false);
-          setTotalFinal( (total - total * promotions[i].sale / 100).toFixed(2) );
           break;
         }
       }
       if (check == false) {
         setAlert(true);
+        setSale(0);
         setTotalFinal(total);
       }
     }
@@ -79,34 +98,28 @@ const CheckOut = (props) => {
 
   };
 
-  useEffect(() => {
-    getAddress();
-    getTotal();
-  }, [countAddress]);
-
   //Lay data gui len server
-  const setDataSendToPaypal = () => {
-    let list = [];
-    let total = 0;
-    for (let i = 0; i < data.listCart.length; i++) {
-      let price = data.listCart[i].subProduct.price;
-      if (data.listCart[i].subProduct.sale != 0) {
-        price = price - price * data.listCart[i].subProduct.sale / 100;
-      }
-      const item = {
-        "name": data.listCart[i].product.name,
-        "color": data.listCart[i].subProduct.color,
-        "quantity": data.listCart[i].amount.toString(),
-        "unit_amount": {
-          "currency_code": "USD",
-          "value": price.toString()
-        }
-      }
-      //console.log('item: ', item);
-      total += item.quantity * item.unit_amount.value;
-      list.push(item);
-    }
-
+  const setDataSendToPaypal = (totalFinal) => {
+    //let list = [];
+    // for (let i = 0; i < data.listCart.length; i++) {
+    //   let price = data.listCart[i].subProduct.price;
+    //   if (data.listCart[i].subProduct.sale != 0) {
+    //     price = price - price * data.listCart[i].subProduct.sale / 100;
+    //   }
+    //   const item = {
+    //     "name": data.listCart[i].product.name,
+    //     "color": data.listCart[i].subProduct.color,
+    //     "quantity": data.listCart[i].amount.toString(),
+    //     "unit_amount": {
+    //       "currency_code": "USD",
+    //       "value": price.toString()
+    //     }
+    //   }
+    //   //console.log('item: ', item);
+    //   total += item.quantity * item.unit_amount.value;
+    //   list.push(item);
+    // }
+    console.log('total>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>: ', totalFinal);
     const dataS = {
       "intent": "CAPTURE",
       "purchase_units": [
@@ -114,11 +127,11 @@ const CheckOut = (props) => {
           // "items": list,
           "amount": {
             "currency_code": "USD",
-            "value": total.toString(),
+            "value": totalFinal.toString(),
             "breakdown": {
               "item_total": {
                 "currency_code": "USD",
-                "value": total.toString()
+                "value": totalFinal.toString()
               }
             }
           }
@@ -174,6 +187,7 @@ const CheckOut = (props) => {
 
     setTotal(total2.toFixed(2));
     setTotalFinal(total2.toFixed(2));
+    setDataSendToPaypal(total2.toFixed(2));
     setIsLoading(false);
   };
 
@@ -193,6 +207,7 @@ const CheckOut = (props) => {
       const month = date.getMonth() + 1;
       const year = date.getFullYear();
       const orderDate = `${day}/${month}/${year}`;
+      const orderDate2 = `${day + 10}/${month}/${year}`;
       const status = "Processing";
       let paymentMethod = '';
       isSelect == '1' ? paymentMethod = 'Cash on delivery' : paymentMethod = 'Paypal';
@@ -214,7 +229,7 @@ const CheckOut = (props) => {
       };
 
       console.log('Total ----- Total2: ', total, ' ----- ', total2);
-      if (total2 != total) {
+      if (total2.toFixed(2) != total) {
         Alert.alert('Price has changed');
         setIsLoading(false);
         setCountCart(countCart + 1);
@@ -224,21 +239,49 @@ const CheckOut = (props) => {
 
       //Xu ly thanh toan
       if (isSelect == '2') {
+        setDataSendToPaypal(totalFinal);
         await pay();
       } else {
         //Them don hang
         //dateCreate, datePayment, totalPrice, status, paymentMethod, address, idUser
 
         let res = null;
-        if(sale == 0){
+        if (sale == 0) {
           res = await onAddOrder(orderDate, "", total, status, paymentMethod, address, user._id);
-        }else{
+        } else {
           res = await onAddOrder(orderDate, "", totalFinal, status, paymentMethod, address, user._id);
         }
-        console.log("Res add order: ", res.data);
+
         if (res.data != undefined) {
           //Xoa gio hang
           handleDleteOrderDetail(data.listCart, res.data._id);
+          //Cap nhat lai trang thai promotion
+          await onUpdatePromotion(idPromotion, true);
+          //Them promotion cho don hang gia tri lon hon 300
+          //content, sale,  maxSale, code, dayStart, dayEnd, condition, idUser
+          if (totalFinal > 300) {
+            const random = Math.floor(Math.random() * 10000);
+            console.log('Random: ', random);
+            const res = await onAddPromotion('Discount 10% for next order', 10, 20, 'DISCOUNT' + random, orderDate, orderDate2, 300, user._id);
+            if (res.data != undefined) {
+              ToastAndroid.show('Discount 10% for next order', ToastAndroid.SHORT);
+            }
+          } else if (totalFinal > 500) {
+            const random = Math.floor(Math.random() * 10000);
+            console.log('Random: ', random);
+            const res = await onAddPromotion('Discount 20% for next order', 20, 30, 'DISCOUNT' + random, orderDate, orderDate2, 500, user._id);
+            if (res.data != undefined) {
+              ToastAndroid.show('Discount 20% for next order', ToastAndroid.SHORT);
+            }
+          } else if (totalFinal > 1000) {
+            const random = Math.floor(Math.random() * 10000);
+            console.log('Random: ', random);
+            const res = await onAddPromotion('Discount 30% for next order', 30, 50, 'DISCOUNT' + random, orderDate, orderDate2, 1000, user._id);
+            if (res.data != undefined) {
+              ToastAndroid.show('Discount 30% for next order', ToastAndroid.SHORT);
+            }
+          }
+
           navigation.navigate('Success');
         } else {
           Alert.alert('Payment failed');
@@ -266,6 +309,7 @@ const CheckOut = (props) => {
         console.log("findUrl: ", findUrl);
         setLink(findUrl.href);
       }
+      setIsLoading(false);
     } catch (error) {
       console.log("Error pay screen: ", error);
       setIsLoading(false);
@@ -273,6 +317,7 @@ const CheckOut = (props) => {
     }
   };
 
+  //Dieu huong sang trang thanh toan paypal
   const onUrlChange = (webviewState) => {
     //console.log("webviewState: ", webviewState);
     if (webviewState.url.includes('https://example.com/cancel')) {
@@ -292,6 +337,7 @@ const CheckOut = (props) => {
     }
   };
 
+  //Thanh toan paypal thanh cong
   const paymentSuccess = async (id) => {
     try {
       const res = await PaypalApi.capturePayment(id, token);
@@ -304,14 +350,41 @@ const CheckOut = (props) => {
           const month = date.getMonth() + 1;
           const year = date.getFullYear();
           const orderDate = `${day}/${month}/${year}`;
+          const orderDate2 = `${day + 10}/${month}${year}`;
           const status = "Processing";
           const paymentMethod = 'Paypal';
 
           //Them don hang
           //dateCreate, datePayment, totalPrice, status, paymentMethod, address, idUse
-          const res = await onAddOrder(orderDate, orderDate, total, status, paymentMethod, address, user._id);
+          const res = await onAddOrder(orderDate, orderDate, totalFinal, status, paymentMethod, address, user._id);
           if (res != null || res != undefined) {
             console.log("Res add order: ", res.data);
+
+            //Cap nhat lai trang thai promotion
+            await onUpdatePromotion(idPromotion, true);
+
+            if (totalFinal > 300) {
+              const random = Math.floor(Math.random() * 10000);
+              console.log('Random: ', random);
+              const res = await onAddPromotion('Discount 10% for next order', 10, 20, 'DISCOUNT' + random, orderDate, orderDate2, 300, user._id);
+              if (res.data != undefined) {
+                ToastAndroid.show('Discount 10% for next order', ToastAndroid.SHORT);
+              }
+            } else if (totalFinal > 500) {
+              const random = Math.floor(Math.random() * 10000);
+              console.log('Random: ', random);
+              const res = await onAddPromotion('Discount 20% for next order', 20, 30, 'DISCOUNT' + random, orderDate, orderDate2, 500, user._id);
+              if (res.data != undefined) {
+                ToastAndroid.show('Discount 20% for next order', ToastAndroid.SHORT);
+              }
+            } else if (totalFinal > 1000) {
+              const random = Math.floor(Math.random() * 10000);
+              console.log('Random: ', random);
+              const res = await onAddPromotion('Discount 30% for next order', 30, 50, 'DISCOUNT' + random, orderDate, orderDate2, 1000, user._id);
+              if (res.data != undefined) {
+                ToastAndroid.show('Discount 30% for next order', ToastAndroid.SHORT);
+              }
+            }
 
             //Xoa gio hang
             const list = data.listCart;
@@ -387,7 +460,9 @@ const CheckOut = (props) => {
             </TouchableOpacity>
           </View>
           <View style={[styles.box, { backgroundColor: '#fff', borderRadius: 8, paddingVertical: 10, }]}>
-            <Text style={{ fontSize: 18, fontWeight: 'bold', borderBottomWidth: 0.5, borderBottomColor: 'grey', padding: 10 }}>{user.name}</Text>
+            <Text style={{ fontSize: 18, fontWeight: 'bold', borderBottomWidth: 0.5, borderBottomColor: 'grey', padding: 10 }}>
+              {user.name}
+            </Text>
             <Text style={{ fontSize: 14, lineHeight: 25, padding: 10, fontWeight: '500' }}>Phone: {user.numberPhone}</Text>
             <Text style={{ fontSize: 14, marginHorizontal: 10, marginBottom: 10, fontWeight: '500' }}>Address: {address}</Text>
           </View>
@@ -455,7 +530,7 @@ const CheckOut = (props) => {
           </View>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 8 }}>
             <Text style={{ fontSize: 16, fontWeight: '500' }}>Promotion:</Text>
-            <Text style={{ fontSize: 16, fontWeight: '300' }}>{total * sale / 100}</Text>
+            <Text style={{ fontSize: 16, fontWeight: '300' }}>{(totalFinal - total).toFixed(2)} $</Text>
           </View>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 8 }}>
             <Text style={{ fontSize: 16, fontWeight: '500' }}>Total:</Text>
@@ -464,7 +539,9 @@ const CheckOut = (props) => {
         </View>
 
         {/* Submit */}
-        <TouchableOpacity onPress={() => gotoSuccess()} style={{ backgroundColor: '#000', height: 50, borderRadius: 30, flexDirection: 'column', justifyContent: 'center' }}>
+        <TouchableOpacity
+          onPress={() => gotoSuccess()}
+          style={{ backgroundColor: '#000', height: 50, borderRadius: 30, flexDirection: 'column', justifyContent: 'center' }}>
           <Text style={{ color: '#fff', textAlign: 'center', fontSize: 20, fontWeight: 'bold' }}>SUBMIT ORDER</Text>
           {/* Bấm đây nhảy qua success */}
         </TouchableOpacity>
