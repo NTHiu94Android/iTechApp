@@ -22,12 +22,16 @@ const Favorite = (props) => {
   } = useContext(AppContext);
 
   const [isLoading, setIsLoading] = useState(false);
+  const [isFirstRun, setIsFirstRun] = useState(true);
 
   //Lay danh sach san phma trong gio hang
   useEffect(() => {
     const getListfavorite = async () => {
       try {
-        setIsLoading(true);
+        if(isFirstRun){
+          setIsFirstRun(false);
+          setIsLoading(true);
+        }
         const resProduct = await onGetProducts();
         const listProduct = resProduct.data;
         const response = await onGetOrderDetailByIdOrder(user.idFavorite);
@@ -61,7 +65,6 @@ const Favorite = (props) => {
     try {
       setIsLoading(true);
       await onAddAllFavoriteToCart(listFavorite);
-      setIsLoading(false);
     } catch (error) {
       setIsLoading(false);
       console.log("Add to cart error: ", error);
@@ -72,10 +75,8 @@ const Favorite = (props) => {
   const deleteFavoriteItem = async (idOrderDetail) => {
     try {
       setIsLoading(true);
-      const response = await onDeleteOrderDetail(idOrderDetail);
+      await onDeleteOrderDetail(idOrderDetail);
       setCountFavorite(countFavorite + 1);
-      console.log("Delete favorite item: ", response);
-      setIsLoading(false);
     } catch (error) {
       setIsLoading(false);
       console.log("Delete favorite item error: ", error);
@@ -89,7 +90,6 @@ const Favorite = (props) => {
       await onAddOrderDetail(1, 0, user.idCart, it.idSubProduct);
       await deleteFavoriteItem(it._id);
       setCountFavorite(countFavorite + 1);
-      setIsLoading(false);
     } catch (error) {
       setIsLoading(false);
       console.log("Add 1 to cart fail: ", error);

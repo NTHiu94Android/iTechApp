@@ -33,6 +33,7 @@ const ProductDetail = ({ route, navigation }) => {
   const [listColor, setListCorlor] = useState([]);
   const [itemSelected, setItemSelected] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isFirstRun, setIsFirstRun] = useState(true);
   const [isFavorite, setIsFavorite] = useState(false);
 
   const [productItem, setProductItem] = useState({});
@@ -52,6 +53,10 @@ const ProductDetail = ({ route, navigation }) => {
     //Lay danh sach mau
     const getData = async () => {
       try {
+        if(isFirstRun){
+          setIsFirstRun(false);
+          setIsLoading(false);
+        }
         let colors = [];
         const product = await onGetProductById(idProduct);
         const resReview = await onGetReviews();
@@ -80,8 +85,9 @@ const ProductDetail = ({ route, navigation }) => {
         //   ['Pin', product.subProduct[0].pin],
         //   ['Camera', product.subProduct[0].fontCamera],
         // ]);
-
+        setIsLoading(true);
       } catch (error) {
+        setIsLoading(true);
         console.log("Get list color error: ", error);
       }
     };
@@ -155,7 +161,6 @@ const ProductDetail = ({ route, navigation }) => {
 
   //Lay anh theo mau
   const getImageByColor = async (color) => {
-    setIsLoading(false);
     try {
       const subProduct = await onGetSubProductsByIdProduct(idProduct, resSubProductRef.current);
       for (let i = 0; i < subProduct.length; i++) {
@@ -165,15 +170,12 @@ const ProductDetail = ({ route, navigation }) => {
           checkFavorite(subProduct[i]._id);
         }
       }
-      setIsLoading(true);
     } catch (error) {
-      setIsLoading(true);
       console.log("Get image by color error: ", error);
     }
   };
 
   const getImagesProduct = async (idSubProduct) => {
-    setIsLoading(false);
     try {
       const res = await onGetPicturesByIdProduct(idSubProduct);
       if (res != undefined || res.data != undefined) {
@@ -184,11 +186,8 @@ const ProductDetail = ({ route, navigation }) => {
         }
         setListImage(list);
       }
-
-      setIsLoading(true);
     } catch (error) {
       console.log("Error getImages product: ", error);
-      setIsLoading(true);
     }
   }
 
@@ -197,27 +196,32 @@ const ProductDetail = ({ route, navigation }) => {
     try {
       let idOrder = '';
       name == 'Cart' ? idOrder = user.idCart : idOrder = user.idFavorite;
+      if(name == 'Favorite'){
+        setIsFavorite(!isFavorite);
+      }else{
+        ToastAndroid.show("The product has been added to cart", ToastAndroid.SHORT);
+      }
       let price = 0;
       itemSelected.sale > 0 ? price = itemSelected.price - itemSelected.price * itemSelected.sale / 100 : price = itemSelected.price;
       const res = await onAddOrderDetail(number, price, idOrder, itemSelected._id);
-      if (res == true) {
-        if (name == 'Cart') {
-          navigation.navigate(name);
-        } else {
-          console.log("San pham da duoc them vao danh sach yeu thich");
-          setIsFavorite(true);
-          //navigation.navigate(name);
-          //ToastAndroid.show("Sản phẩm đã được thêm vào danh sách yêu thích", ToastAndroid.SHORT);
-        }
-      } else {
-        if (name == 'Favorite') {
-          //Delete khoi ds yeu thich
-          setIsFavorite(false);
-        } else { //Cart
-          //navigation.navigate(name);
-          //ToastAndroid.show("Sản phẩm đã có trong giỏ hàng", ToastAndroid.SHORT);
-        }
-      }
+      // if (res == true) {
+      //   if (name == 'Cart') {
+      //     navigation.navigate(name);
+      //   } else {
+      //     console.log("San pham da duoc them vao danh sach yeu thich");
+      //     setIsFavorite(true);
+      //     //navigation.navigate(name);
+      //     //ToastAndroid.show("Sản phẩm đã được thêm vào danh sách yêu thích", ToastAndroid.SHORT);
+      //   }
+      // } else {
+      //   if (name == 'Favorite') {
+      //     //Delete khoi ds yeu thich
+      //     setIsFavorite(false);
+      //   } else { //Cart
+      //     //navigation.navigate(name);
+      //     //ToastAndroid.show("Sản phẩm đã có trong giỏ hàng", ToastAndroid.SHORT);
+      //   }
+      // }
     } catch (error) {
       console.log("Add order detail error: ", error);
     }
@@ -234,7 +238,7 @@ const ProductDetail = ({ route, navigation }) => {
             isLoading ?
               <Swiper
                 style={{ height: 280 }}
-                autoplayTimeout={5}
+                autoplayTimeout={3}
                 autoplay={true}
                 loop={true}
                 showsPagination={true}>

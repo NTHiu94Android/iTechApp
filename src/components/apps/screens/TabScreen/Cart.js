@@ -5,7 +5,6 @@ import { UserContext } from '../../../users/UserContext';
 
 import ProgressDialog from 'react-native-progress-dialog';
 
-
 const Cart = (props) => {
   const { navigation } = props;
   const { user } = useContext(UserContext);
@@ -24,13 +23,17 @@ const Cart = (props) => {
 
   const [total, setTotal] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  const [isFirstRun, setIsFirstRun] = useState(true);
 
 
   //Lay danh sach san pham trong gio hang
   useEffect(() => {
     const getListCart = async () => {
       try {
-        setIsLoading(true);
+        if(isFirstRun) {
+          setIsLoading(true);
+          setIsFirstRun(false);
+        }
         const resProduct = await onGetProducts();
         const resSubProduct = await onGetSubProducts();
 
@@ -80,7 +83,6 @@ const Cart = (props) => {
   //Cap nhat so luong san pham trong gio hang
   const updateItem = (id, newValue) => {
     try {
-      setIsLoading(true);
       //Cap nhat tren giao dien 
       let sum = 0;
       let listCartNew = [...listCart];
@@ -90,16 +92,26 @@ const Cart = (props) => {
           listCart[i].totalPrice = listCart[i].price * newValue;
           listCartNew[i] = listCart[i];
           listCartNew[i].totalPriceNoSale = listCart[i].priceNoSale * newValue;
-          sum += listCartNew[i].totalPrice;
-          updateItemCart(listCart[i]._id, newValue, listCart[i].price, listCart[i].idOrder, listCart[i].idSubProduct, listCart[i].subProduct);
+          if (listCartNew[i].subProduct.sale == 0) {
+            sum += listCartNew[i].totalPriceNoSale;
+          } else {
+            sum += listCartNew[i].totalPrice;
+          }
         } else {
-          sum += listCart[i].totalPrice;
+          if (listCartNew[i].subProduct.sale == 0) {
+            sum += listCartNew[i].totalPriceNoSale;
+          } else {
+            sum += listCartNew[i].totalPrice;
+          }
         }
       };
 
       setTotal(sum);
       setListCart(listCartNew);
-      setIsLoading(false);
+
+      //Cap nhat tren database
+      const item = listCart.find(item => item._id === id);
+      updateItemCart(item._id, newValue, item.price, item.idOrder, item.idSubProduct, item.subProduct);
     } catch (error) {
       setIsLoading(false);
       console.log("Update item error: ", error);
@@ -122,10 +134,12 @@ const Cart = (props) => {
   //Xoa san pham khoi gio hang
   const deleteItem = async (idOrderDetail) => {
     try {
+      setIsLoading(true);
       const response = await onDeleteOrderDetail(idOrderDetail);
       setCountCart(countCart + 1);
       console.log("Delete favorite item: ", response);
     } catch (error) {
+      setIsLoading(false);
       console.log("Delete favorite item error: ", error);
     }
   };
