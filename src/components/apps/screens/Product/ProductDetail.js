@@ -40,6 +40,10 @@ const ProductDetail = ({ route, navigation }) => {
 
   const resSubProductRef = useRef({});
 
+  const source = {
+    html: `${itemSelected.description}`
+  }
+
   // const tableHead = ['Parameter', 'Value'];
   // const [tableData, setTableData] = useState(
   //   [
@@ -94,6 +98,17 @@ const ProductDetail = ({ route, navigation }) => {
     getData();
   }, []);
 
+  //Xu ly thay doi so luong san pham them vao cart
+  const handleCountPlus = () => {
+    if (count < 9)
+      setCount(count + 1);
+  };
+  const handleCountMinus = () => {
+    if (count > 1) {
+      setCount(count - 1);
+    }
+  };
+
   //Lay danh sach subProduct theo idProduct
   const onGetSubProductsByIdProduct = async (idProduct, res) => {
     try {
@@ -128,21 +143,6 @@ const ProductDetail = ({ route, navigation }) => {
       return 0;
     } else {
       return (star / count).toFixed(1);
-    }
-  };
-
-  const source = {
-    html: `${itemSelected.description}`
-  }
-
-  //Xu ly thay doi so luong san pham them vao cart
-  const handleCountPlus = () => {
-    if (count < 9)
-      setCount(count + 1);
-  };
-  const handleCountMinus = () => {
-    if (count > 1) {
-      setCount(count - 1);
     }
   };
 
