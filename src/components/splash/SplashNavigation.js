@@ -33,12 +33,12 @@ const NavigationApp = () => {
     GetToken();
   }, []);
   //Handle notification when app is closed
-  useEffect(() => {
-    messaging().setBackgroundMessageHandler(async remoteMessage => {
-      console.log('Message handled in the background!', remoteMessage);
-      setDataNotifi(remoteMessage);
-    });
-  }, []);
+  // useEffect(() => {
+  //   messaging().setBackgroundMessageHandler(async remoteMessage => {
+  //     console.log('Message handled in the background!', remoteMessage);
+  //     setDataNotifi(remoteMessage);
+  //   });
+  // }, []);
 
   return (
     <NavigationContainer independent={true}>

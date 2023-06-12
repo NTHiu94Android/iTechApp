@@ -227,7 +227,7 @@ const Item = ({ item, onPress }) => (
       <View style={{ width: '100%', height: '100%' }}>
         <View style={styles.viewSaleDam}>
           <Text style={{ fontSize: 16, color: 'white', fontWeight: '600', marginRight: 8 }}>Sale</Text>
-          <Text style={{ fontSize: 14, color: 'yellow', fontWeight: '400', fontFamily: 'Caveat' }}>Sieu dam</Text>
+          <Text style={{ fontSize: 14, color: 'yellow', fontWeight: '400', fontFamily: 'Caveat' }}>Super big</Text>
         </View>
         <Image
           style={{ width: '100%', height: 160, position: 'relative' }}

@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { BackHandler, ToastAndroid } from 'react-native';
 
-import { NavigationContainer } from '@react-navigation/native';
+import messaging from '@react-native-firebase/messaging';
+
+import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
@@ -75,6 +77,41 @@ const BottomNavigation = () => {
 
 const AppNavigation = () => {
     const [backPressCount, setBackPressCount] = useState(0);
+    //const [loading, setLoading] = useState(true);
+    const [initialRoute, setInitialRoute] = useState('BottomNavigation');
+    const navigation = useNavigation();
+
+    useEffect(() => {
+        // Assume a message-notification contains a "type" property in the data payload of the screen to open
+        messaging().onNotificationOpenedApp(remoteMessage => {
+            console.log(
+                'Notification caused app to open from background state:',
+                remoteMessage.notification,
+            );
+            //navigation.navigate(remoteMessage.data.type);
+            navigation.navigate('Order');
+        });
+
+        // Check whether an initial notification is available
+        messaging()
+            .getInitialNotification()
+            .then(remoteMessage => {
+                if (remoteMessage) {
+                    console.log(
+                        'Notification caused app to open from quit state:',
+                        remoteMessage.notification,
+                    );
+                    //setInitialRoute(remoteMessage.data.type); // e.g. "Settings"
+                    setInitialRoute('Order');
+                }
+                //setLoading(false);
+            });
+    }, []);
+
+    // if (loading) {
+    //     return null;
+    // }
+
     useEffect(() => {
         const backAction = () => {
             if (backPressCount < 1) {
@@ -95,10 +132,10 @@ const AppNavigation = () => {
 
         return () => backHandler.remove();
     }, [backPressCount]);
-    
+
     return (
         <NavigationContainer independent={true}>
-            <Stack.Navigator initialRouteName="BottomNavigation">
+            <Stack.Navigator initialRouteName={initialRoute}>
                 <Stack.Screen options={{ headerShown: false }} name='BottomNavigation' component={BottomNavigation} />
                 <Stack.Screen options={{ headerShown: false }} name='ListProduct' component={ListProduct} />
                 <Stack.Screen options={{ headerShown: false }} name='ProductDetail' component={ProductDetail} />

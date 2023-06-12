@@ -33,14 +33,13 @@ const Home = (props) => {
                 const resSubProduct = await onGetSubProducts();
 
                 //Lay danh sach san pham
-                if (resProduct == null || resProduct == undefined || resCategory == null ||
-                    resCategory == undefined || resReview == null || resReview == undefined ||
-                    resSubProduct == null || resSubProduct == undefined
+                if (!resProduct || !resCategory || !resReview || !resSubProduct ||
+                    !resProduct.data || !resCategory.data || !resReview.data || !resSubProduct.data
                 ) {
                     setIsLoading(false);
                     return;
                 }
-                setListCategory(resCategory.data);
+
                 //Them sao va subProduct vao tung item
                 let list1 = [];
                 let list2 = [];
@@ -65,11 +64,11 @@ const Home = (props) => {
                     }
                 });
 
+                setListCategory(resCategory.data);
                 setListSale(list1);
                 setListPhone(list2);
                 setListLaptop(list3);
             } catch (error) {
-                setIsLoading(false);
                 console.log("Error home screen: ", error);
             }
             setIsLoading(false);
@@ -207,8 +206,6 @@ const Home = (props) => {
                         })
                     }
                 </ScrollView>
-
-
 
                 {/* Banner 1 */}
                 <Image
@@ -349,7 +346,7 @@ const Item = ({ item, onPress }) => (
                     <View style={{ width: 160, height: '100%' }}>
                         <View style={styles.viewSaleDam}>
                             <Text style={{ fontSize: 16, color: 'white', fontWeight: '600', marginRight: 8 }}>Sale</Text>
-                            <Text style={{ fontSize: 14, color: 'yellow', fontWeight: '400', fontFamily: 'Caveat' }}>Sieu dam</Text>
+                            <Text style={{ fontSize: 14, color: 'yellow', fontWeight: '400', fontFamily: 'Caveat' }}>Super big</Text>
                         </View>
                         <Image
                             style={{ width: '100%', height: 160, position: 'relative' }}
@@ -387,7 +384,7 @@ const Item = ({ item, onPress }) => (
                                     Price: {item.subProduct[0].price} $
                                 </Text>
                         }
-                        <View style={{ flexDirection: 'row', paddingHorizontal: 8}}>
+                        <View style={{ flexDirection: 'row', paddingHorizontal: 8 }}>
                             <Image
                                 style={{ width: 15, height: 15, marginEnd: 5 }}
                                 resizeMode='cover'
@@ -429,6 +426,52 @@ const Item = ({ item, onPress }) => (
         }
 
     </TouchableOpacity>
+);
+
+const ItemNone = () => (
+    <View style={styles.itemContainer}>
+        <View style={{ width: 160, height: '100%' }}>
+            <View style={{
+                flexDirection: 'row',
+                paddingVertical: 4,
+                width: '100%',
+                backgroundColor: '#ddd',
+            }} />
+            <View style={{ width: '100%', height: 160, position: 'relative', backgroundColor: '#ddd' }} />
+            <View style={{ width: 35, height: 35, position: 'absolute', right: 13, top: 150, backgroundColor: '#ddd' }} />
+            <View style={{ height: 19, width: 14, marginTop: 5, paddingHorizontal: 8, maxWidth: 130, backgroundColor: '#ddd' }} />
+            <View style={{ flexDirection: 'row', paddingHorizontal: 8, }}>
+                <View style={{ width: 15, height: 15, marginEnd: 5, backgroundColor: '#ddd' }} />
+                <View style={{ width: 30, backgroundColor: '#ddd' }} />
+            </View>
+
+            <View style={{ height: 19, backgroundColor: '#ddd', paddingHorizontal: 8 }}/>
+
+            <View style={{ flexDirection: 'row', paddingHorizontal: 8 }}>
+                <View
+                    style={{ width: 15, height: 15, marginEnd: 5, backgroundColor: '#ddd' }}
+                />
+                <View style={{ backgroundColor: '#ddd', paddingEnd: 6 }}/>
+            </View>
+
+            <View style={{ flexDirection: 'row', paddingHorizontal: 8 }}>
+                <View style={{ width: 15, height: 15, marginEnd: 5, backgroundColor: '#ddd' }}/>
+                <View style={{  backgroundColor: '#ddd' }}/>
+            </View>
+
+            <View style={{ flexDirection: 'row', paddingHorizontal: 8 }}>
+                <View
+                    style={{ width: 15, height: 15, marginEnd: 5, backgroundColor: '#ddd' }}/>
+                <View style={{ backgroundColor: '#ddd' }}/>
+            </View>
+
+            <View style={{ flexDirection: 'row', paddingHorizontal: 8, width: '80%' }}>
+                <View
+                    style={{ width: 15, height: 15, marginEnd: 5, backgroundColor: '#ddd' }} />
+                <View style={{ backgroundColor: '#ddd' }}/>
+            </View>
+        </View>
+    </View>
 );
 
 const data = [
