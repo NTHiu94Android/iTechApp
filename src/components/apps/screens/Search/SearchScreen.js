@@ -53,8 +53,11 @@ const SearchScreen = (props) => {
     setListName([]);
   }
 
-  const handleClickItem = (item) => {
-    getListSearch(listProductRef.current, item);
+  const handleClickItem = (name) => {
+    //getListSearch(listProductRef.current, item);
+    //Lay san pham theo then
+    const items = listProductRef.current.filter((item) => item.name == name);
+    navigation.navigate('ProductDetail', { idProduct: items[0]._id });
     setListName([]);
   }
 
