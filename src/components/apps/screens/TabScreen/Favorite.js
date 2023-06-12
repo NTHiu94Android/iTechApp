@@ -28,7 +28,7 @@ const Favorite = (props) => {
   useEffect(() => {
     const getListfavorite = async () => {
       try {
-        if(isFirstRun){
+        if (isFirstRun) {
           setIsFirstRun(false);
           setIsLoading(true);
         }
@@ -42,6 +42,7 @@ const Favorite = (props) => {
         for (let i = 0; i < response.data.length; i++) {
           const subProduct = await onGetSubProductById(response.data[i].idSubProduct);
           const product = listProduct.find(item => item._id === subProduct.idProduct);
+          response.data[i].idSubProduct = subProduct._id;
           response.data[i].product = product;
           response.data[i].image = product.image;
           response.data[i].color = subProduct.color;
@@ -132,7 +133,9 @@ const Favorite = (props) => {
           <Item
             addOneToCart={() => addOneToCart(item)}
             deleteFavoriteItem={() => deleteFavoriteItem(item._id)}
-            gotoProductDetail={() => navigation.navigate('ProductDetail', { idProduct: item.product._id })}
+            gotoProductDetail={() => navigation.navigate('ProductDetail',
+              { idProduct: item.product._id, idSubProduct: item.idSubProduct }
+            )}
             name={item.name}
             color={item.color}
             image={item.image}

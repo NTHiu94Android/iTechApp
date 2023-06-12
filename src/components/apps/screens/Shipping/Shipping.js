@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View, TouchableOpacity, Image, ScrollView, TextInput, Alert } from 'react-native'
-import React, { useContext, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import back from '../../../back/back';
 
 import { UserContext } from '../../../users/UserContext';
@@ -12,35 +12,55 @@ const Shipping = (props) => {
     back(navigation);
 
     const { user, onUpdateProfile } = useContext(UserContext);
-    const { 
-        onAddAddress, onGetAddressByIdUser, 
+    const {
+        onAddAddress, onGetAddressByIdUser,
         setCountAddress, countAddress,
     } = useContext(AppContext);
 
     const [isLoading, setIsLoading] = useState(false);
     const [numberPhone, setNumberPhone] = useState('');
-    const [address, setAddress] = useState('');
+    const [district, setDistrict] = useState('');
+    const [city, setCity] = useState('');
+    const [country, setCountry] = useState('');
+
+    useEffect(() => {
+        if (user.numberPhone != undefined) {
+            setNumberPhone(user.numberPhone);
+        }
+    }, []);
 
     const handleAddAddress = async () => {
         try {
             setIsLoading(true);
-            let check = false;
-            if (+numberPhone === NaN || numberPhone.length < 10 ||
-                numberPhone.length > 11 || numberPhone.indexOf('0') !== 0) {
-                Alert.alert('Invalid number phone');
+            if (district === '' || city === '' || country === '') {
+                Alert.alert('Please enter full address');
                 setIsLoading(false);
                 return;
             }
-            if(address === ''){
-                Alert.alert('Invalid address');
-                setIsLoading(false);
-                return;
+            const firstThreeChars = numberPhone.substring(0, 3);
+            if (firstThreeChars !== '+84') {
+                if (+numberPhone === NaN || numberPhone.length < 10 ||
+                    numberPhone.length > 11 || numberPhone.indexOf('0') !== 0 || 
+                    numberPhone.indexOf(' ') !== -1) {
+                    Alert.alert('Invalid number phone 1');
+                    setIsLoading(false);
+                    return;
+                }
+            } else {
+                if (+numberPhone === NaN || numberPhone.length < 12 ||
+                    numberPhone.length > 13 || numberPhone.indexOf(' ') !== -1) {
+                    Alert.alert('Invalid number phone 2');
+                    setIsLoading(false);
+                    return;
+                }
             }
 
             //Update numberPhone
             //id, email, name, birthday, numberPhone, avatar
             await onUpdateProfile(user._id, user.email, user.name, user.birthday, numberPhone, user.avatar);
 
+            const address = district + ', ' + city + ', ' + country;
+            let check = false;
             const resGetAddress = await onGetAddressByIdUser(user._id);
             if (resGetAddress.data != undefined) {
                 if (resGetAddress.data.length === 0) {
@@ -90,22 +110,22 @@ const Shipping = (props) => {
                 <View style={styleShippingAddress.body}>
                     {/* Full Name */}
                     <View style={styleShippingAddress.input}>
-                        <Text>Full Name</Text>
-                        <Text>{user.name}</Text>
+                        <Text style={{ color: 'black', fontSize: 16, fontWeight: '600' }}>Full Name</Text>
+                        <Text style={{ marginVertical: 8 }}>{user.name}</Text>
                     </View>
 
                     {/* Address */}
-                    <View style={styleShippingAddress.input}>
+                    {/* <View style={styleShippingAddress.input}>
                         <Text>Andress</Text>
                         <TextInput
                             value={address}
                             onChangeText={(text) => setAddress(text)}
                             placeholder='Ex:' ></TextInput>
-                    </View>
+                    </View> */}
 
-                    {/* ZipCode */}
+                    {/* Numberphone */}
                     <View style={styleShippingAddress.input}>
-                        <Text>Number phone</Text>
+                        <Text style={{ color: 'black', fontSize: 16, fontWeight: '600' }}>Number phone</Text>
                         <TextInput
                             value={numberPhone}
                             onChangeText={(text) => setNumberPhone(text)}
@@ -114,44 +134,41 @@ const Shipping = (props) => {
                         </TextInput>
                     </View>
 
-                    {/* <View style={styleShippingAddress.viewCountry}>
-                        <View>
-                            <Text>Country</Text>
-                            <TextInput placeholder='Select Country'></TextInput>
-                        </View>
-                        <View>
-                            <Image
-                                style={styleShippingAddress.imgDown}
-                                source={require('../../../../assets/images/down.png')}
-                                resizeMode="cover"></Image>
+
+                    <View style={styleShippingAddress.viewCountry}>
+                        <View style={{ marginTop: 10 }}>
+                            <Text style={{ color: 'black', fontSize: 16, fontWeight: '600' }}>District</Text>
+                            <TextInput
+                                value={district}
+                                onChangeText={(text) => setDistrict(text)}
+                                placeholder='Select district'
+                            />
                         </View>
                     </View>
 
                     <View style={styleShippingAddress.viewCountry}>
-                        <View>
-                            <Text>City</Text>
-                            <TextInput placeholder='Select City'></TextInput>
+                        <View style={{ marginTop: 10 }}>
+                            <Text style={{ color: 'black', fontSize: 16, fontWeight: '600' }}>City</Text>
+                            <TextInput
+                                value={city}
+                                onChangeText={(text) => setCity(text)}
+                                placeholder='Select city'
+                            />
                         </View>
-                        <View>
-                            <Image
-                                style={styleShippingAddress.imgDown}
-                                source={require('../../../../assets/images/down.png')}
-                                resizeMode="cover"></Image>
-                        </View>
+
                     </View>
 
                     <View style={styleShippingAddress.viewCountry}>
-                        <View>
-                            <Text>District</Text>
-                            <TextInput placeholder='Select District'></TextInput>
+                        <View style={{ marginTop: 10 }}>
+                            <Text style={{ color: 'black', fontSize: 16, fontWeight: '600' }}>Country</Text>
+                            <TextInput
+                                value={country}
+                                onChangeText={(text) => setCountry(text)}
+                                placeholder='Select Country'
+                            />
                         </View>
-                        <View>
-                            <Image
-                                style={styleShippingAddress.imgDown}
-                                source={require('../../../../assets/images/down.png')}
-                                resizeMode="cover"></Image>
-                        </View>
-                    </View> */}
+
+                    </View>
 
 
                 </View>
@@ -204,9 +221,8 @@ const styleShippingAddress = StyleSheet.create({
 
     input: {
         width: '90%',
-        height: 65,
         marginLeft: 20,
-        marginTop: 20,
+        marginTop: 10,
         paddingVertical: 10,
         paddingHorizontal: 20,
         backgroundColor: '#F5F5F5',
@@ -217,6 +233,7 @@ const styleShippingAddress = StyleSheet.create({
         //position: 'relative',
         backgroundColor: 'black',
         bottom: 20,
+        marginTop: 30,
         width: '90%',
         height: 50,
         justifyContent: 'center',
@@ -236,13 +253,13 @@ const styleShippingAddress = StyleSheet.create({
         paddingHorizontal: 20,
         backgroundColor: 'white',
         width: '90%',
-        height: 65,
         marginHorizontal: 20,
-        marginTop: 20,
+        marginTop: 10,
         borderRadius: 5,
         justifyContent: 'space-between',
         flexDirection: 'row',
         alignItems: 'center',
+        paddingVertical: 10,
     },
 
     imgDown: {

@@ -243,15 +243,32 @@ export const AppContextProvider = (props) => {
       if (idOrder === user.idCart) {
         const res = await onGetOrderDetailByIdOrder(idOrder);
         let check = false;
+        let idOrderDetail = '';
+        let quantityNow = 0;
         if (res.data != undefined) {
           for (let i = 0; i < res.data.length; i++) {
             if (res.data[i].idSubProduct == idSubProduct) {
               check = true;
+              idOrderDetail = res.data[i]._id;
+              quantityNow = res.data[i].quantity;
               break;
             }
           }
         }
-        if (check == true) return false;
+        if (check == true) {
+          //Lay so luong san pham hien tai
+          const resSubProduct = await onGetSubProductById(idSubProduct);
+          const quantitySubProduct = resSubProduct.quantity;
+          if(quantityNow + quantity > quantitySubProduct) {
+            quantityNow = quantitySubProduct;
+          }else{
+            quantityNow = quantityNow + quantity;
+          }
+          //Cap nhat so luong san pham
+          await onUpdateOrderDetail(idOrderDetail, quantityNow, price, false, idOrder, idSubProduct);
+          setCountCart(countCart + 1);
+          return;
+        } 
         await addOrderDetail(quantity, price, idOrder, idSubProduct);
         setCountCart(countCart + 1);
         return true;

@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Image, ScrollView, TouchableOpacity, ToastAndroid, useWindowDimensions } from 'react-native'
+import { StyleSheet, Text, View, Image, ScrollView, TouchableOpacity, ToastAndroid, useWindowDimensions, TextInput } from 'react-native'
 import React, { useState, useContext, useEffect, useRef } from 'react'
 import { AppContext } from '../../AppContext';
 
@@ -9,10 +9,11 @@ import RenderHtml from 'react-native-render-html';
 import Swiper from 'react-native-swiper';
 import ProgressDialog from 'react-native-progress-dialog';
 import back from '../../../back/back';
+import DialogChangCount from '../Dialog/DialogChangCount';
 
 
 const ProductDetail = ({ route, navigation }) => {
-  const { idProduct } = route.params;
+  const { idProduct, idSubProduct } = route.params;
   const { width } = useWindowDimensions();
   back(navigation);
   const {
@@ -36,6 +37,8 @@ const ProductDetail = ({ route, navigation }) => {
   const [isFirstRun, setIsFirstRun] = useState(true);
   const [isFavorite, setIsFavorite] = useState(false);
 
+  const [isShowDialog, setIsShowDialog] = useState(false);
+
   const [productItem, setProductItem] = useState({});
 
   const resSubProductRef = useRef({});
@@ -57,7 +60,7 @@ const ProductDetail = ({ route, navigation }) => {
     //Lay danh sach mau
     const getData = async () => {
       try {
-        if(isFirstRun){
+        if (isFirstRun) {
           setIsFirstRun(false);
           setIsLoading(false);
         }
@@ -72,14 +75,28 @@ const ProductDetail = ({ route, navigation }) => {
         //Set product
         setProductItem(product);
         //Lay danh sach mau
-        for (let i = 0; i < product.subProduct.length; i++) {
-          colors.push(product.subProduct[i].color);
+        if (idSubProduct) {
+          for (let i = 0; i < product.subProduct.length; i++) {
+            colors.push(product.subProduct[i].color);
+            if (product.subProduct[i]._id === idSubProduct) {
+              setItemSelected(product.subProduct[i]);
+              checkFavorite(product.subProduct[i]._id);
+              getImagesProduct(product.subProduct[i]._id);
+
+            }
+          }
+          setListCorlor(colors);
+        } else {
+          for (let i = 0; i < product.subProduct.length; i++) {
+            colors.push(product.subProduct[i].color);
+          }
+          //Set mau mac dinh, lay hinh anh mac dinh, lay thong tin mac dinh, kiem tra yeu thich
+          setItemSelected(product.subProduct[0]);
+          checkFavorite(product.subProduct[0]._id);
+          setListCorlor(colors);
+          getImagesProduct(product.subProduct[0]._id);
         }
-        //Set mau mac dinh, lay hinh anh mac dinh, lay thong tin mac dinh, kiem tra yeu thich
-        setItemSelected(product.subProduct[0]);
-        checkFavorite(product.subProduct[0]._id);
-        setListCorlor(colors);
-        getImagesProduct(product.subProduct[0]._id);
+
 
         // setTableData([
         //   ['CPU', product.subProduct[0].cpu],
@@ -100,13 +117,18 @@ const ProductDetail = ({ route, navigation }) => {
 
   //Xu ly thay doi so luong san pham them vao cart
   const handleCountPlus = () => {
-    if (count < 9)
+    const max = itemSelected.quantity;
+    if (count <= max)
       setCount(count + 1);
   };
   const handleCountMinus = () => {
     if (count > 1) {
       setCount(count - 1);
     }
+  };
+  const handleCountChange = (value) => {
+      setCount(value);
+      setIsShowDialog(false);
   };
 
   //Lay danh sach subProduct theo idProduct
@@ -196,9 +218,9 @@ const ProductDetail = ({ route, navigation }) => {
     try {
       let idOrder = '';
       name == 'Cart' ? idOrder = user.idCart : idOrder = user.idFavorite;
-      if(name == 'Favorite'){
+      if (name == 'Favorite') {
         setIsFavorite(!isFavorite);
-      }else{
+      } else {
         ToastAndroid.show("The product has been added to cart", ToastAndroid.SHORT);
       }
       let price = 0;
@@ -230,6 +252,16 @@ const ProductDetail = ({ route, navigation }) => {
 
   return (
     <View style={{ flex: 1, backgroundColor: 'white' }}>
+
+      {
+        isShowDialog ? 
+        <DialogChangCount
+          handleCountChange={handleCountChange}
+          isVisible={isShowDialog}
+          max={itemSelected.quantity}
+        />: null
+      }
+
       <ScrollView style={{ flex: 1, position: 'relative', marginBottom: 80 }}>
 
         {/* Box product - slide */}
@@ -304,9 +336,11 @@ const ProductDetail = ({ route, navigation }) => {
                       source={require('../../../../assets/images/btn_minus.png')} />
                   </TouchableOpacity>
 
-                  <View style={{ width: 25, height: 25, marginHorizontal: 10, justifyContent: 'center', alignItems: 'center' }}>
-                    <Text style={{}}>{count}</Text>
-                  </View>
+                  <TouchableOpacity style={{}} onPress={() => setIsShowDialog(true)}>
+                    <View style={{ width: 25, height: 25, marginHorizontal: 10, justifyContent: 'center', alignItems: 'center' }}>
+                      <Text style={{}}>{count}</Text>
+                    </View>
+                  </TouchableOpacity>
 
                   <TouchableOpacity onPress={() => handleCountPlus()}>
                     <Image
@@ -337,9 +371,11 @@ const ProductDetail = ({ route, navigation }) => {
                       source={require('../../../../assets/images/btn_minus.png')} />
                   </TouchableOpacity>
 
-                  <View style={{ width: 25, height: 25, marginHorizontal: 10, justifyContent: 'center', alignItems: 'center' }}>
-                    <Text style={{}}>{count}</Text>
-                  </View>
+                  <TouchableOpacity onPress={() => setIsShowDialog(true)}>
+                    <View style={{ width: 25, height: 25, marginHorizontal: 10, justifyContent: 'center', alignItems: 'center' }}>
+                      <Text style={{}}>{count}</Text>
+                    </View>
+                  </TouchableOpacity>
 
                   <TouchableOpacity onPress={() => handleCountPlus()}>
                     <Image

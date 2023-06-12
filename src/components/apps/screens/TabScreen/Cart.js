@@ -1,4 +1,4 @@
-import { FlatList, Image, SafeAreaView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View, alert } from 'react-native'
+import { FlatList, Image, SafeAreaView, StatusBar, StyleSheet, Text, TextInput, ToastAndroid, TouchableOpacity, View, alert } from 'react-native'
 import React, { useContext, useEffect, useState } from 'react';
 import { AppContext } from '../../AppContext';
 import { UserContext } from '../../../users/UserContext';
@@ -25,12 +25,14 @@ const Cart = (props) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isFirstRun, setIsFirstRun] = useState(true);
 
+  const [listSelected, setListSelected] = useState([]);
+
 
   //Lay danh sach san pham trong gio hang
   useEffect(() => {
     const getListCart = async () => {
       try {
-        if(isFirstRun) {
+        if (isFirstRun) {
           setIsLoading(true);
           setIsFirstRun(false);
         }
@@ -50,6 +52,7 @@ const Cart = (props) => {
         for (let i = 0; i < data.length; i++) {
           const subProduct = resSubProduct.data.find((item) => item._id === data[i].idSubProduct);
           const product = listProduct.find(item => item._id === subProduct.idProduct);
+          data[i].idSubProduct = subProduct._id;
           data[i].imageurl = product.image;
           data[i].prodName = product.name;
           data[i].color = subProduct.color;
@@ -66,9 +69,13 @@ const Cart = (props) => {
           data[i].subProduct = subProduct;
           data[i].product = product;
 
-          sum += data[i].totalPrice;
+          data[i].isSelect = true;
 
+          if (data[i].isSelect) {
+            sum += data[i].totalPrice;
+          }
         }
+        setListSelected(data);
         setListCart(data);
         setTotal(sum);
         setIsLoading(false);
@@ -131,23 +138,65 @@ const Cart = (props) => {
     }
   };
 
-  //Xoa san pham khoi gio hang
+  //Xoa 1 san pham khoi gio hang
   const deleteItem = async (idOrderDetail) => {
     try {
       setIsLoading(true);
       const response = await onDeleteOrderDetail(idOrderDetail);
       setCountCart(countCart + 1);
-      console.log("Delete favorite item: ", response);
+      console.log("Delete cart item: ", response);
     } catch (error) {
       setIsLoading(false);
-      console.log("Delete favorite item error: ", error);
+      console.log("Delete cart item error: ", error);
     }
   };
 
+  //Xoa nhieu san pham khoi gio hang
+  const deleteItems = async () => {
+    try {
+      setIsLoading(true);
+      for (let i = 0; i < listCart.length; i++) {
+        if (listCart[i].isSelect) {
+          await onDeleteOrderDetail(listCart[i]._id);
+        }
+      }
+      setCountCart(countCart + 1);
+    } catch (error) {
+      setIsLoading(false);
+      console.log("Delete cart item error: ", error);
+    }
+  }
+
+  //Chon 1 san pham trong gio hang
+  const itemSelected = (item) => {
+    item.isSelect = !item.isSelect;
+    let sum = 0;
+    let list = [];
+    for (let i = 0; i < listCart.length; i++) {
+      if (listCart[i].isSelect) {
+        sum += listCart[i].totalPrice;
+        list.push(listCart[i]);
+      }
+    }
+    setListSelected(list);
+    setTotal(sum);
+    setListCart([...listCart]);
+  }
+
   //Den trang thanh toan
   const goToCheckOut = () => {
+    if (listCart.length == 0) {
+      ToastAndroid.show("Please add product to cart!", ToastAndroid.SHORT);
+      return;
+    }
+    let list = [];
+    for (let i = 0; i < listCart.length; i++) {
+      if (listCart[i].isSelect) {
+        list.push(listCart[i]);
+      }
+    }
     const data = {
-      listCart: listCart
+      listCart: list,
     }
     navigation.navigate("CheckOut", { data: data });
   };
@@ -171,12 +220,21 @@ const Cart = (props) => {
 
         </View>
 
-        <TouchableOpacity onPress={() => navigation.navigate('SearchScreen')}>
-          <Image
-            style={{ width: 22, height: 22 }}
-            resizeMode='cover'
-            source={require('../../../../assets/images/ic_search.png')} />
-        </TouchableOpacity>
+        {
+          listSelected.length > 0 ?
+            <TouchableOpacity onPress={deleteItems}>
+              <Image
+                style={{ width: 26, height: 26 }}
+                resizeMode='cover'
+                source={require('../../../../assets/images/ic_trash1.png')} />
+            </TouchableOpacity> :
+            <Image
+              style={{ width: 26, height: 26 }}
+              resizeMode='cover' 
+              source={require('../../../../assets/images/ic_trash2.png')} />
+
+        }
+
       </View>
       <SafeAreaView style={styles.container}>
         <FlatList
@@ -184,8 +242,9 @@ const Cart = (props) => {
           showsVerticalScrollIndicator={false}
           renderItem={({ item }) =>
             <Item
-              gotoProductDetail={() => navigation.navigate('ProductDetail', { idProduct: item.product._id })}
+              gotoProductDetail={() => navigation.navigate('ProductDetail', { idProduct: item.product._id, idSubProduct: item.idSubProduct })}
               deleteItem={() => deleteItem(item._id)}
+              itemSelected={() => itemSelected(item)}
               plus={() => updateItem(item._id, item.amount > 9 ? item.amount : item.amount + 1)}
               minus={() => updateItem(item._id, item.amount > 1 ? item.amount - 1 : 1)}
               item={item} />
@@ -229,21 +288,34 @@ const Cart = (props) => {
 
 export default Cart
 
-const Item = ({ item, plus, minus, deleteItem, gotoProductDetail }) => (
+const Item = ({ item, plus, minus, deleteItem, gotoProductDetail, itemSelected }) => (
 
   <View style={[styles.item, { position: 'relative' }]}>
     <View style={{ flexDirection: 'row', }}>
-      <TouchableOpacity onPress={gotoProductDetail}>
-        <View style={{ borderWidth: 1, borderColor: '#ddd', borderRadius: 8, padding: 5, marginTop: 5 }}>
-          <Image source={{ uri: item.imageurl }} style={styles.image} />
-        </View>
-      </TouchableOpacity>
+      <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 6 }}>
+        <TouchableOpacity
+          onPress={itemSelected}
+          style={{
+            borderWidth: 1, borderColor: '#333', borderRadius: 24,
+            padding: 4, marginRight: 10, width: 24, height: 24,
+            justifyContent: 'center', alignItems: 'center'
+          }}>
+          <View style={item.isSelect ? styles.itemChange : styles.itemNoChange}></View>
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={gotoProductDetail}>
+          <View style={{ borderWidth: 1, borderColor: '#ddd', borderRadius: 8, padding: 5, marginTop: 5 }}>
+            <Image source={{ uri: item.imageurl }} style={styles.image} />
+          </View>
+        </TouchableOpacity>
+      </View>
+
       <View style={{ justifyContent: 'space-between', paddingVertical: 5, paddingStart: 10 }}>
         <View>
           <Text numberOfLines={1} style={{ fontSize: 18, fontWeight: '800', color: 'black', width: '90%' }}>{item.prodName}</Text>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: 200, alignItems: 'center' }}>
             <View style={{ marginTop: 4 }}>
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginVertical: 8 }}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                 <Text style={{ fontSize: 16, fontWeight: '600', color: 'black', marginRight: 30 }}>
                   Color: {item.color.charAt(0).toUpperCase() + item.color.slice(1)}
                 </Text>
@@ -283,9 +355,9 @@ const Item = ({ item, plus, minus, deleteItem, gotoProductDetail }) => (
 
       </View>
     </View>
-    <TouchableOpacity style={{ position: 'absolute', top: 8, right: 10 }} onPress={deleteItem}>
+    {/* <TouchableOpacity style={{ position: 'absolute', top: 8, right: 10 }} onPress={deleteItem}>
       <Image source={require('../../../../assets/images/del.png')} style={{ width: 20, height: 20, }} />
-    </TouchableOpacity>
+    </TouchableOpacity> */}
   </View>
 );
 
@@ -307,8 +379,8 @@ const styles = StyleSheet.create({
 
   },
   image: {
-    width: 80,
-    height: 80,
+    width: 70,
+    height: 70,
     borderRadius: 10,
   },
   title: {
@@ -320,6 +392,19 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
+  itemChange: {
+    width: 20,
+    height: 20,
+    backgroundColor: 'black',
+    borderRadius: 20,
+  },
+  itemNoChange: {
+    width: 20,
+    height: 20,
+    backgroundColor: 'white',
+    borderRadius: 20,
+  }
+
 })
 
 const DATA = [
