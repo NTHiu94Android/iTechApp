@@ -415,9 +415,9 @@ export const AppContextProvider = (props) => {
 
   //-------------------------------------------------Address-------------------------------------------------
   //Them address
-  const onAddAddress = async (body, status, idUser) => {
+  const onAddAddress = async (body, status, numberPhone, idUser) => {
     try {
-      const res = await addAddress(body, status, idUser);
+      const res = await addAddress(body, status, numberPhone, idUser);
       return res;
     } catch (error) {
       console.log('onAddAddress error: ', error);
@@ -435,9 +435,9 @@ export const AppContextProvider = (props) => {
   };
 
   //Cap nhat address
-  const onUpdateAddress = async (idAddress, body, status, idUser) => {
+  const onUpdateAddress = async (idAddress, body, status, numberPhone, idUser) => {
     try {
-      const res = await updateAddress(idAddress, body, status, idUser);
+      const res = await updateAddress(idAddress, body, status, numberPhone, idUser);
       return res;
     } catch (error) {
       console.log('onUpdateAddress error: ', error);

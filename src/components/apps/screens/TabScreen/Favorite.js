@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Image, FlatList, TouchableOpacity } from 'react-native'
+import { StyleSheet, Text, View, Image, FlatList, TouchableOpacity, ToastAndroid } from 'react-native'
 import React, { useContext, useEffect, useState } from 'react'
 
 import { AppContext } from '../../AppContext';
@@ -88,6 +88,12 @@ const Favorite = (props) => {
   const addOneToCart = async (it) => {
     try {
       setIsLoading(true);
+      const subProduct = await onGetSubProductById(it.idSubProduct);
+      if(subProduct.quantity == 0){
+        setIsLoading(false);
+        ToastAndroid.show("This product is out of stock", ToastAndroid.SHORT);
+        return;
+      }
       await onAddOrderDetail(1, 0, user.idCart, it.idSubProduct);
       await deleteFavoriteItem(it._id);
       setCountFavorite(countFavorite + 1);

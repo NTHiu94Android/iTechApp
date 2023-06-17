@@ -127,8 +127,8 @@ const ProductDetail = ({ route, navigation }) => {
     }
   };
   const handleCountChange = (value) => {
-      setCount(value);
-      setIsShowDialog(false);
+    setCount(value);
+    setIsShowDialog(false);
   };
 
   //Lay danh sach subProduct theo idProduct
@@ -254,12 +254,12 @@ const ProductDetail = ({ route, navigation }) => {
     <View style={{ flex: 1, backgroundColor: 'white' }}>
 
       {
-        isShowDialog ? 
-        <DialogChangCount
-          handleCountChange={handleCountChange}
-          isVisible={isShowDialog}
-          max={itemSelected.quantity}
-        />: null
+        isShowDialog ?
+          <DialogChangCount
+            handleCountChange={handleCountChange}
+            isVisible={isShowDialog}
+            max={itemSelected.quantity}
+          /> : null
       }
 
       <ScrollView style={{ flex: 1, position: 'relative', marginBottom: 80 }}>
@@ -329,25 +329,28 @@ const ProductDetail = ({ route, navigation }) => {
                 <Text style={{ color: 'black', fontWeight: '700', fontSize: 30, marginTop: 6, flex: 3 }}>
                   $ {itemSelected.price}
                 </Text>
-                <View style={{ flexDirection: 'row', marginHorizontal: 20, marginTop: 10, flex: 1 }}>
-                  <TouchableOpacity style={{}} onPress={() => handleCountMinus()}>
-                    <Image
-                      style={{ width: 25, height: 25 }}
-                      source={require('../../../../assets/images/btn_minus.png')} />
-                  </TouchableOpacity>
+                <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                  <View style={{ flexDirection: 'row', marginHorizontal: 20, marginTop: 10, flex: 1 }}>
+                    <TouchableOpacity style={{}} onPress={() => handleCountMinus()}>
+                      <Image
+                        style={{ width: 25, height: 25 }}
+                        source={require('../../../../assets/images/btn_minus.png')} />
+                    </TouchableOpacity>
 
-                  <TouchableOpacity style={{}} onPress={() => setIsShowDialog(true)}>
-                    <View style={{ width: 25, height: 25, marginHorizontal: 10, justifyContent: 'center', alignItems: 'center' }}>
-                      <Text style={{}}>{count}</Text>
-                    </View>
-                  </TouchableOpacity>
+                    <TouchableOpacity style={{}} onPress={() => setIsShowDialog(true)}>
+                      <View style={{ width: 25, height: 25, marginHorizontal: 10, justifyContent: 'center', alignItems: 'center' }}>
+                        <Text style={{}}>{count}</Text>
+                      </View>
+                    </TouchableOpacity>
 
-                  <TouchableOpacity onPress={() => handleCountPlus()}>
-                    <Image
-                      style={{ width: 25, height: 25 }}
-                      source={require('../../../../assets/images/btn_plus.png')}
-                    />
-                  </TouchableOpacity>
+                    <TouchableOpacity onPress={() => handleCountPlus()}>
+                      <Image
+                        style={{ width: 25, height: 25 }}
+                        source={require('../../../../assets/images/btn_plus.png')}
+                      />
+                    </TouchableOpacity>
+                  </View>
+                  <Text style={{ color: 'black', fontWeight: '700', fontSize: 14, marginTop: 6 }}>(${itemSelected.quantity} products in stock)</Text>
                 </View>
               </View> :
               <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
@@ -364,27 +367,29 @@ const ProductDetail = ({ route, navigation }) => {
                     </Text>
                   </View>
                 </View>
-                <View style={{ flexDirection: 'row', marginHorizontal: 20, marginTop: 10 }}>
-                  <TouchableOpacity style={{}} onPress={() => handleCountMinus()}>
-                    <Image
-                      style={{ width: 25, height: 25 }}
-                      source={require('../../../../assets/images/btn_minus.png')} />
-                  </TouchableOpacity>
+                <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                  <View style={{ flexDirection: 'row', marginHorizontal: 20, marginTop: 10 }}>
+                    <TouchableOpacity style={{}} onPress={() => handleCountMinus()}>
+                      <Image
+                        style={{ width: 25, height: 25 }}
+                        source={require('../../../../assets/images/btn_minus.png')} />
+                    </TouchableOpacity>
 
-                  <TouchableOpacity onPress={() => setIsShowDialog(true)}>
-                    <View style={{ width: 25, height: 25, marginHorizontal: 10, justifyContent: 'center', alignItems: 'center' }}>
-                      <Text style={{}}>{count}</Text>
-                    </View>
-                  </TouchableOpacity>
+                    <TouchableOpacity onPress={() => setIsShowDialog(true)}>
+                      <View style={{ width: 25, height: 25, marginHorizontal: 10, justifyContent: 'center', alignItems: 'center' }}>
+                        <Text style={{}}>{count}</Text>
+                      </View>
+                    </TouchableOpacity>
 
-                  <TouchableOpacity onPress={() => handleCountPlus()}>
-                    <Image
-                      style={{ width: 25, height: 25 }}
-                      source={require('../../../../assets/images/btn_plus.png')}
-                    />
-                  </TouchableOpacity>
+                    <TouchableOpacity onPress={() => handleCountPlus()}>
+                      <Image
+                        style={{ width: 25, height: 25 }}
+                        source={require('../../../../assets/images/btn_plus.png')}
+                      />
+                    </TouchableOpacity>
+                  </View>
+                  <Text style={{ color: 'black', fontWeight: '700', fontSize: 14, marginTop: 6 }}>(${itemSelected.quantity} products in stock)</Text>
                 </View>
-
               </View>
 
           }
@@ -451,10 +456,21 @@ const ProductDetail = ({ route, navigation }) => {
 
         </View>
         <View style={{}}>
-          <TouchableOpacity onPress={() => addOrderDatail(count, 'Cart')} style={styles.button2}>
+          {
+            itemSelected.quantity == 0 ?
+              <View style={[styles.button2, {backgroundColor: '#ddd'}]}>
+                <Text style={{ color: '#fff', textAlign: 'center', fontSize: 20, fontWeight: 'bold' }}>
+                  Temporarily out of stock</Text>
+              </View> :
+              <TouchableOpacity onPress={() => addOrderDatail(count, 'Cart')} style={styles.button2}>
+                <Text style={{ color: '#fff', textAlign: 'center', fontSize: 20, fontWeight: 'bold' }}>
+                  Add to cart</Text>
+              </TouchableOpacity>
+          }
+          {/* <TouchableOpacity onPress={() => addOrderDatail(count, 'Cart')} style={styles.button2}>
             <Text style={{ color: '#fff', textAlign: 'center', fontSize: 20, fontWeight: 'bold' }}>
               Add to cart</Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
       </View>
 

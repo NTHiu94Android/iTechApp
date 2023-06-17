@@ -10,9 +10,9 @@ const ShippngAdress = (props) => {
     const { navigation } = props;
     back(navigation);
     const { user } = useContext(UserContext);
-    const { 
-        onGetAddressByIdUser, onUpdateAddress, onDeleteAddress, 
-        countAddress, setCountAddress 
+    const {
+        onGetAddressByIdUser, onUpdateAddress, onDeleteAddress,
+        countAddress, setCountAddress
     } = useContext(AppContext);
 
     const [listAddress, setListAddress] = useState([]);
@@ -41,9 +41,9 @@ const ShippngAdress = (props) => {
         setIsLoading(true);
         for (let i = 0; i < listAddress.length; i++) {
             if (listAddress[i]._id == idAddress) {
-                await onUpdateAddress(idAddress, listAddress[i].body, true, user._id);
+                await onUpdateAddress(idAddress, listAddress[i].body, true, listAddress[i].numberPhone, user._id);
             } else {
-                await onUpdateAddress(listAddress[i]._id, listAddress[i].body, false, user._id);
+                await onUpdateAddress(listAddress[i]._id, listAddress[i].body, false, listAddress[i].numberPhone, user._id);
             }
         }
         setCountAddress(countAddress + 1);
@@ -52,7 +52,12 @@ const ShippngAdress = (props) => {
     //Xoa dia chi
     const onDeleteAddressById = async (idAddress) => {
         setIsLoading(true);
-        await onUpdateDefaultAddress(listAddress[0]._id);
+        for (let i = 0; i < listAddress.length; i++) {
+            if (listAddress[i]._id == idAddress && listAddress[i].status == true) {
+                await onUpdateDefaultAddress(listAddress[0]._id);
+                break;
+            }
+        }
         await onDeleteAddress(idAddress);
         setCountAddress(countAddress + 2);
     };
@@ -94,12 +99,13 @@ const ShippngAdress = (props) => {
                             onUpdateDefaultAddress={onUpdateDefaultAddress}
                             onDeleteAddressById={onDeleteAddressById}
                             navigation={navigation}
+                            listAddress={listAddress}
                         />
                     })
                 }
 
                 <View style={styleShippingAddress.floatBox} >
-                    <TouchableOpacity onPress={() => navigation.navigate("Shipping")}>
+                    <TouchableOpacity onPress={() => navigation.navigate("Shipping", {listAddress})}>
                         <Image
                             style={styleShippingAddress.icAdd}
                             source={require('../../../../assets/images/add.png')}
@@ -240,12 +246,12 @@ const styleShippingAddress = StyleSheet.create({
     },
 });
 
-const Item = ({ item, navigation, user, onUpdateDefaultAddress, onDeleteAddressById }) => (
+const Item = ({ item, navigation, user, onUpdateDefaultAddress, onDeleteAddressById, listAddress }) => (
     <View style={styleShippingAddress.input}>
         <View style={styleShippingAddress.txt01}>
             <Text style={styleShippingAddress.txt1}>{user.name}</Text>
-            <View style={{flexDirection: 'row'}}>
-                <TouchableOpacity onPress={() => navigation.navigate("ShippingUpdate", {item : item})}>
+            <View style={{ flexDirection: 'row' }}>
+                <TouchableOpacity onPress={() => navigation.navigate("ShippingUpdate", { item: item, listAddress: listAddress })}>
                     <Text style={styleShippingAddress.txt2}>Edit</Text>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => onDeleteAddressById(item._id)}>
@@ -255,7 +261,7 @@ const Item = ({ item, navigation, user, onUpdateDefaultAddress, onDeleteAddressB
         </View>
 
         <View style={styleShippingAddress.txt02}>
-            <Text>Phone: {user.numberPhone}</Text>
+            <Text>Phone: {item.numberPhone}</Text>
             <Text>{item.body}</Text>
         </View>
 
@@ -263,7 +269,7 @@ const Item = ({ item, navigation, user, onUpdateDefaultAddress, onDeleteAddressB
             <TouchableOpacity
                 onPress={() => onUpdateDefaultAddress(item._id)}
                 style={item.status ? styleShippingAddress.BoxChecked : styleShippingAddress.Box}>
-                <View style={item.status ? styleShippingAddress.color1 : styleShippingAddress.color2}/>
+                <View style={item.status ? styleShippingAddress.color1 : styleShippingAddress.color2} />
             </TouchableOpacity>
             <Text style={styleShippingAddress.BoxText}>Use as the shipping address</Text>
         </View>

@@ -8,11 +8,14 @@ import { UserContext } from '../../../users/UserContext';
 import back from '../../../back/back';
 import { AppContext } from '../../AppContext';
 
+import VerifiPhone from '../VerifiPhone/VerifiPhone';
+import auth from '@react-native-firebase/auth';
+
 const UpdateProfile = (props) => {
   const { navigation } = props;
   back(navigation);
-  const { user, setUser, onUpdateProfile } = useContext(UserContext);
-  const { onUploadPicture } = useContext(AppContext);
+  const { user, onUpdateProfile } = useContext(UserContext);
+  const { onUploadPicture, onGetAddressByIdUser, countAddress } = useContext(AppContext);
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -23,10 +26,32 @@ const UpdateProfile = (props) => {
   const [image, setImage] = useState(user.avatar);
   const [file, setFile] = useState({});
 
+  const [listAddress, setListAddress] = useState([]);
+  const [isShowDialog, setIsShowDialog] = useState(false);
+  const [confirm, setConfirm] = useState(null);
+
   useEffect(() => {
-    if(user.email == null){
+    const getListAddress = async () => {
+      setIsLoading(true);
+      try {
+        const res = await onGetAddressByIdUser(user._id);
+        console.log('getListAddress res: ', res);
+        if (res.data != undefined) {
+          setListAddress(res.data);
+        }
+        //setListAddress(data);
+      } catch (error) {
+        console.log('getListAddress error: ', error);
+      }
+      setIsLoading(false);
+    };
+    getListAddress();
+  }, [countAddress]);
+
+  useEffect(() => {
+    if (user.email == null) {
       setEmail('');
-    }else{
+    } else {
       setEmail(user.email);
     }
     setName(user.name);
@@ -75,33 +100,112 @@ const UpdateProfile = (props) => {
         setIsLoading(false);
         return alert('Please enter all fields');
       }
-      let avatar = user.avatar;
-      //upload avatar
-      if (image != user.avatar) {
-        //Upload picture
-        const formData = new FormData();
-        formData.append('picture', {
-          uri: file.uri,
-          type: file.type,
-          name: file.fileName,
-        });
-        const resPicture = await onUploadPicture(formData);
-        avatar = resPicture.data;
+      const firstThreeChars = numberPhone.substring(0, 3);
+      if (firstThreeChars !== '+84') {
+        if (+numberPhone === NaN || numberPhone.length < 10 ||
+          numberPhone.length > 11 || numberPhone.indexOf('0') !== 0 ||
+          numberPhone.indexOf(' ') !== -1) {
+          ToastAndroid.show('Invalid number phone 1', ToastAndroid.SHORT);
+          setIsLoading(false);
+          return;
+        }
+      } else {
+        if (+numberPhone === NaN || numberPhone.length < 12 ||
+          numberPhone.length > 13 || numberPhone.indexOf(' ') !== -1) {
+          ToastAndroid.show('Invalid number phone 2', ToastAndroid.SHORT);
+          setIsLoading(false);
+          return;
+        }
       }
+
+
+      let check = false;
+      if (listAddress.length > 0) {
+        for (let i = 0; i < listAddress.length; i++) {
+          if (listAddress[i].numberPhone == numberPhone) {
+            check = true;
+            break;
+          }
+        }
+      }
+
+      if (check == true) {
+        await updateProfile(numberPhone);
+      } else {
+        signInWithPhoneNumber(numberPhone);
+      }
+
       //Call api update profile
-      const userUpdate = await onUpdateProfile(user._id, email, name, birthday, numberPhone, avatar);
-      console.log('userUpdate', userUpdate);
-      if(userUpdate == null || userUpdate == undefined){
-        ToastAndroid.show('Update profile failed', ToastAndroid.SHORT);
-      }
-      if (userUpdate) {
-        ToastAndroid.show('Update profile successfully', ToastAndroid.SHORT);
-        navigation.goBack();
-      }
+
     } catch (error) {
       console.log('handleUpdateAvatar error', error);
     }
+  };
+
+  const updateProfile = async (numberPhone) => {
+    let avatar = user.avatar;
+    //upload avatar
+    if (image != user.avatar) {
+      //Upload picture
+      const formData = new FormData();
+      formData.append('picture', {
+        uri: file.uri,
+        type: file.type,
+        name: file.fileName,
+      });
+      const resPicture = await onUploadPicture(formData);
+      avatar = resPicture.data;
+    }
+    const userUpdate = await onUpdateProfile(user._id, email, name, birthday, numberPhone, avatar);
+    console.log('userUpdate', userUpdate);
+    if (userUpdate == null || userUpdate == undefined) {
+      ToastAndroid.show('Update profile failed', ToastAndroid.SHORT);
+    }
+    if (userUpdate) {
+      ToastAndroid.show('Update profile successfully', ToastAndroid.SHORT);
+      navigation.goBack();
+    }
+  }
+
+  useEffect(() => {
+    const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
+    return subscriber; // unsubscribe on unmount
+  }, []);
+
+  // Handle login
+  function onAuthStateChanged(user) {
+    if (user) {
+      // Some Android devices can automatically process the verification code (OTP) message, and the user would NOT need to enter the code.
+      // Actually, if he/she tries to enter it, he/she will get an error message because the code was already used in the background.
+      // In this function, make sure you hide the component(s) for entering the code and/or navigate away from this screen.
+      // It is also recommended to display a message to the user informing him/her that he/she has successfully logged in.
+    }
+  }
+
+  useEffect(() => {
+    if (user.numberPhone != undefined) {
+      setNumberPhone(user.numberPhone);
+    }
+  }, []);
+
+  const signInWithPhoneNumber = async (numberPhone) => {
+    //Neu so dau tien la so 0 thi doi thanh +84
+    if (numberPhone.charAt(0) === '0') {
+      numberPhone = '+84' + numberPhone.substring(1, numberPhone.length);
+    }
+    console.log('signInWithPhoneNumber: ', numberPhone);
+    setTimeout(() => {
+      setIsLoading(false);
+      ToastAndroid.show('Please try again!', ToastAndroid.SHORT);
+      return;
+
+    }, 10000);
+    const confirmation = await auth().signInWithPhoneNumber(numberPhone);
+    console.log('confirmation: ', confirmation);
+    setConfirm(confirmation);
+
     setIsLoading(false);
+    setIsShowDialog(true);
   };
 
 
@@ -189,6 +293,16 @@ const UpdateProfile = (props) => {
           <Text style={{ color: '#ffffff', textAlign: 'center', fontWeight: 'bold' }} >Submit</Text>
         </TouchableOpacity>
       </ScrollView>
+
+      {
+        isShowDialog ?
+          <VerifiPhone
+            confirm={confirm}
+            numberPhone={numberPhone}
+            updateNumberPhone={updateProfile}
+            setIsShowDialog={setIsShowDialog}
+            isVisible={isShowDialog} /> : null
+      }
     </View>
   )
 }

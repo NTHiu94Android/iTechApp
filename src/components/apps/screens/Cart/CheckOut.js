@@ -36,6 +36,7 @@ const CheckOut = (props) => {
   const [dataSend, setDataSend] = useState({});
 
   const [address, setAddress] = useState('');
+  const [phone, setPhone] = useState('');
   const [total, setTotal] = useState(0);
   const [totalFinal, setTotalFinal] = useState(0);
 
@@ -157,6 +158,7 @@ const CheckOut = (props) => {
       if (addressRes.data[i].status == true) {
         console.log('Địa chỉ: ', addressRes.data[i].body);
         setAddress(addressRes.data[i].body);
+        setPhone(addressRes.data[i].numberPhone);
         return;
       }
     }
@@ -463,7 +465,7 @@ const CheckOut = (props) => {
             <Text style={{ fontSize: 18, fontWeight: 'bold', borderBottomWidth: 0.5, borderBottomColor: 'grey', padding: 10 }}>
               {user.name}
             </Text>
-            <Text style={{ fontSize: 14, lineHeight: 25, padding: 10, fontWeight: '500' }}>Phone: {user.numberPhone}</Text>
+            <Text style={{ fontSize: 14, lineHeight: 25, padding: 10, fontWeight: '500' }}>Phone: {phone}</Text>
             <Text style={{ fontSize: 14, marginHorizontal: 10, marginBottom: 10, fontWeight: '500' }}>Address: {address}</Text>
           </View>
         </View>

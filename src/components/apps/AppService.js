@@ -152,18 +152,18 @@ export const getAddressByIdUser = async(idUser) => {
 };
 
 //Them dia chi
-export const addAddress = async (body, status, idUser) => {
+export const addAddress = async (body, status, numberPhone, idUser) => {
     const data = {
-        body, status, idUser
+        body, status, numberPhone, idUser
     };
     const response = await CustomAxios().post(`/address/api/add-address`, data);
     return response;
 }
 
 //Cap nhat dia chi
-export const updateAddress = async(_id, body, status, idUser) => {
+export const updateAddress = async(_id, body, status, numberPhone, idUser) => {
     const data = {
-        _id, body, status, idUser
+        _id, body, status, numberPhone, idUser
     }
     const res = await CustomAxios().post(`/address/api/update-address`, data);
     return res;
