@@ -201,7 +201,7 @@ const UpdateProfile = (props) => {
 
     }, 10000);
     const confirmation = await auth().signInWithPhoneNumber(numberPhone);
-    console.log('confirmation: ', confirmation);
+    //console.log('confirmation: ', confirmation);
     setConfirm(confirmation);
 
     setIsLoading(false);

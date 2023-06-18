@@ -1,12 +1,12 @@
 import { StyleSheet, Text, View, TouchableOpacity, Image, ScrollView, TextInput, ToastAndroid, Dimensions } from 'react-native'
 import React, { useContext, useEffect, useState } from 'react'
 import back from '../../../back/back';
-import AddressData from './Address'
+//import AddressData from './Address'
 
 import { UserContext } from '../../../users/UserContext';
 import { AppContext } from '../../AppContext';
 
-import SelectDropdown from 'react-native-select-dropdown';
+//import SelectDropdown from 'react-native-select-dropdown';
 import ProgressDialog from 'react-native-progress-dialog';
 import VerifiPhone from '../VerifiPhone/VerifiPhoneUpdate';
 import auth from '@react-native-firebase/auth';
@@ -30,14 +30,14 @@ const ShippingUpdate = (props) => {
     const [city, setCity] = useState('');
     const [country, setCountry] = useState('');
 
-    const [listCountry, setListCountry] = useState([]);
-    const [listCity, setListCity] = useState([]);
-    const [listDistrict, setListDistrict] = useState([]);
+    // const [listCountry, setListCountry] = useState([]);
+    // const [listCity, setListCity] = useState([]);
+    // const [listDistrict, setListDistrict] = useState([]);
 
     const [isShowDialog, setIsShowDialog] = useState(false);
     const [confirm, setConfirm] = useState(null);
 
-    //Lay danh sach tinh thanh
+    // //Lay danh sach tinh thanh
     useEffect(() => {
         //Lay ky tu tu dau phay thu 2 tro di trong item.body
         const ctr = item.body.split(',')[2].trim();
@@ -47,54 +47,54 @@ const ShippingUpdate = (props) => {
         const dtr = item.body.split(',')[0].trim();
         setDistrict(dtr);
 
-        console.log('item.body: ', ctr, cty, dtr);
+        // console.log('item.body: ', ctr, cty, dtr);
 
-        const getCountry = () => {
-            const listCountry = AddressData.map((item) => {
-                return item.name;
-            });
-            setListCountry(listCountry);
-        };
-        getCountry();
+        // const getCountry = () => {
+        //     const listCountry = AddressData.map((item) => {
+        //         return item.name;
+        //     });
+        //     setListCountry(listCountry);
+        // };
+        // getCountry();
     }, []);
 
-    //Lay danh sach quan huyen, thanh pho
-    useEffect(() => {
-        const getCity = () => {
-            let listCity = [];
-            for (let i = 0; i < AddressData.length; i++) {
-                if (AddressData[i].name === country) {
-                    for (let j = 0; j < AddressData[i].districts.length; j++) {
-                        listCity.push(AddressData[i].districts[j].name);
-                    }
-                }
-            }
+    // //Lay danh sach quan huyen, thanh pho
+    // useEffect(() => {
+    //     const getCity = () => {
+    //         let listCity = [];
+    //         for (let i = 0; i < AddressData.length; i++) {
+    //             if (AddressData[i].name === country) {
+    //                 for (let j = 0; j < AddressData[i].districts.length; j++) {
+    //                     listCity.push(AddressData[i].districts[j].name);
+    //                 }
+    //             }
+    //         }
 
-            setListCity(listCity);
-        };
-        getCity();
-    }, [listCountry]);
+    //         setListCity(listCity);
+    //     };
+    //     getCity();
+    // }, [listCountry]);
 
-    //Lay danh sach phuong xa, quan huyen
-    useEffect(() => {
-        const getDistrist = () => {
-            let listDistrict = [];
+    // //Lay danh sach phuong xa, quan huyen
+    // useEffect(() => {
+    //     const getDistrist = () => {
+    //         let listDistrict = [];
 
-            for (let i = 0; i < AddressData.length; i++) {
-                if (AddressData[i].name === country) {
-                    for (let j = 0; j < AddressData[i].districts.length; j++) {
-                        if (AddressData[i].districts[j].name === city) {
-                            for (let k = 0; k < AddressData[i].districts[j].wards.length; k++) {
-                                listDistrict.push(AddressData[i].districts[j].wards[k].name);
-                            }
-                        }
-                    }
-                }
-            }
-            setListDistrict(listDistrict);
-        };
-        getDistrist();
-    }, [listCity]);
+    //         for (let i = 0; i < AddressData.length; i++) {
+    //             if (AddressData[i].name === country) {
+    //                 for (let j = 0; j < AddressData[i].districts.length; j++) {
+    //                     if (AddressData[i].districts[j].name === city) {
+    //                         for (let k = 0; k < AddressData[i].districts[j].wards.length; k++) {
+    //                             listDistrict.push(AddressData[i].districts[j].wards[k].name);
+    //                         }
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //         setListDistrict(listDistrict);
+    //     };
+    //     getDistrist();
+    // }, [listCity]);
 
     // const handleUpdateAddress = async () => {
     //     try {
@@ -148,8 +148,10 @@ const ShippingUpdate = (props) => {
                 }
             }
 
+            console.log('check: ', check);
+
             //Neu so dien thoai chua duoc xac thuc thi xac thuc
-            if (user.numberPhone !== numberPhone || !user.numberPhone || !check) {
+            if (!check) {
                 //Show dialog xác thuc mã OTP
                 signInWithPhoneNumber(numberPhone);
             } else {
@@ -221,18 +223,23 @@ const ShippingUpdate = (props) => {
                 <View style={styleShippingAddress.body}>
                     {/* Full Name */}
                     <View style={styleShippingAddress.input}>
-                        <Text style={{ color: 'black', fontSize: 18, fontWeight: '600' }}>Full Name</Text>
-                        <Text style={{ marginVertical: 8, paddingHorizontal: 20 }}>{user.name}</Text>
+                        <Text style={{ color: 'black', fontSize: 18, fontWeight: '600', marginBottom: 4 }}>* Full Name</Text>
+                        {/* <Text style={{ marginVertical: 8, paddingHorizontal: 20 }}>{user.name}</Text> */}
+                        <TextInput
+                            value={user.name}
+                            editable={false}
+                            style={[styleShippingAddress.dropdown1BtnStyle, { paddingHorizontal: 12 }]}
+                        />
                     </View>
 
                     {/* Numberphone */}
                     <View style={styleShippingAddress.input}>
-                        <Text style={{ color: 'black', fontSize: 18, fontWeight: '600', marginBottom: 4 }}>Number phone</Text>
+                        <Text style={{ color: 'black', fontSize: 18, fontWeight: '600', marginBottom: 4 }}>* Number phone</Text>
                         <TextInput
                             value={numberPhone}
                             onChangeText={(text) => setNumberPhone(text)}
                             keyboardType='numeric'
-                            style={[styleShippingAddress.dropdown1BtnStyle, { paddingHorizontal: 20 }]}
+                            style={[styleShippingAddress.dropdown1BtnStyle, { paddingHorizontal: 12 }]}
                             placeholder='Ex: 0778023038' >
                         </TextInput>
                     </View>
@@ -240,17 +247,17 @@ const ShippingUpdate = (props) => {
 
                     <View style={styleShippingAddress.viewCountry}>
                         <View style={{ marginTop: 10 }}>
-                            <Text style={{ color: 'black', fontSize: 18, fontWeight: '600', marginBottom: 4 }}>Province</Text>
-                            {/* <TextInput
+                            <Text style={{ color: 'black', fontSize: 18, fontWeight: '600', marginBottom: 4 }}>* Province</Text>
+                            <TextInput
                                 value={country}
-                                options={listCountry}
                                 onChangeText={(text) => {
                                     setCountry(text)
                                 }}
                                 placeholder='Select country'
+                                style={[styleShippingAddress.dropdown1BtnStyle, { paddingHorizontal: 12 }]}
 
-                            /> */}
-                            <SelectDropdown
+                            />
+                            {/* <SelectDropdown
                                 data={listCountry}
                                 // defaultValueByIndex={1}
                                 defaultValue={country}
@@ -284,7 +291,7 @@ const ShippingUpdate = (props) => {
                                 dropdownStyle={styleShippingAddress.dropdown1DropdownStyle}
                                 rowStyle={styleShippingAddress.dropdown1RowStyle}
                                 rowTextStyle={styleShippingAddress.dropdown1RowTxtStyle}
-                            />
+                            /> */}
                         </View>
                     </View>
 
@@ -301,17 +308,17 @@ const ShippingUpdate = (props) => {
                     </View> */}
                     <View style={styleShippingAddress.viewCountry}>
                         <View style={{ marginTop: 10 }}>
-                            <Text style={{ color: 'black', fontSize: 18, fontWeight: '600', marginBottom: 4 }}>City</Text>
-                            {/* <TextInput
-                                value={country}
-                                options={listCountry}
+                            <Text style={{ color: 'black', fontSize: 18, fontWeight: '600', marginBottom: 4 }}>* City</Text>
+                            <TextInput
+                                value={city}
                                 onChangeText={(text) => {
-                                    setCountry(text)
+                                    setCity(text)
                                 }}
                                 placeholder='Select country'
+                                style={[styleShippingAddress.dropdown1BtnStyle, { paddingHorizontal: 12 }]}
 
-                            /> */}
-                            <SelectDropdown
+                            />
+                            {/* <SelectDropdown
                                 data={listCity}
                                 // defaultValueByIndex={1}
                                 defaultValue={city}
@@ -345,7 +352,7 @@ const ShippingUpdate = (props) => {
                                 dropdownStyle={styleShippingAddress.dropdown1DropdownStyle}
                                 rowStyle={styleShippingAddress.dropdown1RowStyle}
                                 rowTextStyle={styleShippingAddress.dropdown1RowTxtStyle}
-                            />
+                            /> */}
                         </View>
                     </View>
 
@@ -363,17 +370,17 @@ const ShippingUpdate = (props) => {
 
                     <View style={styleShippingAddress.viewCountry}>
                         <View style={{ marginTop: 10 }}>
-                            <Text style={{ color: 'black', fontSize: 18, fontWeight: '600', marginBottom: 4 }}>District</Text>
-                            {/* <TextInput
-                                value={country}
-                                options={listCountry}
+                            <Text style={{ color: 'black', fontSize: 18, fontWeight: '600', marginBottom: 4 }}>* District</Text>
+                            <TextInput
+                                value={district}
                                 onChangeText={(text) => {
-                                    setCountry(text)
+                                    setDistrict(text)
                                 }}
                                 placeholder='Select country'
+                                style={[styleShippingAddress.dropdown1BtnStyle, { paddingHorizontal: 12 }]}
 
-                            /> */}
-                            <SelectDropdown
+                            />
+                            {/* <SelectDropdown
                                 data={listDistrict}
                                 // defaultValueByIndex={1}
                                 defaultValue={district}
@@ -407,7 +414,7 @@ const ShippingUpdate = (props) => {
                                 dropdownStyle={styleShippingAddress.dropdown1DropdownStyle}
                                 rowStyle={styleShippingAddress.dropdown1RowStyle}
                                 rowTextStyle={styleShippingAddress.dropdown1RowTxtStyle}
-                            />
+                            /> */}
                         </View>
                     </View>
 
@@ -508,7 +515,6 @@ const styleShippingAddress = StyleSheet.create({
         justifyContent: 'space-between',
         flexDirection: 'row',
         alignItems: 'center',
-        marginTop: 10,
     },
     viewCountry2: {
         backgroundColor: 'white',
