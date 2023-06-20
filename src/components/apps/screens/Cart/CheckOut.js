@@ -2,7 +2,7 @@ import {
   Image, ScrollView, StyleSheet, Text, TouchableOpacity, View,
   Modal, ActivityIndicator, Alert, TextInput, ToastAndroid
 } from 'react-native'
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState, useRef } from 'react'
 import back from '../../../back/back';
 import { UserContext } from '../../../users/UserContext';
 import { AppContext } from '../../AppContext';
@@ -11,6 +11,7 @@ import { WebView } from 'react-native-webview';
 import PaypalApi from '../../../../helpers/PaypalApi';
 import queryString from 'query-string';
 import ProgressDialog from 'react-native-progress-dialog';
+import DialogPromotion from './DialogPromotion';
 
 const CheckOut = (props) => {
   const { navigation } = props;
@@ -46,9 +47,17 @@ const CheckOut = (props) => {
 
   const [idPromotion, setIdPromotion] = useState('');
 
+  //Show modal
+  const [showModal, setShowModal] = useState(false);
+  const [listPromotion, setListPromotion] = useState([]);
+  const promotionsRef = useRef(null);
+
   useEffect(() => {
-    getAddress();
-    getTotal();
+    const getData = async () => {
+      getAddress();
+      getTotal();
+    }
+    getData();
   }, [countAddress]);
 
   useEffect(() => {
@@ -56,11 +65,40 @@ const CheckOut = (props) => {
   }, [totalFinal]);
 
 
+  const getPromotionsByUser = async (total) => {
+    const res = await onGetPromotions(user._id);
+    const promotions = res.data;
+    if (promotions) {
+      const day = new Date();
+      let list = [];
+      for (let i = 0; i < promotions.length; i++) {
+        const dateStart = new Date(
+          parseInt(promotions[i].dayStart.split("/")[2]),
+          parseInt(promotions[i].dayStart.split("/")[1]) - 1, 
+          parseInt(promotions[i].dayStart.split("/")[0]) + 1
+        );
+        const dateEnd = new Date(
+          parseInt(promotions[i].dayEnd.split("/")[2]),
+          parseInt(promotions[i].dayEnd.split("/")[1]) - 1,
+          parseInt(promotions[i].dayEnd.split("/")[0]) + 1
+        );
+        if (!promotions[i].isSubmit && dateStart <= day && dateEnd >= day && total >= promotions[i].condition) {
+          list.push(promotions[i]);
+          console.log(`Promotion: ${i} `, promotions[i]);
+        }
+      }
+      console.log(list);
+      setListPromotion(list);
+      promotionsRef.current = promotions;
+    }
+
+  }
   //Check code promotion
   const handleCheckCode = async () => {
     setIsLoading(true);
-    const res = await onGetPromotions(user._id);
-    const promotions = res.data;
+    //const res = await onGetPromotions(user._id);
+    //const promotions = res.data;
+    const promotions = promotionsRef.current;
     let check = false;
     const day = new Date();
     if (promotions != null && promotions.length > 0) {
@@ -120,7 +158,7 @@ const CheckOut = (props) => {
     //   total += item.quantity * item.unit_amount.value;
     //   list.push(item);
     // }
-    console.log('total>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>: ', totalFinal);
+    //console.log('total>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>: ', totalFinal);
     const dataS = {
       "intent": "CAPTURE",
       "purchase_units": [
@@ -150,13 +188,13 @@ const CheckOut = (props) => {
   const getAddress = async () => {
     const addressRes = await onGetAddressByIdUser(user._id);
     if (addressRes.data == undefined) {
-      console.log('Không có địa chỉ');
+      //console.log('Không có địa chỉ');
       return;
     }
     for (let i = 0; i < addressRes.data.length; i++) {
-      console.log('Địa chỉ: ', addressRes.data[i]);
+      //console.log('Địa chỉ: ', addressRes.data[i]);
       if (addressRes.data[i].status == true) {
-        console.log('Địa chỉ: ', addressRes.data[i].body);
+        //console.log('Địa chỉ: ', addressRes.data[i].body);
         setAddress(addressRes.data[i].body);
         setPhone(addressRes.data[i].numberPhone);
         return;
@@ -185,12 +223,15 @@ const CheckOut = (props) => {
 
     };
     data.numberProduct = numberProduct;
-    console.log('numberProduct: ', numberProduct);
+    //console.log('numberProduct: ', numberProduct);
 
     setTotal(total2.toFixed(2));
     setTotalFinal(total2.toFixed(2));
     setDataSendToPaypal(total2.toFixed(2));
     setIsLoading(false);
+
+    //Lay danh sach khuyen mai theo gia tri gio hang
+    getPromotionsByUser(total2.toFixed(2));
   };
 
   //Xu ly thanh toan
@@ -263,21 +304,21 @@ const CheckOut = (props) => {
           //content, sale,  maxSale, code, dayStart, dayEnd, condition, idUser
           if (totalFinal > 300) {
             const random = Math.floor(Math.random() * 10000);
-            console.log('Random: ', random);
+            //console.log('Random: ', random);
             const res = await onAddPromotion('Discount 10% for next order', 10, 20, 'DISCOUNT' + random, orderDate, orderDate2, 300, user._id);
             if (res.data != undefined) {
               ToastAndroid.show('Discount 10% for next order', ToastAndroid.SHORT);
             }
           } else if (totalFinal > 500) {
             const random = Math.floor(Math.random() * 10000);
-            console.log('Random: ', random);
+            //console.log('Random: ', random);
             const res = await onAddPromotion('Discount 20% for next order', 20, 30, 'DISCOUNT' + random, orderDate, orderDate2, 500, user._id);
             if (res.data != undefined) {
               ToastAndroid.show('Discount 20% for next order', ToastAndroid.SHORT);
             }
           } else if (totalFinal > 1000) {
             const random = Math.floor(Math.random() * 10000);
-            console.log('Random: ', random);
+            //console.log('Random: ', random);
             const res = await onAddPromotion('Discount 30% for next order', 30, 50, 'DISCOUNT' + random, orderDate, orderDate2, 1000, user._id);
             if (res.data != undefined) {
               ToastAndroid.show('Discount 30% for next order', ToastAndroid.SHORT);
@@ -303,8 +344,8 @@ const CheckOut = (props) => {
       const access_token = await PaypalApi.generateToken();
       setToken(access_token);
       const res = await PaypalApi.createOrder(access_token, dataSend);
-      console.log("Res generateToken: ", access_token);
-      console.log("Res createOrder: ", res);
+      //console.log("Res generateToken: ", access_token);
+      //console.log("Res createOrder: ", res);
 
       if (res != null || res != undefined) {
         const findUrl = res.links.find(data => data?.rel === 'approve');
@@ -367,21 +408,21 @@ const CheckOut = (props) => {
 
             if (totalFinal > 300) {
               const random = Math.floor(Math.random() * 10000);
-              console.log('Random: ', random);
+              //console.log('Random: ', random);
               const res = await onAddPromotion('Discount 10% for next order', 10, 20, 'DISCOUNT' + random, orderDate, orderDate2, 300, user._id);
               if (res.data != undefined) {
                 ToastAndroid.show('Discount 10% for next order', ToastAndroid.SHORT);
               }
             } else if (totalFinal > 500) {
               const random = Math.floor(Math.random() * 10000);
-              console.log('Random: ', random);
+              //console.log('Random: ', random);
               const res = await onAddPromotion('Discount 20% for next order', 20, 30, 'DISCOUNT' + random, orderDate, orderDate2, 500, user._id);
               if (res.data != undefined) {
                 ToastAndroid.show('Discount 20% for next order', ToastAndroid.SHORT);
               }
             } else if (totalFinal > 1000) {
               const random = Math.floor(Math.random() * 10000);
-              console.log('Random: ', random);
+              //console.log('Random: ', random);
               const res = await onAddPromotion('Discount 30% for next order', 30, 50, 'DISCOUNT' + random, orderDate, orderDate2, 1000, user._id);
               if (res.data != undefined) {
                 ToastAndroid.show('Discount 30% for next order', ToastAndroid.SHORT);
@@ -424,6 +465,16 @@ const CheckOut = (props) => {
     }
   };
 
+  const showDialogListPromotion = () => {
+    setShowModal(true);
+
+  }
+
+  const handleSelectPromotion = (item) => {
+    setShowModal(false);
+    setCode(item.code);
+  }
+
   return (
     <View style={{ flex: 1, paddingHorizontal: 12, justifyContent: 'space-between', backgroundColor: 'white' }}>
 
@@ -432,6 +483,16 @@ const CheckOut = (props) => {
         loaderColor="black"
         lable="Please wait..."
       />
+
+      {
+        showModal ?
+          <DialogPromotion
+            showModal={showModal}
+            handleSelectPromotion={handleSelectPromotion}
+            listPromotion={listPromotion}
+            cancel={() => setShowModal(false)}
+          /> : null
+      }
 
       {/* Bấm đây nhảy qua cart () */}
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 6 }}>
@@ -496,13 +557,23 @@ const CheckOut = (props) => {
           </View>
         </View>
 
-        <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center', marginTop: 12 }}>
+        <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center', marginTop: 12, }}>
           <TextInput
-            style={{ height: 40, borderColor: 'gray', borderWidth: 1, borderRadius: 8, width: '80%', paddingHorizontal: 8 }}
+            style={{ height: 40, borderColor: 'gray', borderWidth: 1, borderRadius: 8, width: '80%', paddingHorizontal: 8, position: 'relative' }}
             onChangeText={text => setCode(text)}
             value={code}
             placeholder='Enter code promotion'
           />
+          {/* {
+            listPromotion.length > 0 ?
+               : null
+          } */}
+          <TouchableOpacity onPress={() => showDialogListPromotion()}>
+                <Image
+                  source={require('../../../../assets/images/down1.png')}
+                  style={{ width: 20, height: 20, position: 'absolute', right: 10, top: -10 }}
+                />
+              </TouchableOpacity>
           <TouchableOpacity
             onPress={() => handleCheckCode()}
             style={{ backgroundColor: 'black', padding: 10, borderRadius: 8, marginLeft: 10 }}>

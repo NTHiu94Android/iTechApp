@@ -408,6 +408,7 @@ const styleReview = StyleSheet.create({
 });
 
 const Item = ({ review }) => {
+  //console.log(review.pictures[0].url);
   return (
     <View style={styleReview.BoxReview}>
 

@@ -1,4 +1,7 @@
-import { StyleSheet, Text, View, TouchableOpacity, TextInput, Image, ToastAndroid, alert, ScrollView } from 'react-native'
+import {
+  StyleSheet, Text, View, TouchableOpacity, TextInput, Image,
+  ToastAndroid, alert, ScrollView, PermissionsAndroid
+} from 'react-native'
 import React, { useContext, useState, useEffect } from 'react'
 
 import ProgressDialog from 'react-native-progress-dialog';
@@ -11,11 +14,15 @@ import { AppContext } from '../../AppContext';
 import VerifiPhone from '../VerifiPhone/VerifiPhone';
 import auth from '@react-native-firebase/auth';
 
+import DatePicker from 'react-native-date-picker';
+
 const UpdateProfile = (props) => {
   const { navigation } = props;
   back(navigation);
   const { user, onUpdateProfile } = useContext(UserContext);
-  const { onUploadPicture, onGetAddressByIdUser, countAddress } = useContext(AppContext);
+  const {
+    onUploadPicture, onGetAddressByIdUser, countAddress
+  } = useContext(AppContext);
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -30,12 +37,16 @@ const UpdateProfile = (props) => {
   const [isShowDialog, setIsShowDialog] = useState(false);
   const [confirm, setConfirm] = useState(null);
 
+  const [date, setDate] = useState(new Date())
+  const [open, setOpen] = useState(false)
+
+
   useEffect(() => {
     const getListAddress = async () => {
       setIsLoading(true);
       try {
         const res = await onGetAddressByIdUser(user._id);
-        console.log('getListAddress res: ', res);
+        //console.log('getListAddress res: ', res);
         if (res.data != undefined) {
           setListAddress(res.data);
         }
@@ -58,6 +69,38 @@ const UpdateProfile = (props) => {
     setBirthday(user.birthday);
     setNumberPhone(user.numberPhone);
   }, []);
+
+  useEffect(() => {
+    if (user.numberPhone != undefined) {
+      setNumberPhone(user.numberPhone);
+    }
+  }, []);
+
+  //Xu ly cap quyen truy cap anh
+  const requestPermission = async () => {
+    try {
+      const permission = PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE;
+      const granted = await PermissionsAndroid.request(permission, {
+        title: 'Allow app to access your media?',
+        message: 'App needs access to your media ' + 'so you can attach it.',
+        buttonNeutral: 'Ask Me Later',
+        buttonNegative: 'Cancel',
+        buttonPositive: 'OK',
+      });
+
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        // Quyền đã được cấp, tiếp tục xử lý
+        handleChoosePhoto();
+      } else {
+        // Quyền bị từ chối, xử lý lỗi
+        console.log('READ_EXTERNAL_STORAGE permission denied');
+        handleChoosePhoto();
+      }
+    } catch (error) {
+      // Xử lý lỗi
+      console.log('requestPermission error: ', error);
+    }
+  };
 
   //Xu ly chon anh
   const handleChoosePhoto = async () => {
@@ -92,6 +135,15 @@ const UpdateProfile = (props) => {
     });
   };
 
+  //Xu ly chon ngay sinh
+  const handleChooseDate = (date) => {
+    setOpen(false)
+    setDate(date)
+    const dateStr = date.getDate() + '/' + (date.getMonth() + 1) + '/' + date.getFullYear();
+    setBirthday(dateStr);
+  }
+
+  //Xu ly cap nhat thong tin
   const handleUpdateProfile = async () => {
     setIsLoading(true);
     try {
@@ -142,6 +194,7 @@ const UpdateProfile = (props) => {
     }
   };
 
+  //Cap nhat thong tin
   const updateProfile = async (numberPhone) => {
     let avatar = user.avatar;
     //upload avatar
@@ -167,6 +220,7 @@ const UpdateProfile = (props) => {
     }
   }
 
+  //-------------------Xac thuc so dien thoai-------------------
   useEffect(() => {
     const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
     return subscriber; // unsubscribe on unmount
@@ -181,12 +235,6 @@ const UpdateProfile = (props) => {
       // It is also recommended to display a message to the user informing him/her that he/she has successfully logged in.
     }
   }
-
-  useEffect(() => {
-    if (user.numberPhone != undefined) {
-      setNumberPhone(user.numberPhone);
-    }
-  }, []);
 
   const signInWithPhoneNumber = async (numberPhone) => {
     //Neu so dau tien la so 0 thi doi thanh +84
@@ -207,6 +255,7 @@ const UpdateProfile = (props) => {
     setIsLoading(false);
     setIsShowDialog(true);
   };
+  //---------------------------------------------------------------
 
 
   return (
@@ -239,7 +288,7 @@ const UpdateProfile = (props) => {
             style={{ width: 120, height: 120, borderRadius: 120, }}
             resizeMode='cover'
             source={{ uri: image }} />
-          <TouchableOpacity onPress={handleChoosePhoto} style={{ position: 'absolute', right: 5, bottom: 5 }}>
+          <TouchableOpacity onPress={requestPermission} style={{ position: 'absolute', right: 5, bottom: 5 }}>
             <Image
               style={{ width: 20, height: 20, }}
               resizeMode='cover'
@@ -277,6 +326,24 @@ const UpdateProfile = (props) => {
           <TextInput
             value={birthday}
             onChangeText={setBirthday} />
+          <TouchableOpacity onPress={() => setOpen(true)} style={{ position: 'absolute', right: 5, bottom: 28 }}>
+            <Image
+              style={{ width: 30, height: 30 }}
+              source={require('../../../../assets/images/calendar.png')}
+            />
+          </TouchableOpacity>
+          <DatePicker
+            modal
+            mode="date"
+            open={open}
+            date={date}
+            onConfirm={(date) => {
+              handleChooseDate(date)
+            }}
+            onCancel={() => {
+              setOpen(false)
+            }}
+          />
           <View style={{ height: 1, backgroundColor: 'black', marginBottom: 20 }} ></View>
         </View>
 
@@ -285,6 +352,7 @@ const UpdateProfile = (props) => {
           <Text style={{ color: 'black', fontWeight: '800', fontSize: 16, }}>Number phone</Text>
           <TextInput
             value={numberPhone}
+            keyboardType='numeric'
             onChangeText={setNumberPhone} />
           <View style={{ height: 1, backgroundColor: 'black', marginBottom: 20 }} ></View>
         </View>
