@@ -176,10 +176,10 @@ const ListProduct = ({ navigation, route }) => {
     setVisibleSort(false);
     console.log(sort);
     if (sort === 'down') {
-      const sortedProducts = listProduct.sort((a, b) => b.price - a.price);
+      const sortedProducts = listProduct.sort((a, b) => b.subProduct[0].price - a.subProduct[0].price);
       setListProduct(sortedProducts);
     } else if (sort === 'up') {
-      const sortedProducts = listProduct.sort((a, b) => a.price - b.price);
+      const sortedProducts = listProduct.sort((a, b) => a.subProduct[0].price - b.subProduct[0].price);
       setListProduct(sortedProducts);
     }
     // }else if(sort === 'rate'){

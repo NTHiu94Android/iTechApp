@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, TouchableOpacity, Image, ScrollView, FlatList } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Image, ScrollView, FlatList, RefreshControl } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
 import { UserContext } from '../../../users/UserContext';
 import { AppContext } from '../../AppContext';
@@ -11,7 +11,7 @@ const Home = (props) => {
     const { } = useContext(UserContext);
     const { onGetCategories, onGetProducts, onGetSubProducts, onGetReviews, countOrderDetail } = useContext(AppContext);
 
-    const [listCategory, setListCategory] = useState([]);
+    const [listCategory, setListCategory] = useState(cate);
 
     const [ListSale, setListSale] = useState([]);
     const [ListPhone, setListPhone] = useState([]);
@@ -19,62 +19,67 @@ const Home = (props) => {
 
     const [isLoading, setIsLoading] = useState(false);
 
+    const [refreshing, setRefreshing] = useState(false);
+
 
     //Lay danh sach category
     useEffect(() => {
-        const getData = async () => {
-            setIsLoading(true);
-            try {
-                //console.log('objRef.current: ', objRef.current);
-
-                const resProduct = await onGetProducts();
-                const resCategory = await onGetCategories();
-                const resReview = await onGetReviews();
-                const resSubProduct = await onGetSubProducts();
-
-                //Lay danh sach san pham
-                if (!resProduct || !resCategory || !resReview || !resSubProduct ||
-                    !resProduct.data || !resCategory.data || !resReview.data || !resSubProduct.data
-                ) {
-                    setIsLoading(false);
-                    return;
-                }
-
-                //Them sao va subProduct vao tung item
-                let list1 = [];
-                let list2 = [];
-                let list3 = [];
-                const listProduct = resProduct.data;
-                listProduct.map(async (item) => {
-                    item.rating = await getStar(item._id, resReview);
-                    const subProduct = await onGetSubProductsByIdProduct(item._id, resSubProduct);
-                    item.subProduct = subProduct;
-                    //Lay danh sach san pham theo tung danh muc va add vao list danh muc do
-                    if (item.subProduct[0] == null || item.subProduct[0] == undefined) {
-                        return;
-                    }
-                    if (item.subProduct[0].sale > 5) {
-                        list1.push(item);
-                    }
-                    if (item.idCategory == '645cfd060405a873dbcdda9c') {
-                        list2.push(item);
-                    }
-                    if (item.idCategory == '645cfcd60405a873dbcdda9a') {
-                        list3.push(item);
-                    }
-                });
-
-                setListCategory(resCategory.data);
-                setListSale(list1);
-                setListPhone(list2);
-                setListLaptop(list3);
-            } catch (error) {
-                console.log("Error home screen: ", error);
-            }
-            setIsLoading(false);
-        };
+        setIsLoading(true);
         getData();
     }, [countOrderDetail]);
+
+    const getData = async () => {
+        setRefreshing(true);
+        try {
+            //console.log('objRef.current: ', objRef.current);
+
+            const resProduct = await onGetProducts();
+            const resCategory = await onGetCategories();
+            const resReview = await onGetReviews();
+            const resSubProduct = await onGetSubProducts();
+
+            //Lay danh sach san pham
+            if (!resProduct || !resCategory || !resReview || !resSubProduct ||
+                !resProduct.data || !resCategory.data || !resReview.data || !resSubProduct.data
+            ) {
+                setIsLoading(false);
+                return;
+            }
+
+            //Them sao va subProduct vao tung item
+            let list1 = [];
+            let list2 = [];
+            let list3 = [];
+            const listProduct = resProduct.data;
+            listProduct.map(async (item) => {
+                item.rating = await getStar(item._id, resReview);
+                const subProduct = await onGetSubProductsByIdProduct(item._id, resSubProduct);
+                item.subProduct = subProduct;
+                //Lay danh sach san pham theo tung danh muc va add vao list danh muc do
+                if (item.subProduct[0] == null || item.subProduct[0] == undefined) {
+                    return;
+                }
+                if (item.subProduct[0].sale > 5) {
+                    list1.push(item);
+                }
+                if (item.idCategory == '645cfd060405a873dbcdda9c') {
+                    list2.push(item);
+                }
+                if (item.idCategory == '645cfcd60405a873dbcdda9a') {
+                    list3.push(item);
+                }
+            });
+
+            setListCategory(resCategory.data);
+            setListSale(list1);
+            setListPhone(list2);
+            setListLaptop(list3);
+        } catch (error) {
+            console.log("Error home screen: ", error);
+        }
+        setIsLoading(false);
+        setRefreshing(false);
+    };
 
     //Lay danh sach subProduct theo idProduct
     const onGetSubProductsByIdProduct = async (idProduct, res) => {
@@ -117,6 +122,11 @@ const Home = (props) => {
         navigation.navigate('ListProduct', { category });
     };
 
+    const gotoListProduct = (idCategory) => {
+        const category = listCategory.filter((item) => item._id == idCategory);
+        navigation.navigate('ListProduct', { category: category[0] });
+    };
+
     const goToProductDetail = (idProduct) => {
         navigation.navigate('ProductDetail', { idProduct });
     };
@@ -130,11 +140,11 @@ const Home = (props) => {
 
             {/* Top bar */}
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 6, paddingHorizontal: 12 }}>
-                <TouchableOpacity onPress={() => navigation.navigate('SearchScreen')}>
+                <TouchableOpacity onPress={()=>getData()}>
                     <Image
                         style={{ width: 22, height: 22 }}
                         resizeMode='cover'
-                        source={require('../../../../assets/images/menu.png')} />
+                        source={require('../../../../assets/images/ic_home.png')} />
                 </TouchableOpacity>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', width: 150, height: 50 }}>
                     <Text style={{ color: 'black', fontWeight: '800', fontSize: 18 }}>Hoang</Text>
@@ -154,7 +164,11 @@ const Home = (props) => {
             </View>
 
             {/* Body */}
-            <ScrollView showsVerticalScrollIndicator={false}>
+            <ScrollView 
+                showsVerticalScrollIndicator={false}
+                refreshControl={
+                    <RefreshControl refreshing={refreshing} onRefresh={()=>getData()} />}
+            >
 
                 {/* Slide banner */}
                 <View style={{ flex: 4, justifyContent: 'center', alignItems: 'center' }}>
@@ -228,12 +242,14 @@ const Home = (props) => {
                     {/* List item */}
                     <FlatList
                         data={ListSale}
+                        // initialNumToRender={2} // Giới hạn số lượng phần tử hiển thị ban đầu
+                        // maxToRenderPerBatch={1} // Giới hạn số lượng phần tử render mỗi lần
                         renderItem={({ item }) => <Item onPress={() => goToProductDetail(item._id)} item={item} />}
                         keyExtractor={item => item._id}
                         horizontal={true}
                         showsHorizontalScrollIndicator={false}
                     />
-                    <Text style={{ textAlign: 'center', fontSize: 16, fontWeight: '800', textDecorationLine: 'underline' }}>See more &gt;</Text>
+                    {/* <Text style={{ textAlign: 'center', fontSize: 16, fontWeight: '800', textDecorationLine: 'underline' }}>See more &gt;</Text> */}
                 </View>
 
                 {/* Banner 2 */}
@@ -262,7 +278,9 @@ const Home = (props) => {
                         horizontal={true}
                         showsHorizontalScrollIndicator={false}
                     />
-                    <Text style={{ textAlign: 'center', fontSize: 16, fontWeight: '800', textDecorationLine: 'underline' }}>See more &gt;</Text>
+                    <TouchableOpacity onPress={()=> gotoListProduct('645cfd060405a873dbcdda9c')}>
+                        <Text style={{ textAlign: 'center', fontSize: 16, fontWeight: '800', textDecorationLine: 'underline' }}>See more &gt;</Text>
+                    </TouchableOpacity>
                 </View>
 
                 {/* Banner 3 */}
@@ -291,7 +309,9 @@ const Home = (props) => {
                         horizontal={true}
                         showsHorizontalScrollIndicator={false}
                     />
-                    <Text style={{ textAlign: 'center', fontSize: 16, fontWeight: '800', textDecorationLine: 'underline' }}>See more &gt;</Text>
+                    <TouchableOpacity onPress={()=> gotoListProduct('645cfcd60405a873dbcdda9a')}>
+                        <Text style={{ textAlign: 'center', fontSize: 16, fontWeight: '800', textDecorationLine: 'underline' }}>See more &gt;</Text>
+                    </TouchableOpacity>
                 </View>
 
 
@@ -428,258 +448,176 @@ const Item = ({ item, onPress }) => (
     </TouchableOpacity>
 );
 
-const ItemNone = () => (
-    <View style={styles.itemContainer}>
-        <View style={{ width: 160, height: '100%' }}>
-            <View style={{
-                flexDirection: 'row',
-                paddingVertical: 4,
-                width: '100%',
-                backgroundColor: '#ddd',
-            }} />
-            <View style={{ width: '100%', height: 160, position: 'relative', backgroundColor: '#ddd' }} />
-            <View style={{ width: 35, height: 35, position: 'absolute', right: 13, top: 150, backgroundColor: '#ddd' }} />
-            <View style={{ height: 19, width: 14, marginTop: 5, paddingHorizontal: 8, maxWidth: 130, backgroundColor: '#ddd' }} />
-            <View style={{ flexDirection: 'row', paddingHorizontal: 8, }}>
-                <View style={{ width: 15, height: 15, marginEnd: 5, backgroundColor: '#ddd' }} />
-                <View style={{ width: 30, backgroundColor: '#ddd' }} />
-            </View>
-
-            <View style={{ height: 19, backgroundColor: '#ddd', paddingHorizontal: 8 }}/>
-
-            <View style={{ flexDirection: 'row', paddingHorizontal: 8 }}>
-                <View
-                    style={{ width: 15, height: 15, marginEnd: 5, backgroundColor: '#ddd' }}
-                />
-                <View style={{ backgroundColor: '#ddd', paddingEnd: 6 }}/>
-            </View>
-
-            <View style={{ flexDirection: 'row', paddingHorizontal: 8 }}>
-                <View style={{ width: 15, height: 15, marginEnd: 5, backgroundColor: '#ddd' }}/>
-                <View style={{  backgroundColor: '#ddd' }}/>
-            </View>
-
-            <View style={{ flexDirection: 'row', paddingHorizontal: 8 }}>
-                <View
-                    style={{ width: 15, height: 15, marginEnd: 5, backgroundColor: '#ddd' }}/>
-                <View style={{ backgroundColor: '#ddd' }}/>
-            </View>
-
-            <View style={{ flexDirection: 'row', paddingHorizontal: 8, width: '80%' }}>
-                <View
-                    style={{ width: 15, height: 15, marginEnd: 5, backgroundColor: '#ddd' }} />
-                <View style={{ backgroundColor: '#ddd' }}/>
-            </View>
-        </View>
-    </View>
-);
-
-const data = [
+const data1 = [
     {
-        _id: '1',
-        image: 'https://www.mobiledokan.com/wp-content/uploads/2022/09/Apple-iPhone-14-Pro-Max.jpg',
-        name: 'Iphone 12 Pro Max',
-        idCategory: '1',
-        idBrand: '1'
+        "_id": "6463aec19f29e71381893790",
+        "dateInput": "2023-06-23T06:00:06.656Z",
+        "idBrand": "645d18122a262fd91c565577",
+        "idCategory": "645cfcd60405a873dbcdda9a",
+        "image": "https://cdn.tgdd.vn/Products/Images/44/303500/msi-gaming-gf63-thin-11sc-i5-664vn-123-glr-1-2.jpg",
+        "name": "Laptop MSI Gaming GF63",
+        "rating": 0,
+        "subProduct": [
+            {
+                "__v": 0,
+                "_id": "6463af289f29e71381893792",
+                "color": "black",
+                "cpu": "i511400H2.7GHz",
+                "date": "2023-06-23T05:49:41.502Z",
+                "description": "",
+                "idProduct": "6463aec19f29e71381893790",
+                "pin": 58,
+                "price": 85,
+                "quantity": 400,
+                "ram": 8,
+                "rom": 16,
+                "sale": 33,
+                "screen": "2560 x 1664 pixels - 13 inches"
+            }
+        ]
     },
     {
-        _id: '2',
-        image: 'https://www.tradeinn.com/f/13828/138281763/samsung-galaxy-s20fe-2021-6gb-128gb-6.5-dual-sim-smartphone.jpg',
-        name: 'Iphone 12 Pro Max',
-        idCategory: '1',
-        idBrand: '1'
+        "_id": "64631ef7b054109c4a42b757",
+        "dateInput": "2023-06-23T06:00:07.172Z",
+        "idBrand": "645d176c2a262fd91c56556f",
+        "idCategory": "645cfcd60405a873dbcdda9a",
+        "image": "https://images.fpt.shop/unsafe/fit-in/585x390/filters:quality(90):fill(white)/fptshop.com.vn/Uploads/Originals/2020/11/12/637408006342832761_mbp-2020-m1-silver-1.png",
+        "name": "Macbook Pro 2022",
+        "rating": 0,
+        "subProduct": [
+            {
+                "__v": 0,
+                "_id": "646328779dcc2f5fc8821f65",
+                "color": "silver",
+                "cpu": "Apple M2 tám nhân CPU",
+                "date": "2023-06-23T05:49:40.020Z",
+                "description": "",
+                "idProduct": "64631ef7b054109c4a42b757",
+                "pin": 58,
+                "price": 125,
+                "quantity": 296,
+                "ram": 8,
+                "rom": 16,
+                "sale": 10,
+                "screen": "2560 x 1664 pixels - 13 inches"
+            },
+            {
+                "__v": 0,
+                "_id": "646328949dcc2f5fc8821f69",
+                "color": "gold",
+                "cpu": "Apple M2 tám nhân CPU",
+                "date": "2023-06-23T05:49:40.275Z",
+                "description": "",
+                "idProduct": "64631ef7b054109c4a42b757",
+                "pin": 58,
+                "price": 125,
+                "quantity": 296,
+                "ram": 8,
+                "rom": 16,
+                "sale": 10,
+                "screen": "2560 x 1664 pixels - 13 inches"
+            }
+        ]
     },
     {
-        _id: '3',
-        image: 'https://www.mobiledokan.com/wp-content/uploads/2022/09/Apple-iPhone-14-Pro-Max.jpg',
-        name: 'Iphone 12 Pro Max',
-        idCategory: '1',
-        idBrand: '1'
-    },
-    {
-        _id: '4',
-        image: 'https://www.mobiledokan.com/wp-content/uploads/2022/09/Apple-iPhone-14-Pro-Max.jpg',
-        name: 'Iphone 12 Pro Max',
-        idCategory: '1',
-        idBrand: '1'
-    },
-];
-
-const subProduct = [
-    {
-        _id: '1.1',
-        price: 25,
-        sale: 5,
-        description: 'Iphone 12 Pro Max 256GB',
-        color: 'blue',
-        quantity: 1000,
-        ram: 8,
-        rom: 256,
-        screen: "6.5",
-        pin: 5000,
-        cpu: 'Snapdragon 888',
-        back_camera: '12MP',
-        front_camera: '12MP',
-        idProduct: '1'
-    },
-    {
-        _id: '1.2',
-        price: 25,
-        sale: 5,
-        description: 'Iphone 12 Pro Max 256GB',
-        color: 'red',
-        quantity: 1000,
-        ram: 8,
-        rom: 256,
-        screen: "6.5",
-        pin: 5000,
-        cpu: 'Snapdragon 888',
-        back_camera: '12MP',
-        front_camera: '12MP',
-        idProduct: '1'
-    },
-    {
-        _id: '2.1',
-        price: 25,
-        sale: 5,
-        description: 'Iphone 12 Pro Max 256GB',
-        color: 'blue',
-        quantity: 1000,
-        ram: 8,
-        rom: 256,
-        screen: "6.5",
-        pin: 5000,
-        cpu: 'Snapdragon 888',
-        back_camera: '12MP',
-        front_camera: '12MP',
-        idProduct: '2'
-    },
-    {
-        _id: '2.2',
-        price: 25,
-        sale: 5,
-        description: 'Iphone 12 Pro Max 256GB',
-        color: 'red',
-        quantity: 1000,
-        ram: 8,
-        rom: 256,
-        screen: "6.5",
-        pin: 5000,
-        cpu: 'Snapdragon 888',
-        back_camera: '12MP',
-        front_camera: '12MP',
-        idProduct: '2'
-    },
-    {
-        _id: '3.1',
-        price: 25,
-        sale: 5,
-        description: 'Iphone 12 Pro Max 256GB',
-        color: 'blue',
-        quantity: 1000,
-        ram: 8,
-        rom: 256,
-        screen: "6.5",
-        pin: 5000,
-        cpu: 'Snapdragon 888',
-        back_camera: '12MP',
-        front_camera: '12MP',
-        idProduct: '3'
-    },
-    {
-        _id: '3.2',
-        price: 25,
-        sale: 5,
-        description: 'Iphone 12 Pro Max 256GB',
-        color: 'red',
-        quantity: 1000,
-        ram: 8,
-        rom: 256,
-        screen: "6.5",
-        pin: 5000,
-        cpu: 'Snapdragon 888',
-        back_camera: '12MP',
-        front_camera: '12MP',
-        idProduct: '3'
-    },
-    {
-        _id: '4.1',
-        price: 25,
-        sale: 5,
-        description: 'Iphone 12 Pro Max 256GB',
-        color: 'blue',
-        quantity: 1000,
-        ram: 8,
-        rom: 256,
-        screen: "6.5",
-        pin: 5000,
-        cpu: 'Snapdragon 888',
-        back_camera: '12MP',
-        front_camera: '12MP',
-        idProduct: '4'
-    },
-    {
-        _id: '4.2',
-        price: 25,
-        sale: 5,
-        description: 'Iphone 12 Pro Max 256GB',
-        color: 'red',
-        quantity: 1000,
-        ram: 8,
-        rom: 256,
-        screen: "6.5",
-        pin: 5000,
-        cpu: 'Snapdragon 888',
-        back_camera: '12MP',
-        front_camera: '12MP',
-        idProduct: '4'
+        "_id": "6463b63cd0f76ed2bb92bc1d",
+        "dateInput": "2023-06-23T06:00:07.786Z",
+        "idBrand": "6463a74cd3dbf3f315fb97a2",
+        "idCategory": "645cfd060405a873dbcdda9c",
+        "image": "https://cdn.tgdd.vn/Products/Images/42/213031/iphone-12-tim-1-600x600.jpg",
+        "name": "Iphone 12 ",
+        "rating": 0,
+        "subProduct": [
+            {
+                "__v": 0,
+                "_id": "6463b77dd0f76ed2bb92bc1f",
+                "color": "purple",
+                "cpu": "Apple A14 Bionic hexa-core",
+                "date": "2023-06-23T05:49:43.037Z",
+                "description": "",
+                "idProduct": "6463b63cd0f76ed2bb92bc1d",
+                "pin": 3279,
+                "price": 434,
+                "quantity": 300,
+                "ram": 4,
+                "rom": 65,
+                "sale": 10,
+                "screen": "Super Retina XDR OLED, kích thước 6.1 inch, độ phân giải 2532 x 1170 pixel"
+            },
+            {
+                "__v": 0,
+                "_id": "6463b877d0f76ed2bb92bc2d",
+                "color": "black",
+                "cpu": "Apple A14 Bionic hexa-core",
+                "date": "2023-06-23T05:49:43.344Z",
+                "description": "",
+                "idProduct": "6463b63cd0f76ed2bb92bc1d",
+                "pin": 3279,
+                "price": 434,
+                "quantity": 300,
+                "ram": 4,
+                "rom": 65,
+                "sale": 10,
+                "screen": "Super Retina XDR OLED, kích thước 6.1 inch, độ phân giải 2532 x 1170 pixel"
+            },
+            {
+                "__v": 0,
+                "_id": "6463b922d0f76ed2bb92bc3d",
+                "color": "red",
+                "cpu": "Apple A14 Bionic hexa-core",
+                "date": "2023-06-23T05:49:43.652Z",
+                "description": "",
+                "idProduct": "6463b63cd0f76ed2bb92bc1d",
+                "pin": 3279,
+                "price": 434,
+                "quantity": 300,
+                "ram": 4,
+                "rom": 65,
+                "sale": 10,
+                "screen": "Super Retina XDR OLED, kích thước 6.1 inch, độ phân giải 2532 x 1170 pixel"
+            },
+            {
+                "__v": 0,
+                "_id": "6463bac8d0f76ed2bb92bc4f",
+                "color": "green",
+                "cpu": "Apple A14 Bionic hexa-core",
+                "date": "2023-06-23T05:49:43.959Z",
+                "description": "",
+                "idProduct": "6463b63cd0f76ed2bb92bc1d",
+                "pin": 3279,
+                "price": 434,
+                "quantity": 300,
+                "ram": 4,
+                "rom": 65,
+                "sale": 10,
+                "screen": "Super Retina XDR OLED, kích thước 6.1 inch, độ phân giải 2532 x 1170 pixel"
+            },
+            {
+                "__v": 0,
+                "_id": "6463bbbad0f76ed2bb92bc63",
+                "color": "blue",
+                "cpu": "Apple A14 Bionic hexa-core",
+                "date": "2023-06-23T05:49:44.265Z",
+                "description": "",
+                "idProduct": "6463b63cd0f76ed2bb92bc1d",
+                "pin": 3279,
+                "price": 434,
+                "quantity": 300,
+                "ram": 4,
+                "rom": 65,
+                "sale": 10,
+                "screen": "Super Retina XDR OLED, kích thước 6.1 inch, độ phân giải 2532 x 1170 pixel"
+            }
+        ]
     }
-
 ];
 
-const review = [
-    {
-        _id: '1',
-        content: 'Sản phẩm rất tốt',
-        rating: 5,
-        idUser: '64624ff0f1376a12315830b4',
-        idProduct: '1',
-    },
-    {
-        _id: '2',
-        content: 'Sản phẩm rất tốt',
-        rating: 4,
-        idUser: '64624ff0f1376a12315830b4',
-        idProduct: '1',
-    },
-    {
-        _id: '3',
-        content: 'Sản phẩm rất tốt',
-        rating: 5,
-        idUser: '64624ff0f1376a12315830b4',
-        idProduct: '2',
-    },
-    {
-        _id: '4',
-        content: 'Sản phẩm rất tốt',
-        rating: 4,
-        idUser: '64624ff0f1376a12315830b4',
-        idProduct: '3',
-    },
-    {
-        _id: '5',
-        content: 'Sản phẩm rất tốt',
-        rating: 5,
-        idUser: '64624ff0f1376a12315830b4',
-        idProduct: '4',
-    },
-    {
-        _id: '2',
-        content: 'Sản phẩm rất tốt',
-        rating: 4,
-        idUser: '64624ff0f1376a12315830b4',
-        idProduct: '1',
-    },
+const cate = [
+    { "__v": 0, "_id": "645cfcd60405a873dbcdda9a", "image": "https://fptshop.com.vn/Uploads/Originals/2022/7/11/637931467519964702_hp-15s-fq-bac-win11-dd.jpg", "name": "Laptop" },
+    { "__v": 0, "_id": "645cfd060405a873dbcdda9c", "image": "https://assets.swappie.com/cdn-cgi/image/width=600,height=600,fit=contain,format=auto/swappie-iphone-14-pro-max-gold.png?v=34", "name": "Smartphone" },
+    { "__v": 0, "_id": "645cfd550405a873dbcdda9e", "image": "https://cdn.shopify.com/s/files/1/0997/6284/files/nav-noise-colorfit-loop-smartwatch.png?v=18114716816441478335", "name": "Smart watch" },
+    { "__v": 0, "_id": "645cfdad0405a873dbcddaa0", "image": "https://www.popsci.com/uploads/2023/03/14/best-tablet-college-samsung-galaxy.jpg?auto=webp", "name": "Tablet" },
+    { "__v": 0, "_id": "645d05fcd462c8e4783df253", "image": "https://www.lg.com/in/images/tvs/md07554883/gallery/55UQ7500PSF-D-2.jpg", "name": "TV" }
 ];
 
 

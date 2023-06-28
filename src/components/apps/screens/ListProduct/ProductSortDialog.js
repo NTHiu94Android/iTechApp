@@ -20,9 +20,9 @@ const ProductSortDialog = ({ onSort, isVisible }) => {
         <TouchableOpacity style={styles.sortOption} onPress={() => handleSort('up')}>
           <Text>Ascending</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.sortOption} onPress={() => handleSort('rate')}>
+        {/* <TouchableOpacity style={styles.sortOption} onPress={() => handleSort('rate')}>
           <Text>Rate</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
         <TouchableOpacity style={styles.sortButton} onPress={() => handleSort('')}>
           <Text style={{color: 'white', fontWeight: '800', fontSize: 16, textAlign: 'center'}}>Cancel</Text>
         </TouchableOpacity>
