@@ -12,7 +12,12 @@ const SearchScreen = (props) => {
   const [listSearch, setListSearch] = useState([]); //list search
   const [listName, setListName] = useState([]); //list name product
   const [name, setName] = useState('');
+  const [sort, setSort] = useState(false);
+
   const listProductRef = useRef([]);
+  const listReviewRef = useRef([]);
+  const listSubProductRef = useRef([]);
+
   back(navigation);
 
   useEffect(() => {
@@ -51,7 +56,24 @@ const SearchScreen = (props) => {
     const list = listProduct.filter((item) => item.name.toLowerCase().includes(name.toLowerCase()));
     setListSearch(list);
     setListName([]);
-  }
+    setSort(true);
+  };
+
+  //Lay danh sach theo muc gia va idBrand 
+  const getProductsByPrice = async (priceStart, priceEnd) => {
+    // const listProduct = listProductRef.current;
+    // console.log('listProduct: ', listProduct);
+    // console.log('price: ', priceStart + " ---- " + priceEnd);
+    let listFilter = [];
+    if(listSearch.length == 0) return setListSearch(listProductRef.current);
+    for (let i = 0; i < listSearch.length; i++) {
+      if (listSearch[i].subProduct[0].price <= priceEnd && listSearch[i].subProduct[0].price >= priceStart) {
+        listFilter.push(listSearch[i]);
+        console.log('listFilter: ', listSearch[i].name);
+      }
+    }
+    setListSearch(listFilter);
+  };
 
   const handleClickItem = (name) => {
     //getListSearch(listProductRef.current, item);
@@ -64,6 +86,7 @@ const SearchScreen = (props) => {
   const handleClickClear = () => {
     setName('');
     setListName([]);
+    setSort(false);
   }
 
   //Lay danh sach subProduct theo idProduct
@@ -131,6 +154,38 @@ const SearchScreen = (props) => {
             <Text style={{ color: 'white', fontWeight: '800', fontSize: 16 }}>Search</Text>
           </TouchableOpacity>
         </View>
+        {
+          sort != false || name != '' ?
+            <View>
+              <ScrollView style={{ marginTop: 12}} horizontal={true} showsHorizontalScrollIndicator={false}>
+                <TouchableOpacity onPress={() => getProductsByPrice(1, 100)} style={{ marginRight: 4 }}>
+                  <View style={{ backgroundColor: '#333', padding: 5, paddingHorizontal: 10, borderRadius: 12 }}>
+                    <Text style={{ color: 'white', fontWeight: '600', fontSize: 14 }}>1$-100$</Text>
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => getProductsByPrice(100, 300)} style={{ marginRight: 4 }}>
+                  <View style={{ backgroundColor: '#333', padding: 5, paddingHorizontal: 10, borderRadius: 12 }}>
+                    <Text style={{ color: 'white', fontWeight: '600', fontSize: 14 }}>100$-300$</Text>
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => getProductsByPrice(300, 500)} style={{ marginRight: 4 }}>
+                  <View style={{ backgroundColor: '#333', padding: 5, paddingHorizontal: 10, borderRadius: 12 }}>
+                    <Text style={{ color: 'white', fontWeight: '600', fontSize: 14 }}>300$-500$</Text>
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => getProductsByPrice(500, 700)} style={{ marginRight: 4 }}>
+                  <View style={{ backgroundColor: '#333', padding: 5, paddingHorizontal: 10, borderRadius: 12 }}>
+                    <Text style={{ color: 'white', fontWeight: '600', fontSize: 14 }}>500$-700$</Text>
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => getProductsByPrice(700, 999999999)} style={{ marginRight: 4 }}>
+                  <View style={{ backgroundColor: '#333', padding: 5, paddingHorizontal: 10, borderRadius: 12 }}>
+                    <Text style={{ color: 'white', fontWeight: '600', fontSize: 14 }}>Over 700$</Text>
+                  </View>
+                </TouchableOpacity>
+              </ScrollView>
+            </View> : null
+        }
         {
           name != '' && name != null ?
             <TouchableOpacity style={{ position: 'absolute', right: 120, top: 10 }} onPress={() => handleClickClear()}>

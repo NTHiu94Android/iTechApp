@@ -102,6 +102,15 @@ export const updateOrderDetail = async(_id, quantity, price, isCmt, idOrder, idS
     return res;
 };
 
+//Cap nhat idOrder cua orderDetail
+export const updateIdOrderOfOrderDetail = async(_id, idOrder) => {
+    const data = {
+        _id, idOrder
+    }
+    const res = await CustomAxios().post(`/order-details/api/update-order-detail-to-order`, data);
+    return res;
+};
+
 //---------------------------------Order---------------------------------
 //Them don hang
 export const addOrder = async (dateCreate, datePayment, totalPrice, status, paymentMethod, address, idUser) => {
@@ -210,6 +219,29 @@ export const updatePromotion = async (_id, isSubmit) => {
 //Xoa khuyen mai
 export const deletePromotion = async (_id) => {
     const response = await CustomAxios().get(`/promotions/api/delete-promotion/${_id}`);
+    return response;
+};
+
+
+//---------------------------------Notification---------------------------------
+//Lay danh sach thong bao
+export const getNotifications = async (idReceiver) => {
+    const response = await CustomAxios().get(`/notifications/api/get-notification-by-idReceiver/${idReceiver}`);
+    return response;
+};
+
+//Cap nhat thong bao
+export const updateNotification = async (_id) => {
+    const data = {
+        _idNotification: _id
+    };
+    const response = await CustomAxios().post(`/notifications/api/update-notification-isCheck`, data);
+    return response;
+};
+
+//Xoa thong bao
+export const deleteNotification = async (_idNotification) => {
+    const response = await CustomAxios().get(`/notifications/api/delete-notification/${_idNotification}`);
     return response;
 };
 

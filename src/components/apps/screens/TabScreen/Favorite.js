@@ -12,13 +12,13 @@ const Favorite = (props) => {
   const {
     onGetOrderDetailByIdOrder, listFavorite, setListFavorite, onAddAllFavoriteToCart,
     //Count
-    countFavorite, setCountFavorite,
+    countFavorite, setCountFavorite, setNumberFavorite,
     //Product
     onGetProducts,
     //Sub product
     onGetSubProductById,
     //Order detail
-    onAddOrderDetail, onDeleteOrderDetail,
+    onAddOrderDetail, onDeleteOrderDetail, 
   } = useContext(AppContext);
 
   const [isLoading, setIsLoading] = useState(false);
@@ -39,7 +39,9 @@ const Favorite = (props) => {
           setIsLoading(false);
           return;
         }
+        let numberFavorite = 0;
         for (let i = 0; i < response.data.length; i++) {
+          numberFavorite++;
           const subProduct = await onGetSubProductById(response.data[i].idSubProduct);
           const product = listProduct.find(item => item._id === subProduct.idProduct);
           response.data[i].idSubProduct = subProduct._id;
@@ -51,6 +53,7 @@ const Favorite = (props) => {
             response.data[i].price = subProduct.price :
             response.data[i].price = subProduct.price - (subProduct.price * subProduct.sale / 100);
         }
+        setNumberFavorite(numberFavorite);
         setListFavorite(response.data);
         setIsLoading(false);
       } catch (error) {

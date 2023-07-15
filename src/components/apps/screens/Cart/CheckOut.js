@@ -21,7 +21,7 @@ const CheckOut = (props) => {
   const {
     onGetAddressByIdUser, onAddOrder,
     countAddress, onGetSubProducts,
-    onUpdateOrderDetail,
+    onUpdateOrderDetail, onUpdateIdOrderOrderDetail,
     countCart, setCountCart,
     onGetPromotions, onUpdatePromotion, onAddPromotion
   } = useContext(AppContext);
@@ -457,7 +457,7 @@ const CheckOut = (props) => {
   const handleDleteOrderDetail = async (list, idOrder) => {
     try {
       for (let i = 0; i < list.length; i++) {
-        await onUpdateOrderDetail(list[i]._id, list[i].quantity, list[i].price, false, idOrder, list[i].idSubProduct);
+        await onUpdateIdOrderOrderDetail(list[i]._id, idOrder);
       }
       setCountCart(countCart - 1);
     } catch (error) {

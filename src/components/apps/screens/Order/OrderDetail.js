@@ -32,6 +32,13 @@ const OrderDetail = (props) => {
         list[i].status = item.status;
       }
 
+      for(let i = 0; i < list.length; i++){
+        const data = {
+          quantity: list[i].quantity,
+          name: list[i].product.name,
+        }
+        console.log("data", data);
+      }
       setListOrderDetail(list);
       setIsLoading(false);
     };

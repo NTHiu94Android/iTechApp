@@ -8,8 +8,11 @@ import ProgressDialog from 'react-native-progress-dialog';
 
 const Home = (props) => {
     const { navigation } = props;
-    const { } = useContext(UserContext);
-    const { onGetCategories, onGetProducts, onGetSubProducts, onGetReviews, countOrderDetail } = useContext(AppContext);
+    const { user } = useContext(UserContext);
+    const { onGetCategories, onGetProducts, onGetSubProducts, onGetReviews, countOrderDetail,
+        onGetNotifications, countNotification, setNumBerNotification,
+        onGetOrderDetailByIdOrder, setNumberCart, setNumberFavorite, numberCart, numberFavorite
+    } = useContext(AppContext);
 
     const [listCategory, setListCategory] = useState(cate);
 
@@ -21,6 +24,39 @@ const Home = (props) => {
 
     const [refreshing, setRefreshing] = useState(false);
 
+    useEffect(() => {
+        const getData = async () => {
+            try {
+                const res = await onGetNotifications(user._id);
+                const resCart = await onGetOrderDetailByIdOrder(user.idCart);
+                const resFavorite = await onGetOrderDetailByIdOrder(user.idFavorite);
+                if(resCart.data){
+                    let sum = 0;
+                    for(let i=0; i<resCart.data.length; i++){
+                        sum += resCart.data[i].quantity;
+                    }
+                    setNumberCart(sum);
+                }
+                if(resFavorite.data){
+                    setNumberFavorite(resFavorite.data.length);
+                }
+                if (res.data) {
+                    let sum = 0;
+                    const notifications = res.data;
+                    for (let i = 0; i < notifications.length; i++) {
+                        if (notifications[i].isCheck == false) {
+                            sum++; 
+                        }
+                    }
+                    //console.log("sum: ", sum);
+                    setNumBerNotification(sum);
+                }
+            } catch (error) {
+                console.log("Error getData", error);
+            }
+        };
+        getData();
+    }, [countNotification]);
 
     //Lay danh sach category
     useEffect(() => {

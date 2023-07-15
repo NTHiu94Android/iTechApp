@@ -281,29 +281,42 @@ const ListProduct = ({ navigation, route }) => {
             }
           </ScrollView>
 
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 16, marginRight: 30 }}>
-            <ScrollView style={{ marginHorizontal: 12 }} horizontal={true} showsHorizontalScrollIndicator={false}>
-              <TouchableOpacity onPress={() => getProductsByPriceAndIdBrand(idSelected, 1, 100)} style={{ marginRight: 10 }}>
-                <Text style={{ color: 'blue', fontWeight: '600', fontSize: 16, textDecorationLine: 'underline' }}>1$-100$</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => getProductsByPriceAndIdBrand(idSelected, 100, 300)} style={{ marginRight: 10 }}>
-                <Text style={{ color: 'blue', fontWeight: '600', fontSize: 16, textDecorationLine: 'underline' }}>100$-300$</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => getProductsByPriceAndIdBrand(idSelected, 300, 500)} style={{ marginRight: 10 }}>
-                <Text style={{ color: 'blue', fontWeight: '600', fontSize: 16, textDecorationLine: 'underline' }}>300$-500$</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => getProductsByPriceAndIdBrand(idSelected, 500, 700)} style={{ marginRight: 10 }}>
-                <Text style={{ color: 'blue', fontWeight: '600', fontSize: 16, textDecorationLine: 'underline' }}>500$-700$</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => getProductsByPriceAndIdBrand(idSelected, 700, 999999999)} style={{ marginRight: 10 }}>
-                <Text style={{ color: 'blue', fontWeight: '600', fontSize: 16, textDecorationLine: 'underline' }}>Over 700$</Text>
-              </TouchableOpacity>
-
-
-            </ScrollView>
-            <TouchableOpacity onPress={() => showDialogSort()}>
+          <View style={{ flexDirection: 'column', justifyContent: 'space-between', marginBottom: 16, }}>
+            
+            <TouchableOpacity
+              style={{ alignSelf: 'flex-end', marginHorizontal: 12, marginBottom: 8, }}
+              onPress={() => showDialogSort()}>
               <Text style={{ color: 'black', fontWeight: '800', fontSize: 16, textDecorationLine: 'underline' }}>Sort by</Text>
             </TouchableOpacity>
+
+            <ScrollView style={{ marginHorizontal: 12 }} horizontal={true} showsHorizontalScrollIndicator={false}>
+              <TouchableOpacity onPress={() => getProductsByPriceAndIdBrand(idSelected, 1, 100)} style={{ marginRight: 4 }}>
+                <View style={{ backgroundColor: '#333', padding: 5, paddingHorizontal: 10, borderRadius: 12 }}>
+                  <Text style={{ color: 'white', fontWeight: '600', fontSize: 14 }}>1$-100$</Text>
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => getProductsByPriceAndIdBrand(idSelected, 100, 300)} style={{ marginRight: 4 }}>
+                <View style={{ backgroundColor: '#333', padding: 5, paddingHorizontal: 10, borderRadius: 12 }}>
+                  <Text style={{ color: 'white', fontWeight: '600', fontSize: 14 }}>100$-300$</Text>
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => getProductsByPriceAndIdBrand(idSelected, 300, 500)} style={{ marginRight: 4 }}>
+                <View style={{ backgroundColor: '#333', padding: 5, paddingHorizontal: 10, borderRadius: 12 }}>
+                  <Text style={{ color: 'white', fontWeight: '600', fontSize: 14 }}>300$-500$</Text>
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => getProductsByPriceAndIdBrand(idSelected, 500, 700)} style={{ marginRight: 4 }}>
+                <View style={{ backgroundColor: '#333', padding: 5, paddingHorizontal: 10, borderRadius: 12 }}>
+                  <Text style={{ color: 'white', fontWeight: '600', fontSize: 14 }}>500$-700$</Text>
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => getProductsByPriceAndIdBrand(idSelected, 700, 999999999)} style={{ marginRight: 4 }}>
+                <View style={{ backgroundColor: '#333', padding: 5, paddingHorizontal: 10, borderRadius: 12 }}>
+                  <Text style={{ color: 'white', fontWeight: '600', fontSize: 14 }}>Over 700$</Text>
+                </View>
+              </TouchableOpacity>
+            </ScrollView>
+
           </View>
 
           {

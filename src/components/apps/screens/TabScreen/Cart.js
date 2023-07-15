@@ -12,7 +12,7 @@ const Cart = (props) => {
   const {
     onGetOrderDetailByIdOrder, listCart, setListCart,
     //Count
-    countCart, setCountCart,
+    countCart, setCountCart, setNumberCart,
     //Sub product
     onGetSubProducts,
     //Product
@@ -48,6 +48,7 @@ const Cart = (props) => {
         }
         const data = response.data;
         let sum = 0;
+        let numberCart = 0;
         //console.log("List cart: ", response);
         for (let i = 0; i < data.length; i++) {
           const subProduct = resSubProduct.data.find((item) => item._id === data[i].idSubProduct);
@@ -63,7 +64,7 @@ const Cart = (props) => {
           }
           data[i].priceNoSale = subProduct.price;
           data[i].totalPriceNoSale = subProduct.price * data[i].quantity;
-          await onUpdateOrderDetail(data[i]._id, data[i].quantity, data[i].price, false, data[i].idOrder, data[i].idSubProduct);
+          //await onUpdateOrderDetail(data[i]._id, data[i].quantity, data[i].price, false, data[i].idOrder, data[i].idSubProduct);
           data[i].totalPrice = data[i].price * data[i].quantity;
           data[i].amount = data[i].quantity;
           data[i].subProduct = subProduct;
@@ -74,7 +75,10 @@ const Cart = (props) => {
           if (data[i].isSelect) {
             sum += data[i].totalPrice;
           }
+          numberCart += data[i].quantity;
         }
+        console.log('Number cart: ', numberCart);
+        setNumberCart(numberCart);
         setListSelected(data);
         setListCart(data);
         setTotal(sum);
@@ -90,6 +94,7 @@ const Cart = (props) => {
   //Cap nhat so luong san pham trong gio hang
   const updateItem = (id, newValue) => {
     try {
+      setCountCart(countCart + 1);
       //Cap nhat tren giao dien 
       let sum = 0;
       let listCartNew = [...listCart];
@@ -132,7 +137,6 @@ const Cart = (props) => {
         return;
       }
       await onUpdateOrderDetail(_idOrderDetail, _amount, price, false, _idOrder, _idSubProduct);
-      //setCountCart(countCart + 1);
     } catch (error) {
       console.log("Update item cart error: ", error);
     }
@@ -296,7 +300,7 @@ const Item = ({ item, plus, minus, deleteItem, gotoProductDetail, itemSelected }
         <TouchableOpacity
           onPress={itemSelected}
           style={{
-            borderWidth: 1, borderColor: '#333', borderRadius: 24,
+            borderWidth: 1, borderColor: '#333', borderRadius: 4,
             padding: 4, marginRight: 10, width: 24, height: 24,
             justifyContent: 'center', alignItems: 'center'
           }}>
@@ -313,9 +317,9 @@ const Item = ({ item, plus, minus, deleteItem, gotoProductDetail, itemSelected }
       <View style={{ justifyContent: 'space-between', paddingVertical: 5, paddingStart: 10 }}>
         <View>
           <Text numberOfLines={1} style={{ fontSize: 18, fontWeight: '800', color: 'black', width: '90%' }}>{item.prodName}</Text>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: 200, alignItems: 'center' }}>
-            <View style={{ marginTop: 4 }}>
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: 250, alignItems: 'center' }}>
+            <View style={{ marginTop: 4, width: '100%' }}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%' }}>
                 <Text style={{ fontSize: 16, fontWeight: '600', color: 'black', marginRight: 30 }}>
                   Color: {item.color.charAt(0).toUpperCase() + item.color.slice(1)}
                 </Text>
@@ -393,16 +397,16 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   itemChange: {
-    width: 20,
-    height: 20,
+    width: 18,
+    height: 18,
     backgroundColor: 'black',
-    borderRadius: 20,
+    borderRadius: 4,
   },
   itemNoChange: {
-    width: 20,
-    height: 20,
+    width: 18,
+    height: 18,
     backgroundColor: 'white',
-    borderRadius: 20,
+    borderRadius: 4,
   }
 
 })

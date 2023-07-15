@@ -10,6 +10,7 @@ import {
   addOrder, getOrdersByIdUser, updateOrder,
   //OrderDetail
   addOrderDetail, getOrderDetailsByIdOrder, deleteOrderDetail, updateOrderDetail, getOrderDetails,
+  updateIdOrderOfOrderDetail,
   //Review
   getReviews, addReview,
   //Address
@@ -18,6 +19,8 @@ import {
   getUsers,
   //Promotion
   getPromotions, addPromotion, updatePromotion, deletePromotion,
+  //Notification
+  getNotifications, updateNotification, deleteNotification,
 
 } from './AppService';
 import { UserContext } from '../users/UserContext';
@@ -35,6 +38,10 @@ export const AppContextProvider = (props) => {
   const [countFavorite, setCountFavorite] = useState(0);
   const [countOrder, setCountOrder] = useState(0);
   const [countOrderDetail, setCountOrderDetail] = useState(0);
+  const [countNotification, setCountNotification] = useState(0);
+  const [numBerNotification, setNumBerNotification] = useState(0);
+  const [numberCart, setNumberCart] = useState(0);
+  const [numberFavorite, setNumberFavorite] = useState(0);
 
   // const objRef = useRef({});
 
@@ -259,16 +266,16 @@ export const AppContextProvider = (props) => {
           //Lay so luong san pham hien tai
           const resSubProduct = await onGetSubProductById(idSubProduct);
           const quantitySubProduct = resSubProduct.quantity;
-          if(quantityNow + quantity > quantitySubProduct) {
+          if (quantityNow + quantity > quantitySubProduct) {
             quantityNow = quantitySubProduct;
-          }else{
+          } else {
             quantityNow = quantityNow + quantity;
           }
           //Cap nhat so luong san pham
           await onUpdateOrderDetail(idOrderDetail, quantityNow, price, false, idOrder, idSubProduct);
           setCountCart(countCart + 1);
           return;
-        } 
+        }
         await addOrderDetail(quantity, price, idOrder, idSubProduct);
         setCountCart(countCart + 1);
         return true;
@@ -284,32 +291,35 @@ export const AppContextProvider = (props) => {
       //Them tat ca san pham yeu thich vao gio hang
       //Lay danh sach hoa don chi tiet theo idCart
       const resOrderDetail = await onGetOrderDetailByIdOrder(user.idCart);
-
       //Duyen danh sach san pham yeu thich
       for (let i = 0; i < listFavorite.length; i++) {
-        let check = false; 
+        let check = false;
         //neu danh sach hoa don chi tiet khong rong
         if (resOrderDetail.data != undefined) {
           //Duyen danh sach hoa don chi tiet theo idCart
           for (let j = 0; j < resOrderDetail.data.length; j++) {
-            console.log('resOrderDetail.data[i].idSubProduct: ', resOrderDetail.data[j].idSubProduct);
-            console.log('listFavorite[i].idSubProduct: ', listFavorite[i].idSubProduct);
+            // console.log('resOrderDetail.data[i].idSubProduct: ', resOrderDetail.data[j].idSubProduct);
+            // console.log('listFavorite[i].idSubProduct: ', listFavorite[i].idSubProduct);
             //Neu idSubProduct cua san pham yeu thich trung voi idSubProduct cua hoa san pham trong gio hang
             if (resOrderDetail.data[j].idSubProduct == listFavorite[i].idSubProduct) {
               check = true;
+              await onUpdateOrderDetail(
+                resOrderDetail.data[j]._id, resOrderDetail.data[j].quantity + 1,
+                listFavorite[i].price, false, user.idCart, listFavorite[i].idSubProduct
+              );
               break;
             }
           }
         }
-        console.log('check: ', check);
+        //console.log('check: ', check);
         //Neu khong trung thi them san pham yeu thich vao gio hang va xoa san pham yeu thich
         if (check == false) {
           onDeleteOrderDetail(listFavorite[i]._id);
           await addOrderDetail(1, 0, user.idCart, listFavorite[i].idSubProduct);
-        }else{
+        } else {
           onDeleteOrderDetail(listFavorite[i]._id);
         }
-        
+
       }
       setCountFavorite(countFavorite + 10);
       setCountCart(countCart + 10);
@@ -354,9 +364,20 @@ export const AppContextProvider = (props) => {
   const onUpdateOrderDetail = async (_id, quantity, price, isCmt, idOrder, idSubProduct) => {
     try {
       const res = await updateOrderDetail(_id, quantity, price, isCmt, idOrder, idSubProduct);
+      //setNumberCart(quantity);
       return res;
     } catch (error) {
       console.log('onUpdateOrderDetail error: ', error);
+    }
+  };
+
+  //Cap nhat idOrder cua order detail
+  const onUpdateIdOrderOrderDetail = async (idOrder, idUser) => {
+    try {
+      const res = await updateIdOrderOfOrderDetail(idOrder, idUser);
+      return res;
+    } catch (error) {
+      console.log('onUpdateIdOrderOrderDetail error: ', error);
     }
   };
 
@@ -506,6 +527,38 @@ export const AppContextProvider = (props) => {
     }
   };
 
+  //-------------------------------------------------Notification-------------------------------------------------
+  //Lay danh sach notification
+  const onGetNotifications = async (idUser) => {
+    try {
+      const res = await getNotifications(idUser);
+      return res;
+    } catch (error) {
+      console.log('onGetNotifications error: ', error);
+    }
+  };
+
+  //Cap nhat notification
+  const onUpdateNotification = async (_id) => {
+    try {
+      const res = await updateNotification(_id);
+      setCountNotification(countNotification - 1);
+      return res;
+    } catch (error) {
+      console.log('onUpdateNotification error: ', error);
+    }
+  };
+
+  //Xoa notification
+  const onDeleteNotification = async (_id) => {
+    try {
+      const res = await deleteNotification(_id);
+      return res;
+    } catch (error) {
+      console.log('onDeleteNotification error: ', error);
+    }
+  };
+
 
 
   return (
@@ -523,7 +576,7 @@ export const AppContextProvider = (props) => {
       //OrderDetail
       onAddOrderDetail, onGetOrderDetailByIdOrder,
       onDeleteOrderDetail, onUpdateOrderDetail, onGetOrderDetails,
-      onAddAllFavoriteToCart,
+      onAddAllFavoriteToCart, onUpdateIdOrderOrderDetail,
       //Order
       onAddOrder, onGetOrdersByIdUser, onUpdateOrder,
       //Address
@@ -532,6 +585,8 @@ export const AppContextProvider = (props) => {
       onGetUsers,
       //Promotion
       onGetPromotions, onAddPromotion, onUpdatePromotion, onDeletePromotion,
+      //Notification
+      onGetNotifications, onUpdateNotification, onDeleteNotification,
       //State
       listFavorite, setListFavorite,
       listCart, setListCart,
@@ -540,6 +595,10 @@ export const AppContextProvider = (props) => {
       countAddress, setCountAddress,
       countOrder, setCountOrder,
       countOrderDetail, setCountOrderDetail,
+      countNotification, setCountNotification,
+      numBerNotification, setNumBerNotification,
+      numberCart, setNumberCart,
+      numberFavorite, setNumberFavorite,
       //Object reference
       // objRef,
 

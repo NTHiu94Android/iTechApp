@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { BackHandler, ToastAndroid } from 'react-native';
 
 import messaging from '@react-native-firebase/messaging';
@@ -29,11 +29,15 @@ import Order from './screens/Order/Order';
 import OrderDetail from './screens/Order/OrderDetail';
 import ShippingUpdate from './screens/Shipping/ShippingUpdate';
 import ListPromotion from './screens/Promotion/ListPromotion';
+import Notification from './screens/Notification/Notification';
+import { AppContext } from './AppContext';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator()
 
 const BottomNavigation = () => {
+    const { numBerNotification, numberCart, numberFavorite } = useContext(AppContext);
+
     return (
         <Tab.Navigator
             screenOptions={({ route }) => ({
@@ -47,6 +51,10 @@ const BottomNavigation = () => {
                         iconName = focused
                             ? 'bookmark'
                             : 'bookmark-outline';
+                    } else if (route.name === 'Notification') {
+                        iconName = focused
+                            ? 'notifications'
+                            : 'notifications-outline';
                     } else if (route.name === 'Cart') {
                         iconName = focused
                             ? 'cart'
@@ -66,8 +74,9 @@ const BottomNavigation = () => {
             })}>
 
             <Tab.Screen options={{ headerShown: false }} name="Home" component={Home} />
-            <Tab.Screen options={{ headerShown: false }} name="Favorite" component={Favorite} />
-            <Tab.Screen options={{ headerShown: false }} name="Cart" component={Cart} />
+            <Tab.Screen options={{ headerShown: false, tabBarBadge: numberFavorite }} name="Favorite" component={Favorite} />
+            <Tab.Screen options={{ headerShown: false, tabBarBadge: numBerNotification }} name="Notification" component={Notification} />
+            <Tab.Screen options={{ headerShown: false, tabBarBadge: numberCart }} name="Cart" component={Cart} />
             <Tab.Screen options={{ headerShown: false }} name="Profile" component={Profile} />
 
         </Tab.Navigator>
@@ -153,6 +162,7 @@ const AppNavigation = () => {
                 <Stack.Screen options={{ headerShown: false }} name='AddReview' component={AddReview} />
                 <Stack.Screen options={{ headerShown: false }} name='ListReview' component={ListReview} />
                 <Stack.Screen options={{ headerShown: false }} name='ListPromotion' component={ListPromotion} />
+                {/* <Stack.Screen options={{ headerShown: false }} name='Notification' component={Notification} /> */}
 
             </Stack.Navigator>
         </NavigationContainer>
