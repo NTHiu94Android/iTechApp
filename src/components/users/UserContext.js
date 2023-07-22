@@ -37,6 +37,10 @@ export const UserContextProvider = (props) => {
     try {
       const response = await login(username, email, password, fcmToken);
       if (response) {
+        if(response.data.role != 'user'){
+          console.log("Login fail!");
+          return null;
+        }
         const token = response.accessToken;
         await AsyncStorage.setItem('token', token);
         const res = await onUpdateFcmToken(response.data._id, fcmToken);

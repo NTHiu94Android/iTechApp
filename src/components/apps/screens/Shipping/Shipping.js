@@ -25,7 +25,7 @@ const Shipping = (props) => {
 
 
     const [isLoading, setIsLoading] = useState(false);
-    const [numberPhone, setNumberPhone] = useState(user.numberPhone);
+    const [numberPhone, setNumberPhone] = useState('0947749610');
     const [district, setDistrict] = useState('');
     const [city, setCity] = useState('');
     const [country, setCountry] = useState('');
@@ -66,7 +66,7 @@ const Shipping = (props) => {
         console.log('signInWithPhoneNumber: ', numberPhone);
         setTimeout(() => {
             setIsLoading(false);
-            ToastAndroid.show('Please try again!', ToastAndroid.SHORT);
+            //ToastAndroid.show('Please try again!', ToastAndroid.SHORT);
             return;
 
         }, 10000);
@@ -139,15 +139,22 @@ const Shipping = (props) => {
                 return;
             }
             const firstThreeChars = numberPhone.substring(0, 3);
+            const firstOneChars = numberPhone.substring(0, 1);
             if (firstThreeChars !== '+84') {
-                if (+numberPhone === NaN || numberPhone.length < 10 ||
-                    numberPhone.length > 11 || numberPhone.indexOf('0') !== 0 ||
+                if (+numberPhone === NaN || numberPhone.length != 10 || numberPhone.indexOf('0') !== 0 ||
                     numberPhone.indexOf(' ') !== -1) {
                     Alert.alert('Invalid number phone 1');
                     setIsLoading(false);
                     return;
                 }
-            } else {
+            } else if(firstOneChars != '0') {
+                if (+numberPhone === NaN || numberPhone.length != 12 || numberPhone.indexOf(' ') !== -1) {
+                    Alert.alert('Invalid number phone 2');
+                    setIsLoading(false);
+                    return;
+                }
+            }
+            else {
                 if (+numberPhone === NaN || numberPhone.length < 12 ||
                     numberPhone.length > 13 || numberPhone.indexOf(' ') !== -1) {
                     Alert.alert('Invalid number phone 2');

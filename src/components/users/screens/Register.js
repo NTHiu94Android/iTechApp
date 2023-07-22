@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, TouchableOpacity, TextInput, Image, ToastAndroid, alert, ScrollView } from 'react-native'
+import { StyleSheet, Text, View, TouchableOpacity, TextInput, Image, ToastAndroid, Alert, ScrollView } from 'react-native'
 import React, { useContext, useState } from 'react';
 import back from '../../back/back';
 import { UserContext } from '../UserContext';
@@ -28,19 +28,19 @@ const Register = (props) => {
     //   return;
     // }
     if (!username || !password || !name || !confirmPassword) {
-      alert('Please fill all the fields');
+      Alert.alert('Please fill all the fields');
       return;
     };
     if (password !== confirmPassword) {
-      alert('Password and Confirm Password must be the same');
+      Alert.alert('Password and Confirm Password must be the same');
       return;
     };
     if(password.length < 6){
-      alert('Password must be at least 6 characters');
+      Alert.alert('Password must be at least 6 characters');
       return;
     }
     if(username.length < 6 || username.length > 20){
-      alert('Username must be between 6 and 20 characters');
+      Alert.alert('Username must be between 6 and 20 characters');
       return;
     }
     setIsLoading(true);

@@ -241,7 +241,8 @@ const CheckOut = (props) => {
       //Lay dia chi
       if (address == null || address == undefined || address == '') {
         console.log('Không có địa chỉ');
-        navigation.navigate('Shipping');
+        const listAddress = [];
+        navigation.navigate('Shipping', {listAddress});
         return;
       }
       //Lay ngay hien tai
