@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React from 'react'
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 
 import Delivered from './OrderStatus/Delivered';
@@ -9,34 +9,12 @@ import backToScreen from '../../../back/backToScreen';
 import { AppContext } from '../../AppContext';
 import { UserContext } from '../../../users/UserContext';
 import ProgressDialog from 'react-native-progress-dialog';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Tab = createMaterialTopTabNavigator();
 
 const Order = (props) => {
   const { navigation } = props;
   backToScreen(navigation, 'BottomNavigation');
-  const {
-    onGetOrdersByIdUser, countOrder,
-    onGetOrderDetailByIdOrder,
-    onGetSubProductById, onGetProductById,
-    listCanceled, setListCanceled,
-    listDelivered, setListDelivered,
-    listProcessing, setListProcessing,
-  } = useContext(AppContext);
-
-  const [isLoading, setIsLoading] = useState(false);
-
-  // useEffect(() => {
-  //   const getSuccess = async () => {
-  //     setIsLoading(true);
-  //     let string = await AsyncStorage.getItem('listOrder');
-  //     if (string == 'success') {
-  //       setIsLoading(false);
-  //     }
-  //   }
-  //   getSuccess();
-  // }, [countOrder]);
 
   // useEffect(() => {
   //   const getOrderByIdUserAndStatus = async () => {
@@ -113,11 +91,11 @@ const Order = (props) => {
 
   return (
     <View style={{ flex: 1, backgroundColor: 'white' }}>
-      <ProgressDialog
+      {/* <ProgressDialog
         visible={isLoading}
         loaderColor="black"
         lable="Vui lòng đợi trong giây lát..."
-      />
+      /> */}
 
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingTop: 6, paddingHorizontal: 12 }}>
         <TouchableOpacity onPress={() => navigation.navigate('BottomNavigation')}>
@@ -150,7 +128,6 @@ const Order = (props) => {
           name="Processing"
           options={{
             headerShown: false,
-            listProcessing: listProcessing,
           }}
           component={Processing}
         />
@@ -158,7 +135,6 @@ const Order = (props) => {
           name="Delivered"
           options={{
             headerShown: false,
-            listDelivered: listDelivered,
           }}
           component={Delivered}
         />
@@ -166,7 +142,6 @@ const Order = (props) => {
           name="Canceled"
           options={{
             headerShown: false,
-            listCanceled: listCanceled,
           }}
           component={Canceled}
         />

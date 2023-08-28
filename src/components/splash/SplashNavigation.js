@@ -12,19 +12,41 @@ import messaging from '@react-native-firebase/messaging';
 
 import ProgressDialog from 'react-native-progress-dialog';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import jwt_decode from "jwt-decode";
 
 const NavigationApp = () => {
-  const [isLoading, setIsLoading] = useState(true);
+  //const [isLoading, setIsLoading] = useState(true);
   const { user, onUpdateFcmToken } = useContext(UserContext);
-  const { 
-    onGetCategories, onGetProducts, onGetSubProducts, 
+  const {
+    onGetCategories, onGetProducts, onGetSubProducts,
     onGetReviews, countOrderDetail,
     setObjRef, getOrderByIdUserAndStatus,
     onGetBrandsByIdCategory, onGetPictures,
-} = useContext(AppContext);
+  } = useContext(AppContext);
+
+  // const [isLoading, setIsLoading] = useState(false);
+
+  // useEffect(() => {
+  //   const getOrder = async () => {
+  //     setIsLoading(true);
+  //     const token = await AsyncStorage.getItem('token');
+  //     //console.log("Login user remember: ",token);
+  //     if (token == null) return;
+  //     const decoded = jwt_decode(token);
+  //     if (decoded.accessToken == "") {
+  //       setIsLoading(false);
+  //       return;
+  //     } else {
+  //       await getOrderByIdUserAndStatus(decoded.user);
+  //       setIsLoading(false);
+  //     }
+  //   };
+  //   getOrder();
+  // }, []);
+
 
   //Lay fcm token luu vao asyncstorage
-  useEffect( () => {
+  useEffect(() => {
     const GetToken = async () => {
       await messaging().registerDeviceForRemoteMessages();
       const token = await messaging().getToken();
@@ -63,9 +85,7 @@ const NavigationApp = () => {
         }
       }
       setObjRef(refContext);
-      setIsLoading(false);
     } catch (error) {
-      setIsLoading(false);
       console.log("Error splash navigation : ", error);
     }
   };
@@ -79,10 +99,10 @@ const NavigationApp = () => {
 
   return (
     <NavigationContainer independent={true}>
-      <ProgressDialog
+      {/* <ProgressDialog
         visible={isLoading}
         loaderColor="black"
-        label="Please wait..." />
+        label="Please wait..." /> */}
       {user ? <AppNavigation /> : <UserNavigation />}
     </NavigationContainer>
   )

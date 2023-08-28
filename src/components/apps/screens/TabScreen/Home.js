@@ -23,7 +23,7 @@ const Home = (props) => {
 
     const [isLoading, setIsLoading] = useState(false);
 
-    const [refreshing, setRefreshing] = useState(false);
+    //const [refreshing, setRefreshing] = useState(false);
 
     useEffect(() => {
         const getData = async () => {
@@ -62,16 +62,22 @@ const Home = (props) => {
     //Lay danh sach category
     useEffect(() => {
         getData();
-    }, [countOrderDetail, objRef]);
+    }, [countOrderDetail]);
+
+    // useEffect(() => {
+    //     const getOrder = async () => {
+    //         await getOrderByIdUserAndStatus(user);
+    //     };
+    //     getOrder();
+    // }, []);
 
     const getData = async () => {
         setIsLoading(true);
-        setRefreshing(true);
         try {
-            // const resProduct = await onGetProducts();
-            // const resCategory = await onGetCategories();
-            // const resReview = await onGetReviews();
-            // const resSubProduct = await onGetSubProducts();
+            const resProduct = await onGetProducts();
+            const resCategory = await onGetCategories();
+            const resReview = await onGetReviews();
+            const resSubProduct = await onGetSubProducts();
             // const resPictures = await onGetPictures();
 
             // const listCategories = resCategory.data;
@@ -99,19 +105,10 @@ const Home = (props) => {
 
             //console.log("objRef.current: ", objRef.current);
 
-            const resProduct = objRef.current.listProducts;
-            const resCategory = objRef.current.listCategories;
-            const resReview = objRef.current.listReviews;
-            const resSubProduct = objRef.current.listSubProducts;
-
-            //Lay danh sach san pham
-            if (!resProduct || !resCategory || !resReview || !resSubProduct ||
-                !resProduct.data || !resCategory.data || !resReview.data || !resSubProduct.data
-            ) {
-                setIsLoading(false);
-                setRefreshing(false);
-                return;
-            }
+            // const resProduct = objRef.current.listProducts;
+            // const resCategory = objRef.current.listCategories;
+            // const resReview = objRef.current.listReviews;
+            // const resSubProduct = objRef.current.listSubProducts;
 
             //Them sao va subProduct vao tung item
             let list1 = [];
@@ -137,19 +134,16 @@ const Home = (props) => {
                 }
             });
 
+            await getOrderByIdUserAndStatus(user);
+
             setListCategory(resCategory.data);
             setListSale(list1);
             setListPhone(list2);
             setListLaptop(list3);
 
-            await getOrderByIdUserAndStatus(user);
-            
             setIsLoading(false);
-            setRefreshing(false);
         } catch (error) {
             console.log("Error home screen: ", error);
-            setIsLoading(false);
-            setRefreshing(false);
         }
     };
 
