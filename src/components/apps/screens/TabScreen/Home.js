@@ -10,8 +10,9 @@ const Home = (props) => {
     const { navigation } = props;
     const { user } = useContext(UserContext);
     const { onGetCategories, onGetProducts, onGetSubProducts, onGetReviews, countOrderDetail,
-        onGetNotifications, countNotification, setNumBerNotification,
-        onGetOrderDetailByIdOrder, setNumberCart, setNumberFavorite, numberCart, numberFavorite
+        onGetNotifications, countNotification, setNumBerNotification, objRef, setObjRef,
+        onGetOrderDetailByIdOrder, setNumberCart, setNumberFavorite, getOrderByIdUserAndStatus,
+        onGetBrandsByIdCategory, onGetPictures
     } = useContext(AppContext);
 
     const [listCategory, setListCategory] = useState(cate);
@@ -30,14 +31,14 @@ const Home = (props) => {
                 const res = await onGetNotifications(user._id);
                 const resCart = await onGetOrderDetailByIdOrder(user.idCart);
                 const resFavorite = await onGetOrderDetailByIdOrder(user.idFavorite);
-                if(resCart.data){
+                if (resCart.data) {
                     let sum = 0;
-                    for(let i=0; i<resCart.data.length; i++){
+                    for (let i = 0; i < resCart.data.length; i++) {
                         sum += resCart.data[i].quantity;
                     }
                     setNumberCart(sum);
                 }
-                if(resFavorite.data){
+                if (resFavorite.data) {
                     setNumberFavorite(resFavorite.data.length);
                 }
                 if (res.data) {
@@ -45,7 +46,7 @@ const Home = (props) => {
                     const notifications = res.data;
                     for (let i = 0; i < notifications.length; i++) {
                         if (notifications[i].isCheck == false) {
-                            sum++; 
+                            sum++;
                         }
                     }
                     //console.log("sum: ", sum);
@@ -60,25 +61,55 @@ const Home = (props) => {
 
     //Lay danh sach category
     useEffect(() => {
-        setIsLoading(true);
         getData();
-    }, [countOrderDetail]);
+    }, [countOrderDetail, objRef]);
 
     const getData = async () => {
+        setIsLoading(true);
         setRefreshing(true);
         try {
-            //console.log('objRef.current: ', objRef.current);
+            // const resProduct = await onGetProducts();
+            // const resCategory = await onGetCategories();
+            // const resReview = await onGetReviews();
+            // const resSubProduct = await onGetSubProducts();
+            // const resPictures = await onGetPictures();
 
-            const resProduct = await onGetProducts();
-            const resCategory = await onGetCategories();
-            const resReview = await onGetReviews();
-            const resSubProduct = await onGetSubProducts();
+            // const listCategories = resCategory.data;
+            // //Lay danh sach thuong hieu theo danh muc
+            // let listBrands = [];
+            // for (let i = 0; i < listCategories.length; i++) {
+            //     const resBrands = await onGetBrandsByIdCategory(listCategories[i]._id);
+            //     listBrands.push(resBrands.data);
+            // }
+
+            // const refContext = {
+            //     current: {
+            //         listProducts: resProduct,
+            //         listSubProducts: resSubProduct,
+            //         listPictures: resPictures,
+            //         listCategories: resCategory,
+            //         listBrands: listBrands,
+            //         listReviews: resReview,
+            //     }
+            // }
+
+            // setObjRef(refContext);
+
+            
+
+            //console.log("objRef.current: ", objRef.current);
+
+            const resProduct = objRef.current.listProducts;
+            const resCategory = objRef.current.listCategories;
+            const resReview = objRef.current.listReviews;
+            const resSubProduct = objRef.current.listSubProducts;
 
             //Lay danh sach san pham
             if (!resProduct || !resCategory || !resReview || !resSubProduct ||
                 !resProduct.data || !resCategory.data || !resReview.data || !resSubProduct.data
             ) {
                 setIsLoading(false);
+                setRefreshing(false);
                 return;
             }
 
@@ -95,13 +126,13 @@ const Home = (props) => {
                 if (item.subProduct[0] == null || item.subProduct[0] == undefined) {
                     return;
                 }
-                if (item.subProduct[0].sale > 5) {
+                if (item.subProduct[0].sale > 5 && list1.length < 7) {
                     list1.push(item);
                 }
-                if (item.idCategory == '645cfd060405a873dbcdda9c') {
+                if (item.idCategory == '645cfd060405a873dbcdda9c' && list2.length < 7) {
                     list2.push(item);
                 }
-                if (item.idCategory == '645cfcd60405a873dbcdda9a') {
+                if (item.idCategory == '645cfcd60405a873dbcdda9a' && list3.length < 7) {
                     list3.push(item);
                 }
             });
@@ -110,11 +141,16 @@ const Home = (props) => {
             setListSale(list1);
             setListPhone(list2);
             setListLaptop(list3);
+
+            await getOrderByIdUserAndStatus(user);
+            
+            setIsLoading(false);
+            setRefreshing(false);
         } catch (error) {
             console.log("Error home screen: ", error);
+            setIsLoading(false);
+            setRefreshing(false);
         }
-        setIsLoading(false);
-        setRefreshing(false);
     };
 
     //Lay danh sach subProduct theo idProduct
@@ -176,7 +212,7 @@ const Home = (props) => {
 
             {/* Top bar */}
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 6, paddingHorizontal: 12 }}>
-                <TouchableOpacity onPress={()=>getData()}>
+                <TouchableOpacity onPress={() => getData()}>
                     <Image
                         style={{ width: 22, height: 22 }}
                         resizeMode='cover'
@@ -200,10 +236,10 @@ const Home = (props) => {
             </View>
 
             {/* Body */}
-            <ScrollView 
+            <ScrollView
                 showsVerticalScrollIndicator={false}
-                refreshControl={
-                    <RefreshControl refreshing={refreshing} onRefresh={()=>getData()} />}
+                // refreshControl={
+                //     <RefreshControl refreshing={refreshing} onRefresh={() => getData()} />}
             >
 
                 {/* Slide banner */}
@@ -276,6 +312,18 @@ const Home = (props) => {
                     </View>
 
                     {/* List item */}
+                    {/* {
+                        ListSale.length > 0 ?
+                            <FlatList
+                                data={ListSale}
+                                // initialNumToRender={2} // Giới hạn số lượng phần tử hiển thị ban đầu
+                                // maxToRenderPerBatch={1} // Giới hạn số lượng phần tử render mỗi lần
+                                renderItem={({ item }) => <Item onPress={() => goToProductDetail(item._id)} item={item} />}
+                                keyExtractor={item => item._id}
+                                horizontal={true}
+                                showsHorizontalScrollIndicator={false} /> :
+                            <View style={{ width: 160, height: 200, alignItems: 'center' }}></View>
+                    } */}
                     <FlatList
                         data={ListSale}
                         // initialNumToRender={2} // Giới hạn số lượng phần tử hiển thị ban đầu
@@ -307,6 +355,16 @@ const Home = (props) => {
                     </View>
 
                     {/* List item */}
+                    {/* {
+                        ListPhone.length > 0 ?
+                            <FlatList
+                                data={ListPhone}
+                                renderItem={({ item }) => <Item onPress={() => goToProductDetail(item._id)} item={item} />}
+                                keyExtractor={item => item._id}
+                                horizontal={true}
+                                showsHorizontalScrollIndicator={false} /> :
+                            <View style={{ width: 160, height: 200, alignItems: 'center' }}></View>
+                    } */}
                     <FlatList
                         data={ListPhone}
                         renderItem={({ item }) => <Item onPress={() => goToProductDetail(item._id)} item={item} />}
@@ -314,7 +372,7 @@ const Home = (props) => {
                         horizontal={true}
                         showsHorizontalScrollIndicator={false}
                     />
-                    <TouchableOpacity onPress={()=> gotoListProduct('645cfd060405a873dbcdda9c')}>
+                    <TouchableOpacity onPress={() => gotoListProduct('645cfd060405a873dbcdda9c')}>
                         <Text style={{ textAlign: 'center', fontSize: 16, fontWeight: '800', textDecorationLine: 'underline' }}>See more &gt;</Text>
                     </TouchableOpacity>
                 </View>
@@ -338,6 +396,16 @@ const Home = (props) => {
                     </View>
 
                     {/* List item */}
+                    {/* {
+                        ListLaptop.length > 0 ?
+                            <FlatList
+                                data={ListLaptop}
+                                renderItem={({ item }) => <Item onPress={() => goToProductDetail(item._id)} item={item} />}
+                                keyExtractor={item => item._id}
+                                horizontal={true}
+                                showsHorizontalScrollIndicator={false} /> :
+                            <View style={{ width: 160, height: 200, alignItems: 'center' }}></View>
+                    } */}
                     <FlatList
                         data={ListLaptop}
                         renderItem={({ item }) => <Item onPress={() => goToProductDetail(item._id)} item={item} />}
@@ -345,7 +413,7 @@ const Home = (props) => {
                         horizontal={true}
                         showsHorizontalScrollIndicator={false}
                     />
-                    <TouchableOpacity onPress={()=> gotoListProduct('645cfcd60405a873dbcdda9a')}>
+                    <TouchableOpacity onPress={() => gotoListProduct('645cfcd60405a873dbcdda9a')}>
                         <Text style={{ textAlign: 'center', fontSize: 16, fontWeight: '800', textDecorationLine: 'underline' }}>See more &gt;</Text>
                     </TouchableOpacity>
                 </View>
@@ -395,7 +463,7 @@ const styles = StyleSheet.create({
 });
 
 const Item = ({ item, onPress }) => (
-    <TouchableOpacity onPress={onPress} style={{ marginHorizontal: 3 }}>
+    <TouchableOpacity onPress={onPress} style={{ marginHorizontal: 3, minHeight: 200 }}>
         {
             item == null || item == undefined ? <View style={{ width: 160, height: 200, alignItems: 'center' }}></View> :
                 <View style={styles.itemContainer}>
@@ -408,10 +476,6 @@ const Item = ({ item, onPress }) => (
                             style={{ width: '100%', height: 160, position: 'relative' }}
                             resizeMode='cover'
                             source={{ uri: item.image }} />
-                        <Image
-                            style={{ width: 35, height: 35, position: 'absolute', right: 13, top: 150 }}
-                            resizeMode='cover'
-                            source={require('../../../../assets/images/ic_shop.png')} />
                         <Text style={{ height: 19, color: 'black', fontWeight: '800', fontSize: 14, marginTop: 5, paddingHorizontal: 8, maxWidth: 130 }}>
                             {item.name}</Text>
                         <View style={{ flexDirection: 'row', paddingHorizontal: 8 }}>

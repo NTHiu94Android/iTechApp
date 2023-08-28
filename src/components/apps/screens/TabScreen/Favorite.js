@@ -19,10 +19,13 @@ const Favorite = (props) => {
     onGetSubProductById,
     //Order detail
     onAddOrderDetail, onDeleteOrderDetail, 
+    objRef
   } = useContext(AppContext);
 
   const [isLoading, setIsLoading] = useState(false);
   const [isFirstRun, setIsFirstRun] = useState(true);
+  
+  
 
   //Lay danh sach san phma trong gio hang
   useEffect(() => {
@@ -32,7 +35,7 @@ const Favorite = (props) => {
           setIsFirstRun(false);
           setIsLoading(true);
         }
-        const resProduct = await onGetProducts();
+        const resProduct = objRef.current.listProducts;
         const listProduct = resProduct.data;
         const response = await onGetOrderDetailByIdOrder(user.idFavorite);
         if (!response || response.data == undefined) {

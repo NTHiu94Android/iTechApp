@@ -33,9 +33,9 @@ const ListProduct = ({ navigation, route }) => {
       }
 
       //Lay danh sach san pham, danh sach review, danh sach subProduct
-      const res = await onGetProducts();
-      const resReview = await onGetReviews();
-      const resSubProduct = await onGetSubProducts();
+      const res = await objRef.current.listProducts;
+      const resReview = await objRef.current.listReviews;
+      const resSubProduct = await objRef.current.listSubProducts;
       //Luu danh sach san pham, danh sach review, danh sach subProduct
       listProductRef.current = res;
       listReviewRef.current = resReview;

@@ -43,35 +43,76 @@ export const AppContextProvider = (props) => {
   const [numberCart, setNumberCart] = useState(0);
   const [numberFavorite, setNumberFavorite] = useState(0);
 
-  // const objRef = useRef({});
+  const [listDelivered, setListDelivered] = useState([]);
+  const [listCanceled, setListCanceled] = useState([]);
+  const [listProcessing, setListProcessing] = useState([]);
 
-  // useEffect(() => {
-  //   const getDatas = async () => {
-  //     //Lay danh sach san pham, sub san pham, hinh anh
-  //     const resProducts = await onGetProducts();
+  const [objRef, setObjRef] = useState({});
 
-  //     const resSubProducts = await onGetSubProducts();
-  //     const resPictures = await onGetPictures();
-  //     //Lay thuong hieu, danh muc
-  //     const resCategories = await onGetCategories();
-  //     const listCategories = resCategories.data;
-  //     //Lay danh sach thuong hieu theo danh muc
-  //     let listBrands = [];
-  //     for(let i = 0; i < listCategories.length; i++) {
-  //       const resBrands = await onGetBrandsByIdCategory(listCategories[i]._id);
-  //       listBrands.push(resBrands.data);
-  //     }
+  const getOrderByIdUserAndStatus = async (user) => {
+    try {
+      const resOrders = await onGetOrdersByIdUser(user._id);
+      const orders = resOrders.data;
+      //Lay tat ca hoa don tru idCart va idFavorite
+      let list1 = [];
+      let list2 = [];
+      let list3 = [];
+      if (orders.length == 0) {
+        return;
+      }
+      //console.log("orderDetails", orderDetails[0]);
+      for (let i = 0; i < orders.length; i++) {
+        let sum1 = 0;
+        let sum2 = 0;
+        let sum3 = 0;
+        const resOrderDetails = await onGetOrderDetailByIdOrder(orders[i]._id);
+        const orderDetails = resOrderDetails.data;
+        if (orderDetails.length > 0) {
+          const subProduct = await onGetSubProductById(orderDetails[0].idSubProduct);
+          const product = await onGetProductById(subProduct.idProduct);
+          if (orders[i].status == 'Delivered') {
+            for (let j = 0; j < orderDetails.length; j++) {
+              sum1 += orderDetails[j].quantity;
+            }
+            orders[i].quantity = sum1;
+            orders[i].orderDetails = orderDetails;
+            orders[i].product = product;
+            orders[i].subProduct = subProduct;
+            list1.push(orders[i]);
+          }
+          if (orders[i].status == 'Processing' || orders[i].status == 'Confirmed') {
+            for (let j = 0; j < orderDetails.length; j++) {
+              sum2 += orderDetails[j].quantity;
+            }
+            orders[i].quantity = sum2;
+            orders[i].orderDetails = orderDetails;
+            orders[i].product = product;
+            orders[i].subProduct = subProduct;
+            list2.push(orders[i]);
+          }
+          if (orders[i].status == 'Canceled') {
+            for (let j = 0; j < orderDetails.length; j++) {
+              sum3 += orderDetails[j].quantity;
+            }
+            orders[i].quantity = sum3;
+            orders[i].orderDetails = orderDetails;
+            orders[i].product = product;
+            orders[i].subProduct = subProduct;
+            list3.push(orders[i]);
+          }
+        }
 
-  //     objRef.current = {
-  //       listProducts: resProducts,
-  //       listSubProducts: resSubProducts,
-  //       listPictures: resPictures,
-  //       listCategories: resCategories,
-  //       listBrands: listBrands,
-  //     }
-  //   };
-  //   getDatas();
-  // }, []);
+      }
+      console.log("list1", list1.length);
+      console.log("list2", list2.length);
+      console.log("list3", list3.length);
+      setListDelivered(list1);
+      setListProcessing(list2);
+      setListCanceled(list3);
+    } catch (error) {
+      console.log("Error getOrders", error);
+    }
+  };
 
 
   //-------------------------------------------------Category & Brand-------------------------------------------------
@@ -599,9 +640,13 @@ export const AppContextProvider = (props) => {
       numBerNotification, setNumBerNotification,
       numberCart, setNumberCart,
       numberFavorite, setNumberFavorite,
+      listDelivered, setListDelivered,
+      listCanceled, setListCanceled,
+      listProcessing, setListProcessing,
       //Object reference
-      // objRef,
-
+      objRef, setObjRef, getOrderByIdUserAndStatus,
+     
+      
     }}>
       {children}
     </AppContext.Provider>

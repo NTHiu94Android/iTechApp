@@ -23,7 +23,8 @@ const CheckOut = (props) => {
     countAddress, onGetSubProducts,
     onUpdateOrderDetail, onUpdateIdOrderOrderDetail,
     countCart, setCountCart,
-    onGetPromotions, onUpdatePromotion, onAddPromotion
+    onGetPromotions, onUpdatePromotion, onAddPromotion,
+    getOrderByIdUserAndStatus
   } = useContext(AppContext);
 
   const [isSelect, setIsSelect] = useState('1');
@@ -325,12 +326,13 @@ const CheckOut = (props) => {
               ToastAndroid.show('Discount 30% for next order', ToastAndroid.SHORT);
             }
           }
-
+          await getOrderByIdUserAndStatus(user);
           navigation.navigate('Success');
         } else {
           Alert.alert('Payment failed');
         }
       }
+      
     } catch (error) {
       setIsLoading(false);
       console.log("Error gotoSuccess: ", error);
@@ -434,6 +436,7 @@ const CheckOut = (props) => {
             const list = data.listCart;
             handleDleteOrderDetail(list, res.data._id);
 
+            await getOrderByIdUserAndStatus(user);
             //Chuyen sang trang success
             navigation.navigate('Success');
           }

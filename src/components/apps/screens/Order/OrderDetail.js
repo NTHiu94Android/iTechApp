@@ -12,7 +12,12 @@ const OrderDetail = (props) => {
   const { item } = props.route.params;
 
   const { user } = useContext(UserContext);
-  const { onGetSubProductById, onGetProductById, countOrderDetail, onGetOrderDetailByIdOrder } = useContext(AppContext);
+  const { onGetSubProductById, 
+    onGetProductById, countOrderDetail, 
+    onGetOrderDetailByIdOrder,
+    onGetSubProducts,
+    onGetProducts
+  } = useContext(AppContext);
 
   const [listOrderDetail, setListOrderDetail] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -30,14 +35,6 @@ const OrderDetail = (props) => {
         list[i].product = product;
         list[i].subProduct = resSubProducts;
         list[i].status = item.status;
-      }
-
-      for(let i = 0; i < list.length; i++){
-        const data = {
-          quantity: list[i].quantity,
-          name: list[i].product.name,
-        }
-        console.log("data", data);
       }
       setListOrderDetail(list);
       setIsLoading(false);

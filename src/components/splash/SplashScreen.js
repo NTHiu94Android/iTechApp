@@ -8,7 +8,7 @@ const SplashScreen = (props) => {
     }
     
     useEffect(() => {
-        setTimeout(nextScreen, 1500);
+        setTimeout(nextScreen, 2000);
     }, []);
     return (
         <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>

@@ -1,9 +1,9 @@
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View, Image } from 'react-native'
 import React, { useContext, useEffect, useState } from 'react'
 import { AppContext } from '../../../AppContext';
-import { UserContext } from '../../../../users/UserContext';
+// import { UserContext } from '../../../../users/UserContext';
 
-import ProgressDialog from 'react-native-progress-dialog';
+//import ProgressDialog from 'react-native-progress-dialog';
 
 const Item = ({ item, onpress }) => (
   <View style={styles.containerItem}>
@@ -48,12 +48,12 @@ const Item = ({ item, onpress }) => (
         </View>
       </View>
 
-      <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
         <View style={styles.rowItem}>
           <Text style={{ fontSize: 16, fontWeight: '400' }}>Status: </Text>
           <Text style={{ fontSize: 16, fontWeight: '600', color: 'green' }}>{item.status}</Text>
         </View>
-        <View style={[styles.rowItem, ]}>
+        <View style={[styles.rowItem,]}>
           <TouchableOpacity onPress={onpress} style={styles.buttonDetail}>
             <Text style={styles.textDetail}>See more</Text>
           </TouchableOpacity>
@@ -64,49 +64,54 @@ const Item = ({ item, onpress }) => (
   </View>
 );
 
-const Delivered = (props) => {
-  const { navigation } = props;
-  const { onGetOrdersByIdUser, countOrder, onGetOrderDetailByIdOrder, onGetSubProductById, onGetProductById } = useContext(AppContext);
-  const { user } = useContext(UserContext);
-  const [listDelivered, setListDelivered] = useState([]);
+const Delivered = ({navigation, route}) => {
+  const { listDelivered } = useContext(AppContext);
+  //const listDelivered = [];
+  // const {
+  //   onGetOrdersByIdUser, countOrder,
+  //   onGetOrderDetailByIdOrder, onGetSubProductById,
+  //   onGetProductById
+  // } = useContext(AppContext);
+  // const { user } = useContext(UserContext);
+  // const [listDelivered, setListDelivered] = useState([]);
 
-  const [isLoading, setIsLoading] = useState(false);
+  // const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    const getOrderByIdUserAndStatus = async () => {
-      try {
-        setIsLoading(true);
-        const resOrders = await onGetOrdersByIdUser(user._id);
-        const orders = resOrders.data;
-        //Lay tat ca hoa don tru idCart va idFavorite
-        let list = [];
-        for (let i = 0; i < orders.length; i++) {
-          if (orders[i].status == 'Delivered') {
-            const resOrderDetails = await onGetOrderDetailByIdOrder(orders[i]._id);
-            const orderDetails = resOrderDetails.data; 
-            const resSubProduct = await onGetSubProductById(orderDetails[0].idSubProduct);
-            const product = await onGetProductById(resSubProduct.idProduct);
-            //console.log("orderDetails", orderDetails);
-            let sum = 0;
-            for (let j = 0; j < orderDetails.length; j++) {
-              sum += orderDetails[j].quantity;
-            }
-            orders[i].quantity = sum;
-            orders[i].orderDetails = orderDetails;
-            orders[i].product = product;
-            orders[i].subProduct = resSubProduct;
-            list.push(orders[i]);
-          }
-        }
-        setListDelivered(list);
-        setIsLoading(false);
-      } catch (error) {
-        setIsLoading(false);
-        console.log("Error getOrders", error);
-      }
-    };
-    getOrderByIdUserAndStatus();
-  }, [countOrder]);
+  // useEffect(() => {
+  //   const getOrderByIdUserAndStatus = async () => {
+  //     try {
+  //       setIsLoading(true);
+  //       const resOrders = await onGetOrdersByIdUser(user._id);
+  //       const orders = resOrders.data;
+  //       //Lay tat ca hoa don tru idCart va idFavorite
+  //       let list = [];
+  //       for (let i = 0; i < orders.length; i++) {
+  //         if (orders[i].status == 'Delivered') {
+  //           const resOrderDetails = await onGetOrderDetailByIdOrder(orders[i]._id);
+  //           const orderDetails = resOrderDetails.data;
+  //           const resSubProduct = await onGetSubProductById(orderDetails[0].idSubProduct);
+  //           const product = await onGetProductById(resSubProduct.idProduct);
+  //           //console.log("orderDetails", orderDetails);
+  //           let sum = 0;
+  //           for (let j = 0; j < orderDetails.length; j++) {
+  //             sum += orderDetails[j].quantity;
+  //           }
+  //           orders[i].quantity = sum;
+  //           orders[i].orderDetails = orderDetails;
+  //           orders[i].product = product;
+  //           orders[i].subProduct = resSubProduct;
+  //           list.push(orders[i]);
+  //         }
+  //       }
+  //       setListDelivered(list);
+  //       setIsLoading(false);
+  //     } catch (error) {
+  //       setIsLoading(false);
+  //       console.log("Error getOrders", error);
+  //     }
+  //   };
+  //   getOrderByIdUserAndStatus();
+  // }, [countOrder]);
 
 
 
@@ -122,11 +127,11 @@ const Delivered = (props) => {
           listDelivered.map((item) => <Item key={item._id} item={item} onpress={() => gotoOrderDetail(item)} />)
         }
       </View>
-      <ProgressDialog
+      {/* <ProgressDialog
         visible={isLoading}
         loaderColor="black"
         lable="Please wait..."
-      />
+      /> */}
     </ScrollView>
   )
 }
