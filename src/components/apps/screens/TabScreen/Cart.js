@@ -97,7 +97,16 @@ const Cart = (props) => {
         //Lay danh sach san pham lien quan
         let listIdCategory = [];
         for (let i = 0; i < data.length; i++) {
-          listIdCategory.push(data[i].product.idCategory);
+          let check = false;
+          for (let j = 0; j < listIdCategory.length; j++) {
+            if (data[i].product.idCategory == listIdCategory[j]) {
+              check = true;
+              break;
+            }
+          }
+          if (check == false) {
+            listIdCategory.push(data[i].product.idCategory);
+          }
         };
 
         let list1 = [];
@@ -111,20 +120,22 @@ const Cart = (props) => {
               list1.push(listProduct[i]);
             }
           } else {
+            let check = false;
             for (let j = 0; j < listIdCategory.length; j++) {
               if (listProduct[i].idCategory == listIdCategory[j]) {
-                for (let k = 0; k < data.length; k++) {
-                  if (data[k].product._id != listProduct[i]._id) {
-                    const star = await getStar(listProduct[i]._id, resReview);
-                    const subProduct = await onGetSubProductsByIdProduct(listProduct[i]._id, resSubProduct);
-                    listProduct[i].rating = star;
-                    listProduct[i].subProduct = subProduct;
-                    list1.push(listProduct[i]);
-                    break;
-                  }
-                }
-
+                check = true;
+                break;
               }
+            }
+            if (check) {
+              if (list1.length < 10) {
+                const star = await getStar(listProduct[i]._id, resReview);
+                const subProduct = await onGetSubProductsByIdProduct(listProduct[i]._id, resSubProduct);
+                listProduct[i].rating = star;
+                listProduct[i].subProduct = subProduct;
+                list1.push(listProduct[i]);
+              }
+
             }
           }
 
@@ -355,7 +366,7 @@ const Cart = (props) => {
                   minus={() => updateItem(item._id, item.amount > 1 ? item.amount - 1 : 1)}
                   item={item} />
               )
-            }) : 
+            }) :
             <View style={{ justifyContent: 'center', marginTop: 20, paddingHorizontal: 10 }}>
               <Text style={{ fontSize: 16, fontWeight: '600', }}>No product in cart</Text>
             </View>
@@ -414,16 +425,16 @@ const Cart = (props) => {
 export default Cart
 
 const Item2 = ({ item, onPress }) => (
-  <TouchableOpacity style={{ flexWrap: 'wrap', width: '49%', marginBottom: 10, padding: 10, backgroundColor: 'grey' }} onPress={onPress}>
+  <TouchableOpacity style={{ flexWrap: 'wrap', width: '49%', marginBottom: 10 }} onPress={onPress}>
     <View style={styles.itemContainer}>
       <View style={{ width: '100%', height: '100%' }}>
-        {/* <View style={styles.viewSaleDam}>
-          <Text style={{ fontSize: 16, color: 'white', fontWeight: '600', marginRight: 8 }}></Text>
-          <Text style={{ fontSize: 14, color: 'yellow', fontWeight: '400', fontFamily: 'Caveat' }}></Text>
-        </View> */}
+        <View style={styles.viewSaleDam}>
+          {/* <Text style={{ fontSize: 16, color: 'white', fontWeight: '600', marginRight: 8 }}></Text>
+          <Text style={{ fontSize: 14, color: 'yellow', fontWeight: '400', fontFamily: 'Caveat' }}></Text> */}
+        </View>
         <Image
           style={{ width: '100%', height: 160, position: 'relative' }}
-          resizeMode='center'
+          resizeMode='cover'
           source={{ uri: item.image }} />
         <Text numberOfLines={1} style={{ height: 19, color: 'black', fontWeight: '800', fontSize: 16, marginTop: 5, marginHorizontal: 8, maxWidth: '90%' }}>
           {item.name}

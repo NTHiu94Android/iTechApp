@@ -25,9 +25,6 @@ import {
 } from './AppService';
 import { UserContext } from '../users/UserContext';
 
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import jwt_decode from "jwt-decode";
-
 export const AppContext = createContext();
 
 export const AppContextProvider = (props) => {
@@ -51,23 +48,7 @@ export const AppContextProvider = (props) => {
   const [listProcessing, setListProcessing] = useState([]);
 
   const [objRef, setObjRef] = useState({});
-
-  // useEffect(() => {
-  //   const getOrder = async () => {
-  //     //setIsLoading(true);
-  //     const token = await AsyncStorage.getItem('token');
-  //     //console.log("Login user remember: ",token);
-  //     if(token == null) return;
-  //     const decoded = jwt_decode(token);
-  //     if (decoded.accessToken == "") {
-  //       //setIsLoading(false);
-  //       return;
-  //     } else {
-  //       getOrderByIdUserAndStatus(decoded.user);
-  //     }
-  //   };
-  //   getOrder();
-  // }, []);
+  const [isLoading, setIsLoading] = useState(false);
 
   const getOrderByIdUserAndStatus = async (user) => {
     try {
@@ -665,6 +646,7 @@ export const AppContextProvider = (props) => {
       listProcessing, setListProcessing,
       //Object reference
       objRef, setObjRef, getOrderByIdUserAndStatus,
+      isLoading, setIsLoading
      
       
     }}>

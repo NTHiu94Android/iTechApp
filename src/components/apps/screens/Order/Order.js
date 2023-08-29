@@ -6,9 +6,6 @@ import Canceled from './OrderStatus/Canceled';
 import Processing from './OrderStatus/Processing';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import backToScreen from '../../../back/backToScreen';
-import { AppContext } from '../../AppContext';
-import { UserContext } from '../../../users/UserContext';
-import ProgressDialog from 'react-native-progress-dialog';
 
 const Tab = createMaterialTopTabNavigator();
 

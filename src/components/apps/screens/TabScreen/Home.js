@@ -134,7 +134,7 @@ const Home = (props) => {
                 }
             });
 
-            await getOrderByIdUserAndStatus(user);
+            //await getOrderByIdUserAndStatus(user);
 
             setListCategory(resCategory.data);
             setListSale(list1);

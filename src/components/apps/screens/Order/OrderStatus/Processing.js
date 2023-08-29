@@ -1,56 +1,55 @@
 import { StyleSheet, Text, View, TouchableOpacity, ScrollView, Image } from 'react-native'
 import React, { useContext, useEffect, useState } from 'react'
 import { AppContext } from '../../../AppContext';
-// import { UserContext } from '../../../../users/UserContext';
-
-// import ProgressDialog from 'react-native-progress-dialog';
+import { UserContext } from '../../../../users/UserContext';
+import ProgressDialog from 'react-native-progress-dialog';
 
 const Processing = ({navigation, route}) => {
-  const {listProcessing} = useContext(AppContext);
+  //const {listProcessing} = useContext(AppContext);
   //console.log("listProcessing", listProcessing);
   //const listProcessing = [];
-  // const {
-  //   onGetOrdersByIdUser, onGetOrderDetailByIdOrder, onUpdateOrder,
-  //   countOrder, setCountOrder, onGetSubProductById, onGetProductById
-  // } = useContext(AppContext);
-  // const { user } = useContext(UserContext);
-  // const [isLoading, setIsLoading] = useState(false);
-  // const [listProcessing, setListProcessing] = useState([]);
+  const {
+    onGetOrdersByIdUser, onGetOrderDetailByIdOrder, onUpdateOrder,
+    countOrder, setCountOrder, onGetSubProductById, onGetProductById
+  } = useContext(AppContext);
+  const { user } = useContext(UserContext);
+  const [isLoading, setIsLoading] = useState(false);
+  const [listProcessing, setListProcessing] = useState([]);
 
-  // useEffect(() => {
-  //   const getOrderByIdUserAndStatus = async () => {
-  //     try {
-  //       setIsLoading(true);
-  //       const resOrders = await onGetOrdersByIdUser(user._id);
-  //       const orders = resOrders.data;
-  //       //Lay tat ca hoa don tru idCart va idFavorite
-  //       let list = [];
-  //       for (let i = 0; i < orders.length; i++) {
-  //         if (orders[i].status == 'Processing' || orders[i].status == 'Confirmed') {
-  //           const resOrderDetails = await onGetOrderDetailByIdOrder(orders[i]._id);
-  //           const orderDetails = resOrderDetails.data;
-  //           const resSubProduct = await onGetSubProductById(orderDetails[0].idSubProduct);
-  //           const product = await onGetProductById(resSubProduct.idProduct);
-  //           let sum = 0;
-  //           for (let j = 0; j < orderDetails.length; j++) {
-  //             sum += orderDetails[j].quantity;
-  //           }
-  //           orders[i].quantity = sum;
-  //           orders[i].orderDetails = orderDetails;
-  //           orders[i].product = product;
-  //           orders[i].subProduct = resSubProduct;
-  //           list.push(orders[i]);
-  //         }
-  //       }
-  //       setListProcessing(list);
-  //       setIsLoading(false);
-  //     } catch (error) {
-  //       setIsLoading(false);
-  //       console.log("Error getOrders", error);
-  //     }
-  //   };
-  //   getOrderByIdUserAndStatus();
-  // }, [countOrder]);
+  useEffect(() => {
+    const getOrderByIdUserAndStatus = async () => {
+      try {
+        setIsLoading(true);
+        const resOrders = await onGetOrdersByIdUser(user._id);
+        const orders = resOrders.data;
+        //Lay tat ca hoa don tru idCart va idFavorite
+        let list = [];
+        for (let i = 0; i < orders.length; i++) {
+          if (orders[i].status == 'Processing' || orders[i].status == 'Confirmed') {
+            const resOrderDetails = await onGetOrderDetailByIdOrder(orders[i]._id);
+            const orderDetails = resOrderDetails.data;
+            const resSubProduct = await onGetSubProductById(orderDetails[0].idSubProduct);
+            const product = await onGetProductById(resSubProduct.idProduct);
+            let sum = 0;
+            for (let j = 0; j < orderDetails.length; j++) {
+              sum += orderDetails[j].quantity;
+            }
+            orders[i].quantity = sum;
+            orders[i].orderDetails = orderDetails;
+            orders[i].product = product;
+            orders[i].subProduct = resSubProduct;
+            list.push(orders[i]);
+          }
+        }
+        setListProcessing(list);
+        setIsLoading(false);
+      } catch (error) {
+        setIsLoading(false);
+        console.log("Error getOrders", error);
+      }
+    };
+    getOrderByIdUserAndStatus();
+  }, [countOrder]);
 
   const gotoOrderDetail = (item) => {
     navigation.navigate('OrderDetail', { item });
@@ -68,11 +67,11 @@ const Processing = ({navigation, route}) => {
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: 'white' }}>
-      {/* <ProgressDialog
+      <ProgressDialog
         visible={isLoading}
         loaderColor="black"
         lable="Vui lòng đợi trong giây lát..."
-      /> */}
+      />
       <View style={styles.container}>
         {
           listProcessing.length > 0 &&
